@@ -1,9 +1,11 @@
 package model;
+
 import java.util.ArrayList;
 
 public class Cart {
-    private ArrayList<Food> foods;
+    private ArrayList<MenuItem> menuItems;
+
     public Cart() {
-        foods=new ArrayList<Food>();
+        menuItems = new ArrayList<MenuItem>();
     }
 }

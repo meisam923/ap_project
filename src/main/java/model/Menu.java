@@ -3,6 +3,7 @@ package model;
 import java.util.ArrayList;
 
 public class Menu {
+<<<<<<< HEAD
     ArrayList<Food> foods;
     public Menu() {
         foods=new ArrayList<>();
@@ -12,4 +13,9 @@ public class Menu {
         foods.add(food);
         return true;
     }
+=======
+    private final ArrayList<MenuItem> menuItems = new ArrayList<>(); //initialized here constructor unknown
+
+
+>>>>>>> f4c67e09cd4d7d8ee01083f0c66dba1698071eea
 }
