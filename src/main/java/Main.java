@@ -5,7 +5,6 @@ public class Main
 {
     public static void main(String []args){
 
-        System.out.println("nothing11");
-        System.out.println("secnodtest");
+        System.out.println("nothing99")
 
 }
