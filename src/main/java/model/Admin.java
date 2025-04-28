@@ -1,5 +1,5 @@
 package model;
 
 public class Admin {
-    Role role=Role.ADMIN;
+    Role role = Role.ADMIN;
 }
