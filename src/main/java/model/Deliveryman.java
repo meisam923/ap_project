@@ -7,5 +7,5 @@ public class Deliveryman extends User{
             this.cordination_location = cordination_location;
 
         }
-    }
+
 }
