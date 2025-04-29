@@ -9,6 +9,6 @@ public class Customer extends User {
         super(first_name, last_name, phone_number, email, password, Role.CUSTOMER);
         this.address = address;
         this.location = location;
-
     }
+
 }

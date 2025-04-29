@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-//singleton method :)
+//singleton class :)
 public class UserManager {
     private static UserManager instance;
 
@@ -21,7 +21,6 @@ public class UserManager {
     private final List<Deliveryman> deliverymen = new ArrayList<>();
     private final Map<String, Deliveryman> deliverymenByPublicId = new HashMap<>();
 
-    //singleton
     private UserManager() {
     }
     public static UserManager getInstance() {
@@ -30,16 +29,14 @@ public class UserManager {
         }
         return instance;
     }
-    //singleton
-
 
     public void addUser(User user) {
         // TODO: conditions to check if the user can be added
         users.add(user);
         userByPublicId.put(user.getPublicId(), user);
     }
+
     //u can find a user by publicId and Email
-    // TODO: conditions if user doesnt exist or ...
     public User findByPublicId(String publicId) {
         return userByPublicId.get(publicId);
     }
@@ -57,3 +54,4 @@ public class UserManager {
         return new ArrayList<>(users);
     }
 }
+

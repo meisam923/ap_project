@@ -26,6 +26,7 @@ public enum FoodCategory {
     public String getDisplayName() {
         return displayName;
     }
+
     public static FoodCategory makeFoodCategory(String displayName) {
         for (FoodCategory foodCategory : FoodCategory.values()) {
             if (foodCategory.getDisplayName().equals(displayName)) {
