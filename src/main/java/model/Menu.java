@@ -4,6 +4,10 @@ import java.util.ArrayList;
 
 public class Menu {
 
-    private final ArrayList<Item> foods = new ArrayList<>(); //initialized here constructor unknown
+    private ArrayList<Item> items = new ArrayList<>(); //initialized here constructor unknown
 
+    public void addItem(Item item) {
+        items.add(item);
+    }
 }
+

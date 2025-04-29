@@ -1,5 +1,6 @@
 package model;
 
+import javax.swing.*;
 import java.util.UUID;
 
 public abstract class User {
@@ -12,6 +13,7 @@ public abstract class User {
     private String email;
     private String password;
     private Role role;
+    private ImageIcon image;
 
     public User(String first_name, String last_name, String phone_number, String email, String password, Role role) {
         this.publicId = UUID.randomUUID().toString();

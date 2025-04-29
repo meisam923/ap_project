@@ -12,7 +12,7 @@ public class Restaurant {
     private Owner owner;
     private ArrayList<Period> working_periods;
     private Menu menu;
-    private RestaurantType type;
+    private ArrayList<RestaurantCategory>  Categories=new ArrayList<>();
 
     public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, ArrayList<Period> working_periods, Menu menu) {
         this.address = address;
@@ -34,6 +34,10 @@ public class Restaurant {
         Period period = new Period(start, end);
         this.working_periods.add(period);
         return true;
+    }
+    public void addItem(Item item) {
+        menu.addItem(item);
+
     }
 }
 

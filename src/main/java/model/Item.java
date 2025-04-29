@@ -1,5 +1,6 @@
 package model;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public abstract class Item {
@@ -10,7 +11,7 @@ public abstract class Item {
     private Restaurant restaurant;
     ItemCategory category;
     Price price;
-    //image
+    ImageIcon image;
 
     public Item(String name, String description, int price, int count, String hashtags, Restaurant restaurant) {
         this.name = name;
