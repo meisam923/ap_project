@@ -4,6 +4,6 @@ import java.util.ArrayList;
 
 public class Menu {
 
-    private final ArrayList<MenuItem> menuItems = new ArrayList<>(); //initialized here constructor unknown
+    private final ArrayList<Item> foods = new ArrayList<>(); //initialized here constructor unknown
 
 }

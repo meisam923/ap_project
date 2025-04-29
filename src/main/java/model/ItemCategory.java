@@ -1,6 +1,6 @@
 package model;
 
-public enum FoodCategory {
+public enum ItemCategory {
     IRANIAN("Iranian"),
     FAST_FOOD("Fast Food"),
     PIZZA("Pizza"),
@@ -19,7 +19,7 @@ public enum FoodCategory {
 
     private final String displayName;
 
-    FoodCategory(String displayName) {
+    ItemCategory(String displayName) {
         this.displayName = displayName;
     }
 
@@ -27,8 +27,8 @@ public enum FoodCategory {
         return displayName;
     }
 
-    public static FoodCategory makeFoodCategory(String displayName) {
-        for (FoodCategory foodCategory : FoodCategory.values()) {
+    public static ItemCategory makeFoodCategory(String displayName) {
+        for (ItemCategory foodCategory : ItemCategory.values()) {
             if (foodCategory.getDisplayName().equals(displayName)) {
                 return foodCategory;
             }

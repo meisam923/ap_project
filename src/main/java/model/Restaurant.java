@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 public class Restaurant {
@@ -25,6 +26,14 @@ public class Restaurant {
     }
 
     public Restaurant() { // used for testing
+    }
+    public boolean setPeriod(LocalTime start, LocalTime end) {
+        if (this.working_periods.size()==2) {
+            return false;
+        }
+        Period period = new Period(start, end);
+        this.working_periods.add(period);
+        return true;
     }
 }
 
