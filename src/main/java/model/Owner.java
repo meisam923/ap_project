@@ -6,10 +6,11 @@ public class Owner extends User {
 
     private final Restaurant restaurant;
 
-    public Owner(String first_name, String last_name, String phone_number, String email, String password, Role role, Address address, Location location, Restaurant restaurant) {
-        super(first_name, last_name, phone_number, email, password, role);
+    public Owner(String first_name, String last_name, String phone_number, String email, String password, Address address, Location location, Restaurant restaurant) {
+        super(first_name, last_name, phone_number, email, password, Role.OWNER);
         this.address = address;
         this.location = location;
         this.restaurant = restaurant;
     }
+
 }

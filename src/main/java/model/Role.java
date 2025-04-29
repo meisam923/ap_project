@@ -1,5 +1,5 @@
 package model;
 
 public enum Role {
-    ADMIN, DELIVERYMAN, CUSTOMER, OWNER;
+    ADMIN, DELIVERY_MAN, CUSTOMER, OWNER;
 }
