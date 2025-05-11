@@ -70,6 +70,21 @@ public class UserManager {
         user.setPassword(password);
     }
 
+    //remove user
+    public boolean removeUser(User user) {
+        boolean removedMaster = users.remove(user);
+
+        if (user instanceof Customer) {
+            customers.remove(user);
+        } else if (user instanceof Owner) {
+            owners.remove(user);
+        } else if (user instanceof Deliveryman) {
+            deliverymen.remove(user);
+        }
+
+        return removedMaster;
+    }
+
     //getter for allUsers
     public List<User> getAllUsers() {
         return new ArrayList<>(users);

@@ -1,21 +1,21 @@
 package model;
 
-import jakarta.mail.MessagingException;
-
 import java.util.*;
 
-//singleton class
+
 public class AuthService {
     private static AuthService instance;
+
     private final UserManager userManager = UserManager.getInstance();
     private final List<LoginObserver> loginObservers = new ArrayList<>();
     private final List<SignUpObserver> signUpObservers = new ArrayList<>();
     private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
+
     private final Map<String, Long> resetTimestamps = new HashMap<>();
     private final Map<String, Integer> resetCode = new HashMap<>();
 
-    private AuthService() {
-    }
+    private AuthService() { }
+
     public static AuthService getInstance() {
         if (instance == null) {
             instance = new AuthService();
@@ -23,173 +23,207 @@ public class AuthService {
         return instance;
     }
 
-    // Try to log in using email + password
+
     public User login(String email, String password) {
         User user = userManager.findByEmail(email);
         if (user == null) {
             System.out.println("User not found.");
             return null;
         }
-
         if (!user.getPassword().equals(password)) {
             System.out.println("Wrong password.");
             return null;
         }
+
+        // Create session
+        String token = SessionManager.login(user);
+        user.setSessionToken(token);
+
+        // Notify observers
         for (LoginObserver observer : loginObservers) {
             observer.onUserLoggedIn(user);
         }
-
-        return user; //login Successful
-    }
-
-    public void registerSignInObserver(SignUpObserver observer) {
-        signUpObservers.add(observer);
-    }
-    public void registerLoginObserver(LoginObserver observer) {
-        loginObservers.add(observer);
-    }
-    public void registerForgetPasswordObserver(ForgetPasswordObserver observer) {
-        forgetPasswordObservers.add(observer);
+        return user;
     }
 
 
-    public User register(Role role,
-                         String firstName,
-                         String lastName,
-                         String phone,
-                         String email,
-                         String password,
-                         Location location,
-                         Address address,
-                         Restaurant restaurant  // only needed for OWNER
+    public User register(
+            Role role,
+            String firstName,
+            String lastName,
+            String phone,
+            String email,
+            String password,
+            Location location,
+            Address address,
+            Restaurant restaurant
     ) {
-
         if (userManager.findByEmail(email) != null) {
             System.out.println("Email already exists.");
             return null;
         }
 
-        // Create the user using the factory
         User user;
         try {
-            user = UserFactory.createUser(role, firstName, lastName, phone, email, password, location, address, restaurant);
+            user = UserFactory.createUser(
+                    role, firstName, lastName,
+                    phone, email, password,
+                    location, address, restaurant
+            );
         } catch (IllegalArgumentException e) {
             System.out.println("Registration failed: " + e.getMessage());
             return null;
         }
 
-        // Save the user
         userManager.addUser(user);
-
-        // Notify observers
         for (SignUpObserver observer : signUpObservers) {
             observer.onUserRegistered(user);
         }
-
         return user;
     }
-    // when user forgets their password
+
+
     public void requestPasswordReset(String email) {
         User user = userManager.findByEmail(email);
         if (user == null) {
             System.out.println("Email not found.");
             return;
         }
-        int randomCode = createResetCode();
-        resetCode.put(user.getEmail(), randomCode);
-        resetTimestamps.put(user.getEmail(), System.currentTimeMillis());
 
-        // Send the reset code via email
-        try {
-            String subject = "Password Reset Code";
-            String body = "Here is your reset code: " + randomCode + ". Please use this to reset your password.";
-            EmailService.sendEmail(user.getEmail(), subject, body);
-            System.out.println("Reset code sent to your email.");
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            System.out.println("Failed to send email.");
-            return;
-        }
-
-        // Notify all registered ForgetPasswordObservers
+        int code = createResetCode();
+        resetCode.put(email, code);
+        resetTimestamps.put(email, System.currentTimeMillis());
         for (ForgetPasswordObserver obs : forgetPasswordObservers) {
-            obs.onForgetPassword(user, randomCode);
+            obs.onForgetPassword(user, code);
         }
 
-        // Wait for user input
-        Scanner scanner = new Scanner(System.in);// TODO: this must change later
-        System.out.print("Enter the reset code: ");
-        int codeEntered = Integer.parseInt(scanner.nextLine());
-        Integer expected = resetCode.get(email);
-        //set timer for password
-        Long sentTime = resetTimestamps.get(email);
-        long currentTime = System.currentTimeMillis();
-        if (sentTime == null || (currentTime - sentTime) > 60_000) {
-            System.out.println("Reset code expired. Please request a new one.");
-            resetCode.remove(email);
-            resetTimestamps.remove(email);
+        // Console prompt loop
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            if (isCodeExpired(email)) {
+                System.out.println("Reset code expired. Please request a new one.");
+                cleanupReset(email);
+                return;
+            }
+
+            System.out.print("Enter the reset code (you have 1 minute): ");
+            String input = scanner.nextLine().trim();
+            int enteredCode;
+            try {
+                enteredCode = Integer.parseInt(input);
+            } catch (NumberFormatException nfe) {
+                System.out.println("Invalid format. Please enter digits only.");
+                continue;
+            }
+
+            if (enteredCode == code) {
+                System.out.print("Enter new password: ");
+                String newPassword = scanner.nextLine();
+                userManager.resetPassword(user, newPassword);
+                System.out.println("Password reset successful.");
+                break;
+            } else {
+                System.out.println("Incorrect code. Try again.");
+            }
+        }
+
+        cleanupReset(email);
+    }
+
+
+    public void logOut(User user) {
+        if (user == null) {
+            System.out.println("No user provided to log out.");
+            return;
+        }
+        String token = user.getSessionToken();
+        if (token == null || !SessionManager.isLoggedIn(user)) {
+            System.out.println("User is not currently logged in.");
+            return;
+        }
+        SessionManager.logout(token);
+        user.setSessionToken(null);
+        System.out.println("Logged out successfully.");
+    }
+
+
+    public void deleteAccount(String token) {
+        if (token == null || token.isBlank()) {
+            System.out.println("No session token provided.");
+            return;
+        }
+        User user = SessionManager.getUserByToken(token);
+        if (user == null) {
+            System.out.println("Invalid or expired session token.");
             return;
         }
 
-        if (expected != null && expected == codeEntered) {
-            System.out.print("Enter new password: ");
-            String newPassword = scanner.nextLine();
-            userManager.resetPassword(user, newPassword);
-            resetCode.remove(email);
-            resetTimestamps.remove(email);
-            System.out.println("Password reset successful.");
+
+        SessionManager.logout(token);
+        user.setSessionToken(null);
+
+
+        boolean removed = userManager.removeUser(user);
+
+        if (removed) {
+            System.out.println("Account for " + user.getFirstName() + " has been deleted.");
         } else {
-            System.out.println("Incorrect code. Password reset failed.");
+            System.out.println("Error: Failed to delete account for " + user.getFirstName() + ".");
         }
     }
 
+
+
+
+    private boolean isCodeExpired(String email) {
+        Long sentTime = resetTimestamps.get(email);
+        return sentTime == null || (System.currentTimeMillis() - sentTime) > 60_000;
+    }
+
+    private void cleanupReset(String email) {
+        resetCode.remove(email);
+        resetTimestamps.remove(email);
+    }
 
     private int createResetCode() {
-        Random random = new Random();
-        return random.nextInt(10000,99999);
+        return new Random().nextInt(10000, 99999);
     }
 
-    public UserManager getUserManager() {
-        return userManager;
+    // Observer registration
+    public void registerLoginObserver(LoginObserver obs)       { loginObservers.add(obs); }
+    public void registerSignUpObserver(SignUpObserver obs)      { signUpObservers.add(obs); }
+    public void registerForgetPasswordObserver(ForgetPasswordObserver obs) {
+        forgetPasswordObservers.add(obs);
     }
-    public List<LoginObserver> getLoginObservers() {
-        return loginObservers;
-    }
-    public List<SignUpObserver> getSignUpObservers() {
-        return signUpObservers;
-    }
-    public Map<String, Integer> getResetCode() {
-        return resetCode;
-    }
+
+    // Accessors
+    public UserManager getUserManager()                         { return userManager; }
+    public List<LoginObserver> getLoginObservers()              { return loginObservers; }
+    public List<SignUpObserver> getSignUpObservers()            { return signUpObservers; }
+    public Map<String, Integer> getResetCode()                  { return Collections.unmodifiableMap(resetCode); }
 }
 
 
-class UserFactory {  //only used inside this package no direct access
-
-    public static User createUser(Role role,
-                                  String firstName,
-                                  String lastName,
-                                  String phone,
-                                  String email,
-                                  String password,
-                                  Location location,
-                                  Address address,
-                                  Restaurant restaurant // only needed for Owner
+class UserFactory {
+    public static User createUser(
+            Role role,
+            String firstName,
+            String lastName,
+            String phone,
+            String email,
+            String password,
+            Location location,
+            Address address,
+            Restaurant restaurant
     ) {
         return switch (role) {
             case CUSTOMER -> new Customer(firstName, lastName, phone, email, password, address, location);
             case OWNER -> {
-                if (restaurant == null) {
-                    throw new IllegalArgumentException("Restaurant required for Owner");
-                }
+                if (restaurant == null) throw new IllegalArgumentException("Restaurant required for Owner");
                 yield new Owner(firstName, lastName, phone, email, password, address, location, restaurant);
             }
             case DELIVERY_MAN -> new Deliveryman(firstName, lastName, phone, email, password, location);
-            default -> {
-                throw new IllegalArgumentException("Invalid role"); //admin doesnt extend user so cant be used for admin
-            }
+            default -> throw new IllegalArgumentException("Invalid role");
         };
     }
-
-
 }

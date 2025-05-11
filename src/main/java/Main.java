@@ -6,7 +6,7 @@ public class Main {
         NotificationService notificationService = new NotificationService();
 
         //SignUpObserver
-        authService.registerSignInObserver(notificationService);
+        authService.registerSignUpObserver(notificationService);
         //LoginObserver
         authService.registerLoginObserver(notificationService);
         //ForgetPasswordObserver
@@ -19,7 +19,7 @@ public class Main {
                 "Rezai",
                 "09121234567",
                 "ali@gmail.com",
-                "mypassword",
+                "my_password",
                 new Location(35.7, 51.4),
                 new Address("Tehran12345", "Home"),
                 null  // no restaurant for customers
@@ -32,8 +32,8 @@ public class Main {
                 "Sara",
                 "Ahmadi",
                 "09351234567",
-                "rezaj123rezaj123@gmail.com",
-                "ownerpass",
+                "rezaj123rezaj123@gmail.com", // my email for test
+                "owner_pass",
                 new Location(35.8, 51.5),
                 new Address("Street", "54321"),
                 sampleRestaurant   // made a no args restaurant constructor for testing
@@ -45,8 +45,12 @@ public class Main {
             System.out.println("- " + u.getRole() + ": " + u.getFirstName() + " " + u.getLastName() + " (" + u.getEmail() + ")");
         }
 
-        authService.login("rezaj123rezaj123@gmail.com",
-                "ownerpass");
+        authService.login("rezaj123rezaj123@gmail.com", "owner_pass");
+        //authService.requestPasswordReset("rezaj123rezaj123@gmail.com");
+        authService.deleteAccount(owner.getSessionToken()
+
+        );
         authService.requestPasswordReset("rezaj123rezaj123@gmail.com");
+
     }
 }
