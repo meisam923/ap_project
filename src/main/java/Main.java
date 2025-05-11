@@ -1,19 +1,16 @@
 import model.*;
 
-import java.time.LocalTime;
-import java.util.ArrayList;
-
 public class Main {
     public static void main(String[] args) {
         AuthService authService = AuthService.getInstance();
+        NotificationService notificationService = new NotificationService();
 
         //SignUpObserver
-        authService.registerObserver(new SignUpObserver() {
-            @Override
-            public void onUserRegistered(User user) {
-                System.out.println("Notification: Welcome, " + user.getFirstName() + " (" + user.getRole() + ")");
-            }
-        });
+        authService.registerSignUpObserver(notificationService);
+        //LoginObserver
+        authService.registerLoginObserver(notificationService);
+        //ForgetPasswordObserver
+        authService.registerForgetPasswordObserver(notificationService);
 
         // RegisterCUSTOMER
         User customer = authService.register(
@@ -22,7 +19,7 @@ public class Main {
                 "Rezai",
                 "09121234567",
                 "ali@gmail.com",
-                "mypassword",
+                "my_password",
                 new Location(35.7, 51.4),
                 new Address("Tehran12345", "Home"),
                 null  // no restaurant for customers
@@ -35,8 +32,8 @@ public class Main {
                 "Sara",
                 "Ahmadi",
                 "09351234567",
-                "sara@food.com",
-                "ownerpass",
+                "rezaj123rezaj123@gmail.com", // my email for test
+                "owner_pass",
                 new Location(35.8, 51.5),
                 new Address("Street", "54321"),
                 sampleRestaurant   // made a no args restaurant constructor for testing
@@ -47,5 +44,13 @@ public class Main {
         for (User u : UserManager.getInstance().getAllUsers()) {
             System.out.println("- " + u.getRole() + ": " + u.getFirstName() + " " + u.getLastName() + " (" + u.getEmail() + ")");
         }
+
+        authService.login("rezaj123rezaj123@gmail.com", "owner_pass");
+        //authService.requestPasswordReset("rezaj123rezaj123@gmail.com");
+        authService.deleteAccount(owner.getSessionToken()
+
+        );
+        authService.requestPasswordReset("rezaj123rezaj123@gmail.com");
+
     }
 }

@@ -31,10 +31,25 @@ public class UserManager {
     }
 
     public void addUser(User user) {
-        // TODO: conditions to check if the user can be added
+        if (user == null) return;
+
+        // Add to general user list and map
         users.add(user);
         userByPublicId.put(user.getPublicId(), user);
+
+        // Categorize and store based on role
+        if (user instanceof Customer customer) {
+            customers.add(customer);
+            customerByPublicId.put(customer.getPublicId(), customer);
+        } else if (user instanceof Owner owner) {
+            owners.add(owner);
+            ownerByPublicId.put(owner.getPublicId(), owner);
+        } else if (user instanceof Deliveryman deliveryman) {
+            deliverymen.add(deliveryman);
+            deliverymenByPublicId.put(deliveryman.getPublicId(), deliveryman);
+        }
     }
+
 
     //u can find a user by publicId and Email
     public User findByPublicId(String publicId) {
@@ -49,9 +64,63 @@ public class UserManager {
         return null;
     }
 
+    //reset password
+    public void resetPassword(User user , String password) {
+        if (user == null) return;
+        user.setPassword(password);
+    }
+
+    //remove user
+    public boolean removeUser(User user) {
+        boolean removedMaster = users.remove(user);
+
+        if (user instanceof Customer) {
+            customers.remove(user);
+        } else if (user instanceof Owner) {
+            owners.remove(user);
+        } else if (user instanceof Deliveryman) {
+            deliverymen.remove(user);
+        }
+
+        return removedMaster;
+    }
+
     //getter for allUsers
     public List<User> getAllUsers() {
         return new ArrayList<>(users);
+    }  //returns a copy instead of the user list itself (list can not be modified)
+
+    public List<User> getUsers() {
+        return users;
     }
+
+    public Map<String, User> getUserByPublicId() {
+        return userByPublicId;
+    }
+
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+
+    public Map<String, Customer> getCustomerByPublicId() {
+        return customerByPublicId;
+    }
+
+    public List<Owner> getOwners() {
+        return owners;
+    }
+
+    public Map<String, Owner> getOwnerByPublicId() {
+        return ownerByPublicId;
+    }
+
+    public List<Deliveryman> getDeliverymen() {
+        return deliverymen;
+    }
+
+    public Map<String, Deliveryman> getDeliverymenByPublicId() {
+        return deliverymenByPublicId;
+    }
+
 }
 

@@ -6,7 +6,7 @@ import java.util.UUID;
 public abstract class User {
 
     private final String publicId; // UUID used for referencing in collections
-
+    private String sessionToken;
     private String first_name;
     private String last_name;
     private String phone_number;
@@ -27,6 +27,12 @@ public abstract class User {
     }
 
     // Getters and setters
+    public void setSessionToken(String token) {
+        this.sessionToken = token;
+    }
+    public String getSessionToken() {
+        return sessionToken;
+    }
     public String getPublicId() {
         return publicId;
     }
