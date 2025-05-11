@@ -1,13 +1,18 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.mail.MessagingException;
+
+import java.util.*;
 
 //singleton class
 public class AuthService {
     private static AuthService instance;
     private final UserManager userManager = UserManager.getInstance();
-    private final List<SignUpObserver> observers = new ArrayList<>();
+    private final List<LoginObserver> loginObservers = new ArrayList<>();
+    private final List<SignUpObserver> signUpObservers = new ArrayList<>();
+    private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
+    private final Map<String, Long> resetTimestamps = new HashMap<>();
+    private final Map<String, Integer> resetCode = new HashMap<>();
 
     private AuthService() {
     }
@@ -30,16 +35,22 @@ public class AuthService {
             System.out.println("Wrong password.");
             return null;
         }
+        for (LoginObserver observer : loginObservers) {
+            observer.onUserLoggedIn(user);
+        }
 
         return user; //login Successful
     }
 
-    public void registerObserver(SignUpObserver observer) {
-        observers.add(observer);
+    public void registerSignInObserver(SignUpObserver observer) {
+        signUpObservers.add(observer);
     }
-
-
-
+    public void registerLoginObserver(LoginObserver observer) {
+        loginObservers.add(observer);
+    }
+    public void registerForgetPasswordObserver(ForgetPasswordObserver observer) {
+        forgetPasswordObservers.add(observer);
+    }
 
 
     public User register(Role role,
@@ -71,13 +82,88 @@ public class AuthService {
         userManager.addUser(user);
 
         // Notify observers
-        for (SignUpObserver observer : observers) {
+        for (SignUpObserver observer : signUpObservers) {
             observer.onUserRegistered(user);
         }
 
         return user;
     }
+    // when user forgets their password
+    public void requestPasswordReset(String email) {
+        User user = userManager.findByEmail(email);
+        if (user == null) {
+            System.out.println("Email not found.");
+            return;
+        }
+        int randomCode = createResetCode();
+        resetCode.put(user.getEmail(), randomCode);
+        resetTimestamps.put(user.getEmail(), System.currentTimeMillis());
+
+        // Send the reset code via email
+        try {
+            String subject = "Password Reset Code";
+            String body = "Here is your reset code: " + randomCode + ". Please use this to reset your password.";
+            EmailService.sendEmail(user.getEmail(), subject, body);
+            System.out.println("Reset code sent to your email.");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Failed to send email.");
+            return;
+        }
+
+        // Notify all registered ForgetPasswordObservers
+        for (ForgetPasswordObserver obs : forgetPasswordObservers) {
+            obs.onForgetPassword(user, randomCode);
+        }
+
+        // Wait for user input
+        Scanner scanner = new Scanner(System.in);// TODO: this must change later
+        System.out.print("Enter the reset code: ");
+        int codeEntered = Integer.parseInt(scanner.nextLine());
+        Integer expected = resetCode.get(email);
+        //set timer for password
+        Long sentTime = resetTimestamps.get(email);
+        long currentTime = System.currentTimeMillis();
+        if (sentTime == null || (currentTime - sentTime) > 60_000) {
+            System.out.println("Reset code expired. Please request a new one.");
+            resetCode.remove(email);
+            resetTimestamps.remove(email);
+            return;
+        }
+
+        if (expected != null && expected == codeEntered) {
+            System.out.print("Enter new password: ");
+            String newPassword = scanner.nextLine();
+            userManager.resetPassword(user, newPassword);
+            resetCode.remove(email);
+            resetTimestamps.remove(email);
+            System.out.println("Password reset successful.");
+        } else {
+            System.out.println("Incorrect code. Password reset failed.");
+        }
+    }
+
+
+    private int createResetCode() {
+        Random random = new Random();
+        return random.nextInt(10000,99999);
+    }
+
+    public UserManager getUserManager() {
+        return userManager;
+    }
+    public List<LoginObserver> getLoginObservers() {
+        return loginObservers;
+    }
+    public List<SignUpObserver> getSignUpObservers() {
+        return signUpObservers;
+    }
+    public Map<String, Integer> getResetCode() {
+        return resetCode;
+    }
 }
+
+
 class UserFactory {  //only used inside this package no direct access
 
     public static User createUser(Role role,
@@ -104,4 +190,6 @@ class UserFactory {  //only used inside this package no direct access
             }
         };
     }
+
+
 }

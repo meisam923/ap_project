@@ -12,6 +12,6 @@ public class Order {
         this.customer = customer;
         this.restaurant = restaurant;
         this.items = items;
-        //don't remember to intial the deliveryman
+        //don't remember to initial the deliveryman
     }
 }

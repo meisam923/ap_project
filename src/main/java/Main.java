@@ -1,19 +1,16 @@
 import model.*;
 
-import java.time.LocalTime;
-import java.util.ArrayList;
-
 public class Main {
     public static void main(String[] args) {
         AuthService authService = AuthService.getInstance();
+        NotificationService notificationService = new NotificationService();
 
         //SignUpObserver
-        authService.registerObserver(new SignUpObserver() {
-            @Override
-            public void onUserRegistered(User user) {
-                System.out.println("Notification: Welcome, " + user.getFirstName() + " (" + user.getRole() + ")");
-            }
-        });
+        authService.registerSignInObserver(notificationService);
+        //LoginObserver
+        authService.registerLoginObserver(notificationService);
+        //ForgetPasswordObserver
+        authService.registerForgetPasswordObserver(notificationService);
 
         // RegisterCUSTOMER
         User customer = authService.register(
@@ -35,7 +32,7 @@ public class Main {
                 "Sara",
                 "Ahmadi",
                 "09351234567",
-                "sara@food.com",
+                "rezaj123rezaj123@gmail.com",
                 "ownerpass",
                 new Location(35.8, 51.5),
                 new Address("Street", "54321"),
@@ -47,5 +44,9 @@ public class Main {
         for (User u : UserManager.getInstance().getAllUsers()) {
             System.out.println("- " + u.getRole() + ": " + u.getFirstName() + " " + u.getLastName() + " (" + u.getEmail() + ")");
         }
+
+        authService.login("rezaj123rezaj123@gmail.com",
+                "ownerpass");
+        authService.requestPasswordReset("rezaj123rezaj123@gmail.com");
     }
 }
