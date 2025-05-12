@@ -58,7 +58,7 @@ public class NotificationService implements SignUpObserver, LoginObserver, Forge
         System.out.println("Welcome " + owner.getFirstName() + "!restaurant has been registered");
         String subject = "Congratulation ! your restaurant " + restaurant.getTitle() + " has been registered" + owner.getFirstName() + "!";
         String body = "Welcome to your new journey" + owner.getFirstName() + ",\n\n"
-                + "We're glad to have you in polyeats. Enjoy using PolyEats!"
+                + "We're glad to have you in PolyEats. Enjoy using PolyEats!"
                 + "\n\nBest regards,\nThe PolyEats Team";
         try {
             EmailService.sendEmail(owner.getEmail(), subject, body);
