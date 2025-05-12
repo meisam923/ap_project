@@ -11,7 +11,7 @@ public class Restaurant {
     private String title;
     private Owner owner;
     private ArrayList<Period> working_periods;
-    private Menu menu;
+    private Menu menu=new Menu();
     private ArrayList<RestaurantCategory> Categories = new ArrayList<>();
     private RestaurantCategory category;
 
@@ -27,9 +27,6 @@ public class Restaurant {
 
     }
 
-    public void add_Menu(Menu menu) {
-        this.menu = menu;
-    }
 
     public Restaurant() { // used for testing
         address = null;
