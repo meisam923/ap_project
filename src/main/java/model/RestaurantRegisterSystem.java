@@ -35,8 +35,6 @@ public class RestaurantRegisterSystem implements RestaurantSubject {
             System.out.println("Failed to register Restaurant " + restaurant);
         }
         return result;
-
-
     }
 
 
