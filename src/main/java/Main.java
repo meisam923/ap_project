@@ -1,4 +1,7 @@
+import exception.NotAcceptableException;
 import model.*;
+
+import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
@@ -32,7 +35,7 @@ public class Main {
                 "Sara",
                 "Ahmadi",
                 "09351234567",
-                "rezaj123rezaj123@gmail.com", // my email for test
+                "seyedmeysamhamidi7@gmail.com", // my email for test
                 "owner_pass",
                 new Location(35.8, 51.5),
                 new Address("Street", "54321"),
@@ -54,7 +57,15 @@ public class Main {
 
         RestaurantManager restaurantManager = RestaurantManager.getInstance();
         restaurantManager.addRestaurantObserver(notificationService);
+<<<<<<< HEAD
         RestaurantRegisterSystem restaurantRegisterSystem = new RestaurantRegisterSystem();
         restaurantRegisterSystem.requestConfirmation(sampleRestaurant);
+=======
+        try {
+            restaurantManager.addRestaurant(new Address("ksj","slkjf"),new Location(89,99),"09877654321","pizzaiii",(Owner)owner,new ArrayList<Period>());
+        } catch (NotAcceptableException e) {
+            throw new RuntimeException(e);
+        }
+>>>>>>> origin/setup2
     }
 }
