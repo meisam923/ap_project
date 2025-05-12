@@ -35,7 +35,7 @@ public class Main {
                 "Sara",
                 "Ahmadi",
                 "09351234567",
-                "seyedmeysamhamidi7@gmail.com", // my email for test
+                "rezaj123rezaj123@gmail.com", // my email for test
                 "owner_pass",
                 new Location(35.8, 51.5),
                 new Address("Street", "54321"),
@@ -58,7 +58,7 @@ public class Main {
         RestaurantManager restaurantManager = RestaurantManager.getInstance();
         restaurantManager.addRestaurantObserver(notificationService);
         try {
-            restaurantManager.addRestaurant(new Address("ksj","slkjf"),new Location(89,99),"09877654321","pizzaiii",(Owner)owner,new ArrayList<Period>());
+            restaurantManager.addRestaurant(new Address("ksj","slkjf"),new Location(89,99),"09877654321","pizzaiii",(Owner)owner,"Fast Food");
         } catch (NotAcceptableException e) {
             throw new RuntimeException(e);
         }
