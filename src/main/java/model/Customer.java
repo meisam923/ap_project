@@ -14,4 +14,27 @@ public class Customer extends User {
         this.location = location;
     }
 
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public ArrayList<Order> getOrdersAssigned() {
+        return ordersAssigned;
+    }
+
+    public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {
+        this.ordersAssigned = ordersAssigned;
+    }
 }

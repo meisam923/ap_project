@@ -23,6 +23,7 @@ public class UserManager {
 
     private UserManager() {
     }
+
     public static UserManager getInstance() {
         if (instance == null) {
             instance = new UserManager();
@@ -50,11 +51,11 @@ public class UserManager {
         }
     }
 
-
     //u can find a user by publicId and Email
     public User findByPublicId(String publicId) {
         return userByPublicId.get(publicId);
     }
+
     public User findByEmail(String email) {
         for (User user : users) {
             if (user.getEmail().equalsIgnoreCase(email)) {
@@ -65,7 +66,7 @@ public class UserManager {
     }
 
     //reset password
-    public void resetPassword(User user , String password) {
+    public void resetPassword(User user, String password) {
         if (user == null) return;
         user.setPassword(password);
     }
@@ -85,6 +86,57 @@ public class UserManager {
         return removedMaster;
     }
 
+    public boolean updateBasicProfile(
+            User user,
+            String firstName,
+            String lastName,
+            String phone,
+            String email,
+            String password
+    ) {
+        if (user == null || !users.contains(user)) return false;
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastName != null) user.setLastName(lastName);
+        if (phone != null) user.setPhoneNumber(phone);
+        if (email != null) user.setEmail(email);
+        if (password != null) user.setPassword(password);
+        return true;
+    }
+
+    public boolean updateCustomerDetails(
+            Customer customer,
+            Address newAddress,
+            Location newLocation
+    ) {
+        if (customer == null || !customers.contains(customer)) return false;
+        if (newAddress != null) customer.setAddress(newAddress);
+        if (newLocation != null) customer.setLocation(newLocation);
+        return true;
+    }
+
+    public boolean updateOwnerDetails(
+            Owner owner,
+            Address newAddress,
+            Location newLocation
+    ) {
+        if (owner == null || !owners.contains(owner)) return false;
+        if (newAddress != null) owner.setAddress(newAddress);
+        if (newLocation != null) owner.setLocation(newLocation);
+        return true;
+    }
+
+    // For Deliveryman maybe only location changes idk yet
+    public boolean updateDeliveryLocation(
+            Deliveryman dm,
+            Location newLocation
+    ) {
+        if (dm == null || !deliverymen.contains(dm)) return false;
+        if (newLocation != null) dm.setLocation(newLocation);
+        return true;
+    }
+
+
+    //getters & setters
     //getter for allUsers
     public List<User> getAllUsers() {
         return new ArrayList<>(users);

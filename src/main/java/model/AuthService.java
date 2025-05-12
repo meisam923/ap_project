@@ -1,5 +1,8 @@
 package model;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 
@@ -14,7 +17,8 @@ public class AuthService {
     private final Map<String, Long> resetTimestamps = new HashMap<>();
     private final Map<String, Integer> resetCode = new HashMap<>();
 
-    private AuthService() { }
+    private AuthService() {
+    }
 
     public static AuthService getInstance() {
         if (instance == null) {
@@ -23,7 +27,7 @@ public class AuthService {
         return instance;
     }
 
-
+    //methods
     public User login(String email, String password) {
         User user = userManager.findByEmail(email);
         if (user == null) {
@@ -35,17 +39,15 @@ public class AuthService {
             return null;
         }
 
-        // Create session
         String token = SessionManager.login(user);
         user.setSessionToken(token);
 
-        // Notify observers
-        for (LoginObserver observer : loginObservers) {
-            observer.onUserLoggedIn(user);
+        // notify observers
+        for (LoginObserver obs : loginObservers) {
+            obs.onUserLoggedIn(user);
         }
         return user;
     }
-
 
     public User register(
             Role role,
@@ -62,7 +64,6 @@ public class AuthService {
             System.out.println("Email already exists.");
             return null;
         }
-
         User user;
         try {
             user = UserFactory.createUser(
@@ -76,12 +77,11 @@ public class AuthService {
         }
 
         userManager.addUser(user);
-        for (SignUpObserver observer : signUpObservers) {
-            observer.onUserRegistered(user);
+        for (SignUpObserver obs : signUpObservers) {
+            obs.onUserRegistered(user);
         }
         return user;
     }
-
 
     public void requestPasswordReset(String email) {
         User user = userManager.findByEmail(email);
@@ -93,11 +93,11 @@ public class AuthService {
         int code = createResetCode();
         resetCode.put(email, code);
         resetTimestamps.put(email, System.currentTimeMillis());
+
         for (ForgetPasswordObserver obs : forgetPasswordObservers) {
             obs.onForgetPassword(user, code);
         }
 
-        // Console prompt loop
         Scanner scanner = new Scanner(System.in);
         while (true) {
             if (isCodeExpired(email)) {
@@ -108,76 +108,99 @@ public class AuthService {
 
             System.out.print("Enter the reset code (you have 1 minute): ");
             String input = scanner.nextLine().trim();
-            int enteredCode;
+            int entered;
             try {
-                enteredCode = Integer.parseInt(input);
-            } catch (NumberFormatException nfe) {
+                entered = Integer.parseInt(input);
+            } catch (NumberFormatException ex) {
                 System.out.println("Invalid format. Please enter digits only.");
                 continue;
             }
 
-            if (enteredCode == code) {
+            if (entered == code) {
                 System.out.print("Enter new password: ");
-                String newPassword = scanner.nextLine();
-                userManager.resetPassword(user, newPassword);
+                String newPass = scanner.nextLine();
+                userManager.resetPassword(user, newPass);
                 System.out.println("Password reset successful.");
                 break;
             } else {
                 System.out.println("Incorrect code. Try again.");
             }
         }
-
         cleanupReset(email);
     }
 
+    public void logOut(String sessionToken) {
+        try {
+            User user = requireLogin(sessionToken);
+            SessionManager.logout(sessionToken);
+            user.setSessionToken(null);
+            System.out.println("Logged out successfully for " + user.getFirstName() + ".");
+        } catch (IllegalStateException e) {
+            // Gracefully handle missing/invalid token
+            System.out.println(e.getMessage());
+        }
+    }
 
-    public void logOut(User user) {
-        if (user == null) {
-            System.out.println("No user provided to log out.");
-            return;
+    public void deleteAccount(String sessionToken) {
+        try {
+            User user = requireLogin(sessionToken);
+            SessionManager.logout(sessionToken);
+            user.setSessionToken(null);
+
+            boolean removed = userManager.removeUser(user);
+            if (removed) {
+                System.out.println("Account for " + user.getFirstName() + " has been deleted.");
+            } else {
+                System.out.println("Error: Failed to delete account for " + user.getFirstName() + ".");
+            }
+        } catch (IllegalStateException e) {
+            // Gracefully handle missing/invalid token
+            System.out.println(e.getMessage());
         }
-        String token = user.getSessionToken();
-        if (token == null || !SessionManager.isLoggedIn(user)) {
-            System.out.println("User is not currently logged in.");
-            return;
+    }
+
+    public void editProfile(
+            String sessionToken,
+            String firstName,
+            String lastName,
+            String phone,
+            String email,
+            String password,
+            Address address,     // may be null
+            Location location    // may be null
+    ) {
+        User user = requireLogin(sessionToken);
+
+        userManager.updateBasicProfile(user, firstName, lastName, phone, email, password);
+
+        switch (user.getRole()) {
+            case CUSTOMER -> userManager.updateCustomerDetails(
+                    (Customer) user, address, location);
+            case OWNER -> userManager.updateOwnerDetails(
+                    (Owner) user, address, location);
+            case DELIVERY_MAN -> userManager.updateDeliveryLocation(
+                    (Deliveryman) user, location);
         }
-        SessionManager.logout(token);
-        user.setSessionToken(null);
-        System.out.println("Logged out successfully.");
+        System.out.println("Profile updated for " + user.getFirstName());
     }
 
 
-    public void deleteAccount(String token) {
+    //helper methods
+    @Contract("null -> fail") // intellij suggested this
+    public @NotNull User requireLogin(String token) {
         if (token == null || token.isBlank()) {
-            System.out.println("No session token provided.");
-            return;
+            throw new IllegalStateException("No session token provided.");
         }
         User user = SessionManager.getUserByToken(token);
         if (user == null) {
-            System.out.println("Invalid or expired session token.");
-            return;
+            throw new IllegalStateException("Invalid or expired session token.");
         }
-
-
-        SessionManager.logout(token);
-        user.setSessionToken(null);
-
-
-        boolean removed = userManager.removeUser(user);
-
-        if (removed) {
-            System.out.println("Account for " + user.getFirstName() + " has been deleted.");
-        } else {
-            System.out.println("Error: Failed to delete account for " + user.getFirstName() + ".");
-        }
+        return user;
     }
 
-
-
-
     private boolean isCodeExpired(String email) {
-        Long sentTime = resetTimestamps.get(email);
-        return sentTime == null || (System.currentTimeMillis() - sentTime) > 60_000;
+        Long sent = resetTimestamps.get(email);
+        return sent == null || (System.currentTimeMillis() - sent) > 60_000;
     }
 
     private void cleanupReset(String email) {
@@ -189,24 +212,41 @@ public class AuthService {
         return new Random().nextInt(10000, 99999);
     }
 
-    // Observer registration
-    public void registerLoginObserver(LoginObserver obs)       { loginObservers.add(obs); }
-    public void registerSignUpObserver(SignUpObserver obs)      { signUpObservers.add(obs); }
+    //observers
+    public void registerLoginObserver(LoginObserver obs) {
+        loginObservers.add(obs);
+    }
+
+    public void registerSignUpObserver(SignUpObserver obs) {
+        signUpObservers.add(obs);
+    }
+
     public void registerForgetPasswordObserver(ForgetPasswordObserver obs) {
         forgetPasswordObservers.add(obs);
     }
 
-    // Accessors
-    public UserManager getUserManager()                         { return userManager; }
-    public List<LoginObserver> getLoginObservers()              { return loginObservers; }
-    public List<SignUpObserver> getSignUpObservers()            { return signUpObservers; }
-    public Map<String, Integer> getResetCode()                  { return Collections.unmodifiableMap(resetCode); }
+    //getters
+    public UserManager getUserManager() {
+        return userManager;
+    }
+
+    public List<LoginObserver> getLoginObservers() {
+        return List.copyOf(loginObservers);
+    }
+
+    public List<SignUpObserver> getSignUpObservers() {
+        return List.copyOf(signUpObservers);
+    }
+
+    public Map<String, Integer> getResetCode() {
+        return Collections.unmodifiableMap(resetCode);
+    }
 }
 
 
 class UserFactory {
-    public static User createUser(
-            Role role,
+    public static @NotNull User createUser(
+            @NotNull Role role,
             String firstName,
             String lastName,
             String phone,
