@@ -22,8 +22,10 @@ public class RestaurantManager {
         RestaurantRegisterSystem restaurantRegisterSystem;
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
         Restaurant new_restaurant = new Restaurant(address, location, phone_number, title, owner);
-        if (restaurantRegisterSystem.requestConfirmation(new_restaurant))
+        if (restaurantRegisterSystem.requestConfirmation(new_restaurant)) {
             restaurants.add(new_restaurant);
+            new_restaurant.getOwner().setRestaurant(new_restaurant);
+        }
         else
             System.out.println("Failed to register Restaurant try again later" + new_restaurant);
 
