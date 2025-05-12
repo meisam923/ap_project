@@ -1,5 +1,6 @@
 package model;
 
+
 public interface RestaurantSubject {
 
     void registerObserver(RestaurantObserver o);
