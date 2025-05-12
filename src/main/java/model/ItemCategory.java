@@ -35,4 +35,26 @@ public enum ItemCategory {
         }
         return null;
     }
+    public static ItemCategory buildCategory(String category) {
+        switch (category) {
+            case "Iranian":
+                return ItemCategory.IRANIAN;
+            case "Fast Food":
+                return ItemCategory.FAST_FOOD;
+            case "Pizza":
+                return ItemCategory.PIZZA;
+            case "Burger":
+                return ItemCategory.BURGER;
+            case "Sandwich":
+                return ItemCategory.SANDWICH;
+            case "Kebab":
+                return ItemCategory.KEBAB;
+            case "Seafood":
+                return ItemCategory.SEAFOOD;
+            case "Vegetarian":
+                return ItemCategory.VEGETARIAN;
+            default:
+                return null;
+        }
+    }
 }

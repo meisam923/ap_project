@@ -44,17 +44,21 @@ public class Restaurant {
 
     public void addItemS (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant,String type) throws NotAcceptableException {
         Item new_item;
-        if (type.equals("Food")) {
-            new_item=new Food(title,description,price,count,hashtags,restaurant) ;
+        if (type.equals("Drink")) {
+            new_item=new Drink(title,description,price,count,hashtags,restaurant,ItemCategory.DRINK) ;
             menu.addItem(new_item);
             return;
         }
-        else if (type.equals("Drink")) {
-            new_item=new Drink(title,description,price,count,hashtags,restaurant) ;
+        else {
+            if (ItemCategory.buildCategory(type)==null) {
+                System.out.println("Invalid Category");
+                return ;
+            }
+            new_item=new Food(title,description,price,count,hashtags,restaurant,ItemCategory.buildCategory(type)) ;
             menu.addItem(new_item);
             return;
+
         }
-        return;
 
         }
 
