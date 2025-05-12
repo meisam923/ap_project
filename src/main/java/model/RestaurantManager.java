@@ -17,11 +17,11 @@ public class RestaurantManager {
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
             return instance;
     }
-    public void addRestaurant (Address address, Location location, String phone_number, String title, Owner owner, ArrayList<Period> working_periods) throws NotAcceptableException {
+    public void addRestaurant (Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
 
         RestaurantRegisterSystem restaurantRegisterSystem;
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
-        Restaurant new_restaurant = new Restaurant(address, location, phone_number, title, owner);
+        Restaurant new_restaurant = new Restaurant(address, location, phone_number, title, owner, category);
         if (restaurantRegisterSystem.requestConfirmation(new_restaurant)) {
             restaurants.add(new_restaurant);
             new_restaurant.getOwner().setRestaurant(new_restaurant);
