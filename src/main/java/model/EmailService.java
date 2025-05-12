@@ -10,7 +10,7 @@ public class EmailService {
 
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String FROM_EMAIL = "rezamh823@gmail.com";
+    private static final String FROM_EMAIL = "autapproject2025@gmail.com";
     private static final String PASSWORD = System.getenv("EMAIL_APP_PASSWORD");
 
 

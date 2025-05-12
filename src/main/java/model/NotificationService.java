@@ -9,10 +9,10 @@ public class NotificationService implements SignUpObserver, LoginObserver, Forge
     @Override
     public void onUserRegistered(@NotNull User user) {
         System.out.println("Welcome " + user.getFirstName() + "! Sending welcome email...");
-        String subject = "Welcome to YourApp, " + user.getFirstName() + "!";
+        String subject = "Welcome to PolyEats, " + user.getFirstName() + "!";
         String body = "Hi " + user.getFirstName() + ",\n\n"
-                + "Thank you for registering with YourApp. We're thrilled to have you!"
-                + "\n\nBest regards,\nThe YourApp Team";
+                + "Thank you for registering with PolyEats. We're thrilled to have you!"
+                + "\n\nBest regards,\nThe PolyEats Team";
         try {
             EmailService.sendEmail(user.getEmail(), subject, body);
         } catch (MessagingException e) {
@@ -26,8 +26,8 @@ public class NotificationService implements SignUpObserver, LoginObserver, Forge
         System.out.println("Welcome back " + user.getFirstName() + "! Sending login notification...");
         String subject = "Welcome Back, " + user.getFirstName() + "!";
         String body = "Hi " + user.getFirstName() + ",\n\n"
-                + "We're glad to see you again. Enjoy using YourApp!"
-                + "\n\nBest regards,\nThe YourApp Team";
+                + "We're glad to see you again. Enjoy using PolyEats!"
+                + "\n\nBest regards,\nThe PolyEats Team";
         try {
             EmailService.sendEmail(user.getEmail(), subject, body);
         } catch (MessagingException e) {
@@ -39,12 +39,12 @@ public class NotificationService implements SignUpObserver, LoginObserver, Forge
     @Override
     public void onForgetPassword(@NotNull User user, int resetCode) {
         System.out.println("Password reset requested for " + user.getFirstName() + ". Sending reset code...");
-        String subject = "YourApp Password Reset Code";
+        String subject = "PolyEats Password Reset Code";
         String body = "Hello " + user.getFirstName() + ",\n\n"
                 + "Your password reset code is: " + resetCode + "\n"
                 + "This code will expire in 1 minute.\n\n"
                 + "If you did not request a password reset, please ignore this email."
-                + "\n\nBest regards,\nThe YourApp Team";
+                + "\n\nBest regards,\nThe PolyEats Team";
         try {
             EmailService.sendEmail(user.getEmail(), subject, body);
         } catch (MessagingException e) {
