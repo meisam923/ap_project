@@ -17,7 +17,7 @@ public abstract class Item {
     ImageIcon image;
     private int discount;
 
-    public Item(String title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant) throws NotAcceptableException {
+    public Item(String title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant,ItemCategory category) throws NotAcceptableException {
         validateField(title,description,price ,count,hashtags,restaurant);
         this.title = title;
         this.description = description;
@@ -25,6 +25,7 @@ public abstract class Item {
         this.count = count;
         this.hashtags = hashtags;
         this.restaurant = restaurant;
+        this.category = category;
 
     }
     public Price getPrice() {
