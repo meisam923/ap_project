@@ -11,8 +11,8 @@ public class Cart {
         menuItems = new ArrayList<Item>();
         price = new Price(0);
     }
-    public void adaItem(Item item) {
-        menuItems.add(item);
-        price.sumPrice(item.getPrice());
-    }
+//    public void adaItem(Item item) {
+//        menuItems.add(item);
+//        price.sumPrice(item.getPrice());
+//    }
 }
