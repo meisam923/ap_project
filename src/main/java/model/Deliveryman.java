@@ -13,4 +13,19 @@ public class Deliveryman extends User {
 
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public ArrayList<Order> getOrdersAssigned() {
+        return ordersAssigned;
+    }
+
+    public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {
+        this.ordersAssigned = ordersAssigned;
+    }
 }

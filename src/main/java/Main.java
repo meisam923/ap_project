@@ -47,10 +47,11 @@ public class Main {
 
         authService.login("rezaj123rezaj123@gmail.com", "owner_pass");
         //authService.requestPasswordReset("rezaj123rezaj123@gmail.com");
-        authService.deleteAccount(owner.getSessionToken()
-
-        );
+        authService.deleteAccount(owner.getSessionToken());
         authService.requestPasswordReset("rezaj123rezaj123@gmail.com");
+        authService.logOut(owner.getSessionToken());
+        authService.deleteAccount(owner.getSessionToken());
+
 
     }
 }
