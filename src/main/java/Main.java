@@ -52,6 +52,7 @@ public class Main {
         authService.logOut(owner.getSessionToken());
         authService.deleteAccount(owner.getSessionToken());
 
-
+        RestaurantManager restaurantManager = RestaurantManager.getInstance();
+        restaurantManager.addRestaurantObserver(notificationService);
     }
 }

@@ -65,6 +65,12 @@ public class Restaurant {
                 (!title.matches("(?i)^[a-z]{1,20}$")))
             throw new NotAcceptableException("invalid field");
     }
+    public Owner getOwner() {
+        return owner;
+    }
+    public String getTitle() {
+        return title;
+    }
 
 }
 

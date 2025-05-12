@@ -6,8 +6,6 @@ import java.util.ArrayList;
 public class RestaurantRegisterSystem implements RestaurantSubject {
     private static RestaurantRegisterSystem instance;
 
-    private RestaurantManager restaurantManager = RestaurantManager.getInstance();
-
     private ArrayList<RestaurantObserver> observers = new ArrayList<RestaurantObserver>();
 
     public static RestaurantRegisterSystem getInstance() {
@@ -27,14 +25,15 @@ public class RestaurantRegisterSystem implements RestaurantSubject {
     public boolean requestConfirmation(Restaurant restaurant) {
         boolean result = false;
         for (RestaurantObserver o : observers) {
-            result = o.registerRestaurant(restaurant);
+            result = o.registerRestaurant(restaurant,restaurant.getOwner());
         }
         if (result) {
             System.out.println("Successfully registered Restaurant " + restaurant);
             result = true;
         }
-
-        System.out.println("Failed to register Restaurant " + restaurant);
+        else {
+            System.out.println("Failed to register Restaurant " + restaurant);
+        }
         return result;
 
 

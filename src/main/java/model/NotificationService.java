@@ -3,7 +3,8 @@ package model;
 import jakarta.mail.MessagingException;
 import org.jetbrains.annotations.NotNull;
 
-public class NotificationService implements SignUpObserver, LoginObserver, ForgetPasswordObserver {
+
+public class NotificationService implements SignUpObserver, LoginObserver, ForgetPasswordObserver ,RestaurantObserver{
     private final AuthService authService = AuthService.getInstance();
 
     @Override
@@ -50,6 +51,22 @@ public class NotificationService implements SignUpObserver, LoginObserver, Forge
         } catch (MessagingException e) {
             System.err.println("Failed to send password reset email.");
             e.printStackTrace();
+        }
+    }
+    @Override
+    public boolean registerRestaurant(@NotNull Restaurant restaurant,@NotNull Owner owner) {
+        System.out.println("Welcome " + owner.getFirstName() + "!restaurant has been registered");
+        String subject = "Congratulation ! your restaurant " + restaurant.getTitle() + " has been registered" + owner.getFirstName() + "!";
+        String body = "Welcome to your new journey" + owner.getFirstName() + ",\n\n"
+                + "We're glad to have you in polyeats. Enjoy using PolyEats!"
+                + "\n\nBest regards,\nThe PolyEats Team";
+        try {
+            EmailService.sendEmail(owner.getEmail(), subject, body);
+            return true;
+        } catch (MessagingException e) {
+            System.err.println("Failed to send login notification email.");
+            e.printStackTrace();
+            return false;
         }
     }
 }
