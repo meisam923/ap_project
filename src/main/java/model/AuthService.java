@@ -260,7 +260,7 @@ class UserFactory {
             case CUSTOMER -> new Customer(firstName, lastName, phone, email, password, address, location);
             case OWNER -> {
                 if (restaurant == null) throw new IllegalArgumentException("Restaurant required for Owner");
-                yield new Owner(firstName, lastName, phone, email, password, address, location, restaurant);
+                yield new Owner(firstName, lastName, phone, email, password, address, location);
             }
             case DELIVERY_MAN -> new Deliveryman(firstName, lastName, phone, email, password, location);
             default -> throw new IllegalArgumentException("Invalid role");
