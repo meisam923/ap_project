@@ -6,8 +6,6 @@ import java.util.ArrayList;
 public class RestaurantRegisterSystem implements RestaurantSubject {
     private static RestaurantRegisterSystem instance;
 
-    private RestaurantManager restaurantManager = RestaurantManager.getInstance();
-
     private ArrayList<RestaurantObserver> observers = new ArrayList<RestaurantObserver>();
 
     public static RestaurantRegisterSystem getInstance() {
