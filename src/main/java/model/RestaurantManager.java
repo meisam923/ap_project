@@ -1,7 +1,5 @@
 package model;
 
-import exception.NotAcceptableException;
-
 import java.util.ArrayList;
 
 //singleton
@@ -17,7 +15,7 @@ public class RestaurantManager {
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
             return instance;
     }
-    public void addRestaurant (Address address, Location location, String phone_number, String title, Owner owner, ArrayList<Period> working_periods) throws NotAcceptableException {
+    public void addRestaurant (Address address, Location location, String phone_number, String title, Owner owner, ArrayList<Period> working_periods) {
 
         RestaurantRegisterSystem restaurantRegisterSystem;
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
