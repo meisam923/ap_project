@@ -3,7 +3,7 @@ package model;
 public class Admin implements RestaurantObserver {
     Role role = Role.ADMIN;
 
-    public boolean registerRestaurant(Restaurant restaurant) {
+    public boolean registerRestaurant(Restaurant restaurant,Owner owner) {
         return false;
     }
 

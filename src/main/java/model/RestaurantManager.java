@@ -1,5 +1,3 @@
-
-
 package model;
 
 import exception.NotAcceptableException;
@@ -9,13 +7,14 @@ import java.util.ArrayList;
 //singleton
 public class RestaurantManager {
     private static RestaurantManager instance;
-
     private final ArrayList<Restaurant> restaurants = new ArrayList<>();
+    private static RestaurantRegisterSystem restaurantRegisterSystem;
 
     public static RestaurantManager getInstance() {
         if (instance == null) {
             instance = new RestaurantManager();
         }
+        restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
             return instance;
     }
     public void addRestaurant (Address address, Location location, String phone_number, String title, Owner owner, ArrayList<Period> working_periods) throws NotAcceptableException {
@@ -28,5 +27,8 @@ public class RestaurantManager {
         else
             System.out.println("Failed to register Restaurant try again later" + new_restaurant);
 
+    }
+    public void addRestaurantObserver(RestaurantObserver o) {
+        restaurantRegisterSystem.registerObserver(o);
     }
 }
