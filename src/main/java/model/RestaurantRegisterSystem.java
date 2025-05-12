@@ -39,19 +39,6 @@ public class RestaurantRegisterSystem implements RestaurantSubject {
 
 
     }
-    public Restaurant register(Address address,
-                         Location location,
-                         String phone_number,
-                         String title,
-                         Owner owner,
-                         ArrayList<Period> working_periods,
-                         Menu menu)
-    {
-        //add some conditional check
-
-        Restaurant restaurant = new Restaurant(address, location, phone_number, title, owner, working_periods, menu);
-        return restaurant;
-    }
 
 
 

@@ -1,6 +1,6 @@
+
+
 package model;
-
-
 
 import java.util.ArrayList;
 
@@ -16,7 +16,15 @@ public class RestaurantManager {
         }
             return instance;
     }
-    public void addRestaurant(Restaurant restaurant) {
-        restaurants.add(restaurant);
+    public void addRestaurant (Address address, Location location, String phone_number, String title, Owner owner, ArrayList<Period> working_periods) {
+
+        RestaurantRegisterSystem restaurantRegisterSystem;
+        restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
+        Restaurant new_restaurant = new Restaurant(address, location, phone_number, title, owner);
+        if (restaurantRegisterSystem.requestConfirmation(new_restaurant))
+            restaurants.add(new_restaurant);
+        else
+            System.out.println("Failed to register Restaurant try again later" + new_restaurant);
+
     }
 }
