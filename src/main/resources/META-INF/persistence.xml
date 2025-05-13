@@ -7,6 +7,8 @@
         <class>model.Customer</class>
         <class>model.Owner</class>
         <class>model.Deliveryman</class>
+        <class>model.Restaurant</class>
+        <class>model.Item</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>

@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import jakarta.persistence.*;
 
 public class Menu {
 
