@@ -15,9 +15,10 @@ public class RestaurantManager {
             instance = new RestaurantManager();
         }
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
-            return instance;
+        return instance;
     }
-    public void addRestaurant (Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
+
+    public void addRestaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
 
         RestaurantRegisterSystem restaurantRegisterSystem;
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
@@ -25,11 +26,11 @@ public class RestaurantManager {
         if (restaurantRegisterSystem.requestConfirmation(new_restaurant)) {
             restaurants.add(new_restaurant);
             new_restaurant.getOwner().setRestaurant(new_restaurant);
-        }
-        else
+        } else
             System.out.println("Failed to register Restaurant try again later" + new_restaurant);
 
     }
+
     public void addRestaurantObserver(RestaurantObserver o) {
         restaurantRegisterSystem.registerObserver(o);
     }
