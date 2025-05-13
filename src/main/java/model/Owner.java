@@ -1,14 +1,25 @@
 package model;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Owner extends User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private Address address;   // human-readable address (not used for distance)
     private Location location; // a coordinate system
+    @OneToOne(mappedBy = "owner")
     private Restaurant restaurant=null;
 
     public Owner(String first_name, String last_name, String phone_number, String email, String password, Address address, Location location) {
         super(first_name, last_name, phone_number, email, password, Role.OWNER);
         this.address = address;
         this.location = location;
+    }
+
+    protected Owner() {
+        super("","","","","",Role.OWNER);
     }
 
 

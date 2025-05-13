@@ -1,6 +1,7 @@
 package model;
 
 import org.jetbrains.annotations.NotNull;
+import jakarta.persistence.*;
 
 public enum RestaurantCategory {
     FAST_FOOD, CAFE, TRADITIONAL,BREAKFAST,SEAFOOD,ITALIAN;//TBD
