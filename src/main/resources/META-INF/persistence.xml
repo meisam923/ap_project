@@ -5,12 +5,11 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <!-- your entity classes: -->
+        <!-- entity classes: -->
         <class>model.User</class>
         <class>model.Customer</class>
         <class>model.Owner</class>
         <class>model.Deliveryman</class>
-
         <class>model.Restaurant</class>
         <class>model.Item</class>
 
