@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
              version="2.2">
+    <persistence-unit name="MyPU" transaction-type="RESOURCE_LOCAL">
 
-    <persistence-unit name="myPU">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- your entity classes: -->
         <class>model.User</class>
         <class>model.Customer</class>
         <class>model.Owner</class>
         <class>model.Deliveryman</class>
+<<<<<<< Updated upstream
         <class>model.Restaurant</class>
         <class>model.Item</class>
 
@@ -15,10 +19,26 @@
             <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/PolyEats"/>
             <property name="jakarta.persistence.jdbc.user" value="postgres"/>
             <property name="jakarta.persistence.jdbc.password" value="newpasswordS"/>
+=======
+        <!-- etc -->
 
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.show_sql" value="true"/>
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver"
+                      value="org.postgresql.Driver"/>
+            <property name="jakarta.persistence.jdbc.url"
+                      value="jdbc:postgresql://localhost:5432/postgres"/>
+            <property name="jakarta.persistence.jdbc.user"
+                      value="postgres"/>
+            <property name="jakarta.persistence.jdbc.password"
+                      value="newpassword"/>
+>>>>>>> Stashed changes
+
+            <property name="hibernate.dialect"
+                      value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto"
+                      value="update"/>
+            <property name="hibernate.show_sql"
+                      value="true"/>
         </properties>
     </persistence-unit>
 </persistence>
