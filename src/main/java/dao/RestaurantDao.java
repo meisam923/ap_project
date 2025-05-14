@@ -49,7 +49,7 @@ public class RestaurantDao {
         }
     }
 
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -83,5 +83,4 @@ public class RestaurantDao {
         }
         return restaurant;
     }
-
 }
