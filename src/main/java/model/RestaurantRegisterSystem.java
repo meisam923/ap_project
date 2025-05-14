@@ -2,7 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
-//singeleton
+//singleton
 public class RestaurantRegisterSystem implements RestaurantSubject {
     private static RestaurantRegisterSystem instance;
 

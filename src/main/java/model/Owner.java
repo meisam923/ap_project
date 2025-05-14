@@ -1,12 +1,34 @@
 package model;
 
-public class Owner extends User {
-    private Address address;   // human-readable address (not used for distance)
-    private Location location; // a coordinate system
-    private Restaurant restaurant=null;
+import jakarta.persistence.*;
 
-    public Owner(String first_name, String last_name, String phone_number, String email, String password, Address address, Location location) {
-        super(first_name, last_name, phone_number, email, password, Role.OWNER);
+@Entity
+@Table(name = "owners")
+@PrimaryKeyJoinColumn(name = "id")
+public class Owner extends User {
+
+    @Embedded
+    private Address address;   // human-readable address
+
+    @Embedded
+    private Location location; // a coordinate system
+
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Restaurant restaurant;
+
+    public Owner() {
+        super();
+        setRole(Role.OWNER);
+    }
+
+    public Owner(String firstName,
+                 String lastName,
+                 String phoneNumber,
+                 String email,
+                 String password,
+                 Address address,
+                 Location location) {
+        super(firstName, lastName, phoneNumber, email, password, Role.OWNER);
         this.address = address;
         this.location = location;
     }

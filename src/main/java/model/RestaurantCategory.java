@@ -1,9 +1,10 @@
 package model;
 
 import org.jetbrains.annotations.NotNull;
+import jakarta.persistence.*;
 
 public enum RestaurantCategory {
-    FAST_FOOD, CAFE, TRADITIONAL,BREAKFAST,SEAFOOD,ITALIAN;//TBD
+    FAST_FOOD, CAFE, TRADITIONAL, BREAKFAST, SEAFOOD, ITALIAN;//TBD
 
     public static RestaurantCategory buildCategory(String category) {
         switch (category) {
@@ -19,8 +20,8 @@ public enum RestaurantCategory {
                 return SEAFOOD;
             case "Italian":
                 return ITALIAN;
-                default:
-                    return null;
+            default:
+                return null;
         }
     }
 }
