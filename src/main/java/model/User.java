@@ -18,9 +18,6 @@ public abstract class User {
     @Column(unique = true, nullable = false, updatable = false)
     private String publicId = UUID.randomUUID().toString(); // UUID for external reference
 
-    @Column(unique = true)
-    private String sessionToken;
-
     private String firstName;
     private String lastName;
 
@@ -56,21 +53,12 @@ public abstract class User {
     }
 
     // Getters & setters
-
     public Long getId() {
         return id;
     }
 
     public String getPublicId() {
         return publicId;
-    }
-
-    public String getSessionToken() {
-        return sessionToken;
-    }
-
-    public void setSessionToken(String sessionToken) {
-        this.sessionToken = sessionToken;
     }
 
     public String getFirstName() {
