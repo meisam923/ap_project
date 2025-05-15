@@ -93,48 +93,24 @@ public abstract class Item {
     public void setPrice(int price) throws NotAcceptableException {
         if (price >= 0)
             this.price.setPrice(price);
-        throw new NotAcceptableException("invalid argument");
+        else
+            throw new NotAcceptableException("invalid argument");
     }
 
-//    public void setImage(ImageIcon image) {
-//        this.image = image;
-//    }
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
 
     public void setDiscount(int percentage, LocalDateTime expiration) {
         price.setDiscount(percentage, expiration);
     }
-}
 
-@Embeddable
-class Discount {
-
-    @Column(name = "discount_percentage")
-    private int percentage;
-
-    @Column(name = "discount_expiration")
-    private LocalDateTime expiration;
-
-    private boolean isActive = false;
-
-    public Discount() {
-        // Required by JPA
+    public void decreaseCount(int quantity) {
+        this.count -= quantity;
     }
-
-    public Discount(int percentage, LocalDateTime until_when) {
-        this.percentage = percentage;
-        this.expiration = until_when;
-        this.isActive = true;
-    }
-
-    public boolean isActive(LocalDateTime now) {
-        return now.isBefore(expiration) && isActive;
-    }
-
-    public int getPercentage() {
-        return percentage;
-    }
-
-    public LocalDateTime getExpiration() {
-        return expiration;
+    public void increaseCount(int quantity) {
+        this.count += quantity;
     }
 }
+
+
