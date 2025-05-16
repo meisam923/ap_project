@@ -9,7 +9,7 @@ public class Admin implements RestaurantObserver {
     @Id
     private Long id;
 
-    Role role = Role.ADMIN;
+    private Role role = Role.ADMIN;
 
     public boolean registerRestaurant(Restaurant restaurant,Owner owner) {
         return true;
