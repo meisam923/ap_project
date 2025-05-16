@@ -2,9 +2,10 @@ package model;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import util.JwtUtil;
+
 
 import java.util.*;
-
 
 public class AuthService {
     private static AuthService instance;
@@ -17,8 +18,7 @@ public class AuthService {
     private final Map<String, Long> resetTimestamps = new HashMap<>();
     private final Map<String, Integer> resetCode = new HashMap<>();
 
-    private AuthService() {
-    }
+    private AuthService() {}
 
     public static AuthService getInstance() {
         if (instance == null) {
@@ -27,8 +27,7 @@ public class AuthService {
         return instance;
     }
 
-    //methods
-    public User login(String email, String password) {
+    public String login(String email, String password) {
         User user = userManager.findByEmail(email);
         if (user == null) {
             System.out.println("User not found.");
@@ -39,15 +38,21 @@ public class AuthService {
             return null;
         }
 
-        String token = SessionManager.login(user);
-        user.setSessionToken(token);
-
-        // notify observers
+        String jwt = JwtUtil.generateToken(user);
         for (LoginObserver obs : loginObservers) {
             obs.onUserLoggedIn(user);
         }
-        return user;
+        return jwt;
     }
+
+    public String generateRefreshToken(@NotNull User user, long refreshTokenValidityMs) {
+        return JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);
+    }
+
+    public boolean isTokenExpired(String token) {
+        return JwtUtil.isTokenExpired(token);
+    }
+
 
     public User register(
             Role role,
@@ -129,24 +134,9 @@ public class AuthService {
         cleanupReset(email);
     }
 
-    public void logOut(String sessionToken) {
+    public void deleteAccount(String token) {
         try {
-            User user = requireLogin(sessionToken);
-            SessionManager.logout(sessionToken);
-            user.setSessionToken(null);
-            System.out.println("Logged out successfully for " + user.getFirstName() + ".");
-        } catch (IllegalStateException e) {
-            // Gracefully handle missing/invalid token
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void deleteAccount(String sessionToken) {
-        try {
-            User user = requireLogin(sessionToken);
-            SessionManager.logout(sessionToken);
-            user.setSessionToken(null);
-
+            User user = requireLogin(token);
             boolean removed = userManager.removeUser(user);
             if (removed) {
                 System.out.println("Account for " + user.getFirstName() + " has been deleted.");
@@ -154,25 +144,22 @@ public class AuthService {
                 System.out.println("Error: Failed to delete account for " + user.getFirstName() + ".");
             }
         } catch (IllegalStateException e) {
-            // Gracefully handle missing/invalid token
             System.out.println(e.getMessage());
         }
     }
 
     public void editProfile(
-            String sessionToken,
+            String token,
             String firstName,
             String lastName,
             String phone,
             String email,
             String password,
-            Address address,     // may be null
-            Location location    // may be null
+            Address address,
+            Location location
     ) {
-        User user = requireLogin(sessionToken);
-
+        User user = requireLogin(token);
         userManager.updateBasicProfile(user, firstName, lastName, phone, email, password);
-
         switch (user.getRole()) {
             case CUSTOMER -> userManager.updateCustomerDetails(
                     (Customer) user, address, location);
@@ -184,16 +171,15 @@ public class AuthService {
         System.out.println("Profile updated for " + user.getFirstName());
     }
 
-
-    //helper methods
-    @Contract("null -> fail") // intellij suggested this
+    @Contract("null -> fail")
     public @NotNull User requireLogin(String token) {
         if (token == null || token.isBlank()) {
-            throw new IllegalStateException("No session token provided.");
+            throw new IllegalStateException("No token provided.");
         }
-        User user = SessionManager.getUserByToken(token);
+        UserPayload payload = JwtUtil.verifyToken(token);
+        User user = userManager.findByPublicId(payload.getPublicId());
         if (user == null) {
-            throw new IllegalStateException("Invalid or expired session token.");
+            throw new IllegalStateException("Invalid or expired token.");
         }
         return user;
     }
@@ -212,7 +198,6 @@ public class AuthService {
         return new Random().nextInt(10000, 99999);
     }
 
-    //observers
     public void registerLoginObserver(LoginObserver obs) {
         loginObservers.add(obs);
     }
@@ -225,7 +210,6 @@ public class AuthService {
         forgetPasswordObservers.add(obs);
     }
 
-    //getters
     public UserManager getUserManager() {
         return userManager;
     }
