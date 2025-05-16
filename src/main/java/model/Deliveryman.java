@@ -1,16 +1,32 @@
 package model;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 
+@Entity
+@Table(name = "deliverymen")
+@PrimaryKeyJoinColumn(name = "id")
 public class Deliveryman extends User {
+
+    @Embedded
     private Location location; // a coordinate system
-    private ArrayList<Order> ordersAssigned;
-    // the delivery man doesnt need address
 
-    public Deliveryman(String first_name, String last_name, String phone_number, String email, String password, Location location) {
-        super(first_name, last_name, phone_number, email, password, Role.DELIVERY_MAN);
+    @OneToMany(mappedBy = "deliveryman", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ArrayList<Order> ordersAssigned = new ArrayList<>();
+
+    public Deliveryman() {
+        super();
+        setRole(Role.DELIVERY_MAN);
+    }
+
+    public Deliveryman(String firstName,
+                       String lastName,
+                       String phoneNumber,
+                       String email,
+                       String password,
+                       Location location) {
+        super(firstName, lastName, phoneNumber, email, password, Role.DELIVERY_MAN);
         this.location = location;
-
     }
 
     public Location getLocation() {

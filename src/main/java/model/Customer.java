@@ -1,15 +1,38 @@
 package model;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
+import java.util.List;
 
+@Entity
+@Table(name = "customers")
+@DiscriminatorValue("CUSTOMER")
+@PrimaryKeyJoinColumn(name = "id")
 public class Customer extends User {
-    private Address address;   // human-readable address (not used for distance)
+
+    @Embedded
+    private Address address;   // human-readable address
+
+    @Embedded
     private Location location; // a coordinate system
-    private ArrayList<Order> ordersAssigned;
 
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> ordersAssigned = new ArrayList<>();
 
-    public Customer(String first_name, String last_name, String phone_number, String email, String password, Address address, Location location) {
-        super(first_name, last_name, phone_number, email, password, Role.CUSTOMER);
+    public Customer() {
+        super();
+        setRole(Role.CUSTOMER);
+    }
+
+    public Customer(String firstName,
+                    String lastName,
+                    String phoneNumber,
+                    String email,
+                    String password,
+                    Address address,
+                    Location location) {
+        super(firstName, lastName, phoneNumber, email, password, Role.CUSTOMER);
         this.address = address;
         this.location = location;
     }
@@ -30,7 +53,7 @@ public class Customer extends User {
         this.location = location;
     }
 
-    public ArrayList<Order> getOrdersAssigned() {
+    public List<Order> getOrdersAssigned() {
         return ordersAssigned;
     }
 

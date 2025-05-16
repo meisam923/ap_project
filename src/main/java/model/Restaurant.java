@@ -1,10 +1,14 @@
 package model;
+
 import exception.NotAcceptableException;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
+
 import jakarta.persistence.*;
+
 @Entity
-@Table(name="restaurants")
+@Table(name = "restaurants")
 public class Restaurant {
 
     @Id
@@ -14,26 +18,27 @@ public class Restaurant {
     private final Address address;// human-readable address (not used for distance)
     @Embedded
     private final Location location;// a coordinate system
-    private String phone_number; ;
+    private String phone_number;
+    ;
     private String title;
     @OneToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
     @OneToMany
     private ArrayList<Period> working_periods;
-    //private Menu menu=new Menu();
+
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
 
-    public Restaurant(Address address, Location location, String phone_number, String title, Owner owner,String category) throws NotAcceptableException {
-        validateField(address ,location,phone_number,title,owner,category);
+    public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
+        validateField(address, location, phone_number, title, owner, category);
         this.address = address;
         this.location = location;
         this.phone_number = phone_number;
         this.title = title;
         this.owner = owner;
         this.working_periods = new ArrayList<>();
-        this.category=RestaurantCategory.buildCategory(category);
+        this.category = RestaurantCategory.buildCategory(category);
 
     }
 
@@ -69,18 +74,20 @@ public class Restaurant {
 //
 //        }
 
-        //}
+    //}
 
-    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner,String category) throws NotAcceptableException {
+    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
                 (!phone_number.matches("0\\d{10}")) ||
                 (!title.matches("(?i)^[a-z]{1,20}$") ||
                         (RestaurantCategory.buildCategory(category) == null)))
             throw new NotAcceptableException("invalid field");
     }
+
     public Owner getOwner() {
         return owner;
     }
+
     public String getTitle() {
         return title;
     }
