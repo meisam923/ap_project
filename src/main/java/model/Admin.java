@@ -3,6 +3,9 @@ package model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 @Entity
 public class Admin implements RestaurantObserver {
 
@@ -10,9 +13,11 @@ public class Admin implements RestaurantObserver {
     private Long id;
 
     Role role = Role.ADMIN;
+    private ArrayList<Restaurant> notregisteredrestaurants=new ArrayList<>();
 
-    public boolean registerRestaurant(Restaurant restaurant,Owner owner) {
-        return true;
+    public void registerRestaurant(Restaurant restaurant) {
+        notregisteredrestaurants.add(restaurant);
+        return;
     }
 
     public void setId(Long id) {
