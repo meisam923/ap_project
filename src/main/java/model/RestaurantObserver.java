@@ -1,5 +1,8 @@
 package model;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface RestaurantObserver {
-    void  registerRestaurant(Restaurant restaurant);
+    void registerRestaurant( @NotNull Restaurant restaurant);
+
 }
