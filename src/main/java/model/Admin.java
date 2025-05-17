@@ -12,7 +12,7 @@ public class Admin implements RestaurantObserver {
     @Id
     private Long id;
 
-    Role role = Role.ADMIN;
+    private Role role = Role.ADMIN;
     private ArrayList<Restaurant> notregisteredrestaurants=new ArrayList<>();
 
     public void registerRestaurant(Restaurant restaurant) {
