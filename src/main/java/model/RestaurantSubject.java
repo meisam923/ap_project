@@ -7,6 +7,6 @@ public interface RestaurantSubject {
 
     void removeObserver(RestaurantObserver o);
 
-    boolean requestConfirmation(Restaurant restaurant); // asks observers to confirm
+    void requestConfirmation(Restaurant restaurant); // asks observers to confirm
 
 }

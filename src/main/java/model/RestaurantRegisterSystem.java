@@ -22,19 +22,13 @@ public class RestaurantRegisterSystem implements RestaurantSubject {
     public void removeObserver(RestaurantObserver o) {
         observers.remove(o);
     }
-    public boolean requestConfirmation(Restaurant restaurant) {
-        boolean result = false;
+    public void  requestConfirmation(Restaurant restaurant) {
+
         for (RestaurantObserver o : observers) {
-            result = o.registerRestaurant(restaurant,restaurant.getOwner());
+            o.registerRestaurant(restaurant);
         }
-        if (result) {
-            System.out.println("Successfully registered Restaurant " + restaurant);
-            result = true;
-        }
-        else {
-            System.out.println("Failed to register Restaurant " + restaurant);
-        }
-        return result;
+        System.out.println("Restaurant " + restaurant + " register request was sent.");
+        return ;
     }
 
 
