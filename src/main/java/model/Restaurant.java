@@ -19,7 +19,6 @@ public class Restaurant {
     @Embedded
     private final Location location;// a coordinate system
     private String phone_number;
-    ;
     private String title;
     @OneToOne
     @JoinColumn(name = "owner_id")
@@ -44,7 +43,7 @@ public class Restaurant {
 
     public Restaurant() { // used for testing
         address = null;
-        location = null;
+        location = new Location(0,0);
     }
 
     public boolean setPeriod(LocalTime start, LocalTime end) {
