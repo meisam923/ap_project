@@ -1,8 +1,6 @@
 package model;
 
-
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.EmbeddedId;
 
 @Embeddable
 public final class Address {
@@ -15,6 +13,18 @@ public final class Address {
     }
 
     protected Address() {
+    }
 
+    public String getAddressDetails() {
+        return addressDetails;
+    }
+
+    public String getAddressTitle() {
+        return addressTitle;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%s)", addressTitle, addressDetails);
     }
 }

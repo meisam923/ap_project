@@ -11,8 +11,8 @@ public class Main {
 
             Customer customer = new Customer(
                     "Ali", "Rezai",
-                    "09121234567",
-                    "ali@gmail.com",
+                    "09121234561117",
+                    "alaaaa@gmail.com",
                     "my_password",
                     new Address("1231", "131"),
                     new Location(123, 123)
@@ -26,8 +26,8 @@ public class Main {
 
             Owner owner = new Owner(
                     "Sara", "Ahmadi",
-                    "09351234567",
-                    "rezaj123rezaj123@gmail.com",
+                    "0933351234567",
+                    "rezaaaaj123rezaj123@gmail.com",
                     "owner_pass",
                     new Address("1231", "131"),
                     new Location(123, 123)

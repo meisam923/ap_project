@@ -3,7 +3,6 @@ package model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import jakarta.persistence.Transient;
 
 import java.time.LocalDateTime;
 
