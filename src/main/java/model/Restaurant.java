@@ -19,6 +19,7 @@ public class Restaurant {
     @Embedded
     private final Location location;// a coordinate system
     private String phone_number;
+
     private String title;
     @OneToOne
     @JoinColumn(name = "owner_id")
@@ -91,5 +92,52 @@ public class Restaurant {
         return title;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
+    public ArrayList<Period> getWorking_periods() {
+        return working_periods;
+    }
+
+    public void setWorking_periods(ArrayList<Period> working_periods) {
+        this.working_periods = working_periods;
+    }
+
+    public RestaurantCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(RestaurantCategory category) {
+        this.category = category;
+    }
 }
 
