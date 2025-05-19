@@ -25,9 +25,6 @@ public abstract class Item {
     @Column(name = "hashtag")
     private List<String> hashtags = new ArrayList<>();
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "restaurant_id", updatable = false)
-    private Restaurant restaurant;
 
     @Enumerated(EnumType.STRING)
     private ItemCategory category;
@@ -35,8 +32,19 @@ public abstract class Item {
     @Embedded
     private Price price;
 
+    @OneToOne
+    @JoinColumn(name = "menu_id")
+    private Menu menu;
     @Lob
     private byte[] image;
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
+    }
 
     public Item() {
     }
@@ -46,14 +54,12 @@ public abstract class Item {
                 int priceValue,
                 int count,
                 ArrayList<String> hashtags,
-                Restaurant restaurant,
                 ItemCategory category) throws NotAcceptableException {
-        validateField(title, description, priceValue, count, hashtags, restaurant);
+        validateField(title, description, priceValue, count, hashtags);
         this.title = title;
         this.description = description;
         this.count = count;
         this.hashtags = hashtags;
-        this.restaurant = restaurant;
         this.category = category;
         this.price = new Price(priceValue);
     }
@@ -62,8 +68,8 @@ public abstract class Item {
         return price;
     }
 
-    public static void validateField(String title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant) throws NotAcceptableException {
-        if (title == null || price <= 0 || count < 0 || hashtags == null || restaurant == null ||
+    public static void validateField(String title, String description, int price, int count, ArrayList<String> hashtags) throws NotAcceptableException {
+        if (title == null || price <= 0 || count < 0 || hashtags == null ||
                 (!title.matches("(?i)^[a-z]{1,20}$") ||
                         (!description.matches("(?i)^[a-z]{0,50}$"))))
             throw new NotAcceptableException("invalid field");
@@ -140,13 +146,6 @@ public abstract class Item {
         this.hashtags = hashtags;
     }
 
-    public Restaurant getRestaurant() {
-        return restaurant;
-    }
-
-    public void setRestaurant(Restaurant restaurant) {
-        this.restaurant = restaurant;
-    }
 
     public ItemCategory getCategory() {
         return category;
