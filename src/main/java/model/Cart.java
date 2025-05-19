@@ -1,61 +1,95 @@
 package model;
 
+import exception.NotAcceptableException;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
+@Entity
+@Table(name = "carts")
 public class Cart {
-    private ArrayList<Item> menuItems;
-    private Price price; // unused rn
-    private long discountedPrice;
-    private long totalPrice;
-    private long discountAmount;
-    private LocalDateTime now;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToMany
+    private List<Item> items = new ArrayList<>();
+
+    @Column(name = "coupon_code")
+    private String couponCode;
+
+    @Column(name = "coupon_percentage")
+    private Integer couponPercentage;
 
     public Cart() {
-        menuItems = new ArrayList<>();
-        price = new Price(0);
-        discountedPrice = 0;
-        totalPrice = 0;
-        discountAmount = 0;
-        now = LocalDateTime.now();
     }
 
     public void addItem(Item item) {
-        menuItems.add(item);
-        totalPrice += item.getPrice().getPriceWithoutDiscount();
-        discountedPrice += item.getPrice().getPriceWithDiscount(now);
-        discountAmount += item.getPrice().getDiscountedAmount(now);
+        items.add(item);
     }
 
     public void removeItem(Item item) {
-        menuItems.remove(item);
-        totalPrice -= item.getPrice().getPriceWithoutDiscount();
-        discountedPrice -= item.getPrice().getPriceWithDiscount(now);
-        discountAmount -= item.getPrice().getDiscountedAmount(now);
+        items.remove(item);
     }
 
-    public ArrayList<Item> getMenuItems() {
-        return menuItems;
-    }
-
-    public String menuItemsToString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Item item : menuItems) {
-            stringBuilder.append(item.toString()).append("\n");
+    public void applyCoupon(String code, int percentage) throws NotAcceptableException {
+        if (code == null || code.isBlank() || percentage <= 0 || percentage > 100) {
+            throw new NotAcceptableException("Invalid coupon");
         }
-        return stringBuilder.toString();
+        this.couponCode = code;
+        this.couponPercentage = percentage;
     }
 
-    public long getDiscountedPrice() {
-        return discountedPrice;
+    public void clearCoupon() {
+        this.couponCode = null;
+        this.couponPercentage = null;
     }
 
-    public long getTotalPrice() {
-        return totalPrice;
+    public long getSubtotal() {
+        long sum = 0;
+        for (Item item : items) {
+            sum += item.getPrice().getPriceWithoutDiscount();
+        }
+        return sum;
     }
 
-    public long getDiscountAmount() {
-        return discountAmount;
+    public long getAfterItemDiscounts() {
+        LocalDateTime now = LocalDateTime.now();
+        long sum = 0;
+        for (Item item : items) {
+            sum += item.getPrice().getPriceWithDiscount(now);
+        }
+        return sum;
     }
 
+
+    public long getItemDiscountSavings() {
+        return getSubtotal() - getAfterItemDiscounts();
+    }
+
+    public long getCouponDiscountAmount() {
+        if (couponPercentage == null || couponPercentage <= 0) {
+            return 0;
+        }
+        long base = getAfterItemDiscounts();
+        return (base * couponPercentage) / 100;
+    }
+
+    public long getTotal() {
+        return getAfterItemDiscounts() - getCouponDiscountAmount();
+    }
+
+    public List<Item> getItems() {
+        return List.copyOf(items);
+    }
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public Integer getCouponPercentage() {
+        return couponPercentage;
+    }
 }

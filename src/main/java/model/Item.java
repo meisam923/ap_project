@@ -111,6 +111,54 @@ public abstract class Item {
     public void increaseCount(int quantity) {
         this.count += quantity;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public List<String> getHashtags() {
+        return hashtags;
+    }
+
+    public void setHashtags(List<String> hashtags) {
+        this.hashtags = hashtags;
+    }
+
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+    }
+
+    public ItemCategory getCategory() {
+        return category;
+    }
+
+    public void setPrice(Price price) {
+        this.price = price;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
 }
 
 
