@@ -1,5 +1,7 @@
 package model;
 
+import enums.RestaurantCategory;
+import enums.RestaurantStatus;
 import exception.NotAcceptableException;
 
 import java.time.LocalTime;
@@ -7,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
-import org.jetbrains.annotations.NotNull;
 
 @Entity
 @Table(name = "restaurants")
@@ -32,6 +33,8 @@ public class Restaurant {
     private Menu menu;
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
+    @Enumerated(EnumType.STRING)
+    private RestaurantStatus status;
 
     public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         validateField(address, location, phone_number, title, owner, category);
@@ -42,6 +45,7 @@ public class Restaurant {
         this.owner = owner;
         this.working_periods = new ArrayList<>();
         this.category = RestaurantCategory.buildCategory(category);
+        this.status = RestaurantStatus.WAITING;
 
     }
 
@@ -59,24 +63,6 @@ public class Restaurant {
         return true;
     }
 
-    public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant, @NotNull String type) throws NotAcceptableException {
-      Item new_item;
-        if (type.equals("Drink")) {
-            new_item=new Item(title,description,price,count,hashtags,ItemCategory.DRINK) ;
-            menu.addItem(new_item);
-            return;
-        }
-        else {
-            if (ItemCategory.buildCategory(type)==null) {
-                System.out.println("Invalid Category");
-                return ;
-            }
-            new_item=new Item(title,description,price,count,hashtags,ItemCategory.buildCategory(type)) ;
-            menu.addItem(new_item);
-            return;
-
-        }
-    }
 
     public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         if ((address == null || location == null || phone_number == null || title == null || owner == null) ||

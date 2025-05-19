@@ -1,6 +1,7 @@
 package Services;
 
 import controller.UserController;
+import enums.Role;
 import model.*;
 import observers.ForgetPasswordObserver;
 import observers.LoginObserver;

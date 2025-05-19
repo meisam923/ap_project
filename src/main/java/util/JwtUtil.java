@@ -6,7 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import model.User;
 import model.UserPayload;
-import model.Role;
+import enums.Role;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;

@@ -1,5 +1,6 @@
 package model;
 
+import enums.ItemCategory;
 import exception.NotAcceptableException;
 import jakarta.persistence.*;
 

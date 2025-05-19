@@ -1,5 +1,6 @@
 package model;
 
+import enums.Role;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
