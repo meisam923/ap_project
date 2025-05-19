@@ -1,5 +1,6 @@
 package model;
 
+import enums.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import observers.RestaurantObserver;
@@ -14,17 +15,21 @@ public class Admin implements RestaurantObserver {
     private Long id;
 
     private Role role = Role.ADMIN;
-    private ArrayList<Restaurant> notRegisteredRestaurants =new ArrayList<>();
+    private ArrayList<Long> notRegisteredRestaurantIds =new ArrayList<>();
 
-    public void registerRestaurant(@NotNull Restaurant restaurant) {
-        notRegisteredRestaurants.add(restaurant);
+    public void registerRestaurant(long id) {
+
+        notRegisteredRestaurantIds.add(id);
     }
-
     public void setId(Long id) {
         this.id = id;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public ArrayList<Long> getNotRegisteredRestaurantIds() {
+        return notRegisteredRestaurantIds;
     }
 }

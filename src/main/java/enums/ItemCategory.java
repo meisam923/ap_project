@@ -1,4 +1,4 @@
-package model;
+package enums;
 
 public enum ItemCategory {
     IRANIAN("Iranian"),
