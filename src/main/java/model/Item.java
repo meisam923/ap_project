@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "items")
-public abstract class Item {
+public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,6 +2,7 @@ package model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import observers.RestaurantObserver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

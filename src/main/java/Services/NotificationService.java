@@ -1,10 +1,17 @@
-package model;
+package Services;
 
 import jakarta.mail.MessagingException;
+import model.EmailService;
+import model.Restaurant;
+import model.User;
+import observers.ForgetPasswordObserver;
+import observers.LoginObserver;
+import observers.RestaurantObserver;
+import observers.SignUpObserver;
 import org.jetbrains.annotations.NotNull;
 
 
-public class NotificationService implements SignUpObserver, LoginObserver, ForgetPasswordObserver ,RestaurantObserver {
+public class NotificationService implements SignUpObserver, LoginObserver, ForgetPasswordObserver, RestaurantObserver {
     private final AuthService authService = AuthService.getInstance();
 
     @Override

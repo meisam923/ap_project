@@ -4,8 +4,10 @@ import exception.NotAcceptableException;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
+import org.jetbrains.annotations.NotNull;
 
 @Entity
 @Table(name = "restaurants")
@@ -25,8 +27,8 @@ public class Restaurant {
     @JoinColumn(name = "owner_id")
     private Owner owner;
     @OneToMany
-    private ArrayList<Period> working_periods;
-
+    private List<Period> working_periods;
+    @OneToOne
     private Menu menu;
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
@@ -57,10 +59,10 @@ public class Restaurant {
         return true;
     }
 
-    public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant,String type) throws NotAcceptableException {
+    public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant, @NotNull String type) throws NotAcceptableException {
       Item new_item;
         if (type.equals("Drink")) {
-            new_item=new Drink(title,description,price,count,hashtags,restaurant,ItemCategory.DRINK) ;
+            new_item=new Item(title,description,price,count,hashtags,ItemCategory.DRINK) ;
             menu.addItem(new_item);
             return;
         }
@@ -69,7 +71,7 @@ public class Restaurant {
                 System.out.println("Invalid Category");
                 return ;
             }
-            new_item=new Food(title,description,price,count,hashtags,restaurant,ItemCategory.buildCategory(type)) ;
+            new_item=new Item(title,description,price,count,hashtags,ItemCategory.buildCategory(type)) ;
             menu.addItem(new_item);
             return;
 
@@ -124,7 +126,7 @@ public class Restaurant {
         this.owner = owner;
     }
 
-    public ArrayList<Period> getWorking_periods() {
+    public List<Period> getWorking_periods() {
         return working_periods;
     }
 

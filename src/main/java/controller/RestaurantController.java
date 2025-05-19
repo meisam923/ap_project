@@ -1,18 +1,24 @@
-package model;
+package controller;
 
+import Services.RestaurantRegisterSystem;
 import exception.NotAcceptableException;
+import model.Address;
+import model.Location;
+import model.Owner;
+import model.Restaurant;
+import observers.RestaurantObserver;
 
 import java.util.ArrayList;
 
 //singleton
-public class RestaurantManager {
-    private static RestaurantManager instance;
+public class RestaurantController {
+    private static RestaurantController instance;
     private final ArrayList<Restaurant> restaurants = new ArrayList<>();
     private static RestaurantRegisterSystem restaurantRegisterSystem;
 
-    public static RestaurantManager getInstance() {
+    public static RestaurantController getInstance() {
         if (instance == null) {
-            instance = new RestaurantManager();
+            instance = new RestaurantController();
         }
         restaurantRegisterSystem = RestaurantRegisterSystem.getInstance();
         return instance;
@@ -29,5 +35,4 @@ public class RestaurantManager {
 
     public void addRestaurantObserver(RestaurantObserver o) {
         restaurantRegisterSystem.registerObserver(o);
-    }
-}
+    }}

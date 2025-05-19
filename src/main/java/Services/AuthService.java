@@ -1,5 +1,10 @@
-package model;
+package Services;
 
+import controller.UserController;
+import model.*;
+import observers.ForgetPasswordObserver;
+import observers.LoginObserver;
+import observers.SignUpObserver;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import util.JwtUtil;
@@ -10,7 +15,7 @@ import java.util.*;
 public class AuthService {
     private static AuthService instance;
 
-    private final UserManager userManager = UserManager.getInstance();
+    private final UserController userController = UserController.getInstance();
     private final List<LoginObserver> loginObservers = new ArrayList<>();
     private final List<SignUpObserver> signUpObservers = new ArrayList<>();
     private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
@@ -28,7 +33,7 @@ public class AuthService {
     }
 
     public String login(String email, String password) {
-        User user = userManager.findByEmail(email);
+        User user = userController.findByEmail(email);
         if (user == null) {
             System.out.println("User not found.");
             return null;
@@ -65,7 +70,7 @@ public class AuthService {
             Address address,
             Restaurant restaurant
     ) {
-        if (userManager.findByEmail(email) != null) {
+        if (userController.findByEmail(email) != null) {
             System.out.println("Email already exists.");
             return null;
         }
@@ -81,7 +86,7 @@ public class AuthService {
             return null;
         }
 
-        userManager.addUser(user);
+        userController.addUser(user);
         for (SignUpObserver obs : signUpObservers) {
             obs.onUserRegistered(user);
         }
@@ -89,7 +94,7 @@ public class AuthService {
     }
 
     public void requestPasswordReset(String email) {
-        User user = userManager.findByEmail(email);
+        User user = userController.findByEmail(email);
         if (user == null) {
             System.out.println("Email not found.");
             return;
@@ -124,7 +129,7 @@ public class AuthService {
             if (entered == code) {
                 System.out.print("Enter new password: ");
                 String newPass = scanner.nextLine();
-                userManager.resetPassword(user, newPass);
+                userController.resetPassword(user, newPass);
                 System.out.println("Password reset successful.");
                 break;
             } else {
@@ -137,7 +142,7 @@ public class AuthService {
     public void deleteAccount(String token) {
         try {
             User user = requireLogin(token);
-            boolean removed = userManager.removeUser(user);
+            boolean removed = userController.removeUser(user);
             if (removed) {
                 System.out.println("Account for " + user.getFirstName() + " has been deleted.");
             } else {
@@ -159,13 +164,13 @@ public class AuthService {
             Location location
     ) {
         User user = requireLogin(token);
-        userManager.updateBasicProfile(user, firstName, lastName, phone, email, password);
+        userController.updateBasicProfile(user, firstName, lastName, phone, email, password);
         switch (user.getRole()) {
-            case CUSTOMER -> userManager.updateCustomerDetails(
+            case CUSTOMER -> userController.updateCustomerDetails(
                     (Customer) user, address, location);
-            case OWNER -> userManager.updateOwnerDetails(
+            case OWNER -> userController.updateOwnerDetails(
                     (Owner) user, address, location);
-            case DELIVERY_MAN -> userManager.updateDeliveryLocation(
+            case DELIVERY_MAN -> userController.updateDeliveryLocation(
                     (Deliveryman) user, location);
         }
         System.out.println("Profile updated for " + user.getFirstName());
@@ -177,7 +182,7 @@ public class AuthService {
             throw new IllegalStateException("No token provided.");
         }
         UserPayload payload = JwtUtil.verifyToken(token);
-        User user = userManager.findByPublicId(payload.getPublicId());
+        User user = userController.findByPublicId(payload.getPublicId());
         if (user == null) {
             throw new IllegalStateException("Invalid or expired token.");
         }
@@ -210,8 +215,8 @@ public class AuthService {
         forgetPasswordObservers.add(obs);
     }
 
-    public UserManager getUserManager() {
-        return userManager;
+    public UserController getUserManager() {
+        return userController;
     }
 
     public List<LoginObserver> getLoginObservers() {

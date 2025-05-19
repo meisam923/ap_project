@@ -10,11 +10,12 @@ public class Menu {
 
     @OneToMany
     private List<Item> items = new ArrayList<>();
-    @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+
     @OneToOne(optional = false)
     @JoinColumn(name = "restaurant_id", updatable = false)
     private Restaurant restaurant;
+    @Id
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
     public void addItem(Item item) {

@@ -3,10 +3,9 @@ package model;
 import java.time.LocalTime;
 import jakarta.persistence.*;
 // maybe needs some modification
-@Entity
+@Embeddable
 public class Period {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private long id;
     private LocalTime start_time;
     private LocalTime end_time;

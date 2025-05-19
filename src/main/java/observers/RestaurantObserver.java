@@ -1,5 +1,6 @@
-package model;
+package observers;
 
+import model.Restaurant;
 import org.jetbrains.annotations.NotNull;
 
 public interface RestaurantObserver {
