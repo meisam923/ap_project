@@ -26,6 +26,7 @@ public class Restaurant {
     @OneToMany
     private ArrayList<Period> working_periods;
 
+    private Menu menu;
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
 
@@ -55,25 +56,24 @@ public class Restaurant {
         return true;
     }
 
-//    public void addItemS (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant,String type) throws NotAcceptableException {
-//        Item new_item;
-//        if (type.equals("Drink")) {
-//            new_item=new Drink(title,description,price,count,hashtags,restaurant,ItemCategory.DRINK) ;
-//            menu.addItem(new_item);
-//            return;
-//        }
-//        else {
-//            if (ItemCategory.buildCategory(type)==null) {
-//                System.out.println("Invalid Category");
-//                return ;
-//            }
-//            new_item=new Food(title,description,price,count,hashtags,restaurant,ItemCategory.buildCategory(type)) ;
-//            menu.addItem(new_item);
-//            return;
-//
-//        }
+    public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant,String type) throws NotAcceptableException {
+      Item new_item;
+        if (type.equals("Drink")) {
+            new_item=new Drink(title,description,price,count,hashtags,restaurant,ItemCategory.DRINK) ;
+            menu.addItem(new_item);
+            return;
+        }
+        else {
+            if (ItemCategory.buildCategory(type)==null) {
+                System.out.println("Invalid Category");
+                return ;
+            }
+            new_item=new Food(title,description,price,count,hashtags,restaurant,ItemCategory.buildCategory(type)) ;
+            menu.addItem(new_item);
+            return;
 
-    //}
+        }
+    }
 
     public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
