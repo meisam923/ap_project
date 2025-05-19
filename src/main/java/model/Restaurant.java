@@ -44,7 +44,7 @@ public class Restaurant {
 
     public Restaurant() { // used for testing
         address = null;
-        location = null;
+        location = new Location(0,0);
     }
 
     public boolean setPeriod(LocalTime start, LocalTime end) {
