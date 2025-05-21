@@ -1,7 +1,6 @@
 package Services;
 
 import jakarta.mail.MessagingException;
-import model.EmailService;
 import model.Restaurant;
 import model.User;
 import observers.ForgetPasswordObserver;
@@ -63,8 +62,8 @@ public class NotificationService implements SignUpObserver, LoginObserver, Forge
 
     @Override
     public void registerRestaurant(@NotNull Restaurant restaurant) {
-        System.out.println("Welcome " + restaurant.getOwner().getFirstName() + "!restaurant has been registered");
-        String subject = "Congratulation ! your restaurant " + restaurant.getTitle() + " has been registered" + restaurant.getOwner().getFirstName() + "!";
+        System.out.println("Welcome " + restaurant.getOwner().getFirstName() + "!restaurant request has been sent");
+        String subject = "Congratulation ! your restaurant " + restaurant.getTitle() + " will be registered ASAP"  + restaurant.getOwner().getFirstName() + "!";
         String body = "Welcome to your new journey" + restaurant.getOwner().getFirstName() + ",\n\n"
                 + "We're glad to have you in PolyEats. Enjoy using PolyEats!"
                 + "\n\nBest regards,\nThe PolyEats Team";

@@ -1,4 +1,4 @@
-package model;
+package Services;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;

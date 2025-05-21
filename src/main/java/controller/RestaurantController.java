@@ -29,7 +29,7 @@ public class RestaurantController {
         }*/
         if (restaurantDao.findByOwnerId(owner.getId()) == null) {
             restaurantDao.save(new_restaurant);
-            restaurantRegisterService.requestConfirmation(new_restaurant.getId());
+            restaurantRegisterService.requestConfirmation(new_restaurant);
             return true;
         }
         return false;

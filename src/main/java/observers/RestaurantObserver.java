@@ -4,6 +4,6 @@ import model.Restaurant;
 import org.jetbrains.annotations.NotNull;
 
 public interface RestaurantObserver {
-    void registerRestaurant( long id);
+    void registerRestaurant( Restaurant restaurant);
 
 }

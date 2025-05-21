@@ -21,14 +21,16 @@ public class Restaurant {
     private final Address address;// human-readable address (not used for distance)
     @Embedded
     private final Location location;// a coordinate system
+    @Column (unique = true)
     private String phone_number;
 
     private String title;
     @OneToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
-    @OneToMany
-    private List<Period> working_periods;
+
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Period> periods;
     @OneToOne
     private Menu menu;
     @Enumerated(EnumType.STRING)
@@ -43,7 +45,7 @@ public class Restaurant {
         this.phone_number = phone_number;
         this.title = title;
         this.owner = owner;
-        this.working_periods = new ArrayList<>();
+        this.periods = new ArrayList<>();
         this.category = RestaurantCategory.buildCategory(category);
         this.status = RestaurantStatus.WAITING;
 
@@ -55,11 +57,11 @@ public class Restaurant {
     }
 
     public boolean setPeriod(LocalTime start, LocalTime end) {
-        if (this.working_periods.size() == 2) {
+        if (this.periods.size() == 2) {
             return false;
         }
-        Period period = new Period(start, end);
-        this.working_periods.add(period);
+        Period period = new Period(start, end,this);
+        this.periods.add(period);
         return true;
     }
 
@@ -113,11 +115,11 @@ public class Restaurant {
     }
 
     public List<Period> getWorking_periods() {
-        return working_periods;
+        return periods;
     }
 
-    public void setWorking_periods(ArrayList<Period> working_periods) {
-        this.working_periods = working_periods;
+    public void setPeriods(ArrayList<Period> working_periods) {
+        this.periods = working_periods;
     }
 
     public RestaurantCategory getCategory() {

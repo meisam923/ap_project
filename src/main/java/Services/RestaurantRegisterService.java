@@ -24,12 +24,12 @@ public class RestaurantRegisterService {
     public void removeObserver(RestaurantObserver o) {
         observers.remove(o);
     }
-    public void  requestConfirmation(Long id) {
+    public void  requestConfirmation(Restaurant restaurant) {
 
         for (RestaurantObserver o : observers) {
-            o.registerRestaurant(id);
+            o.registerRestaurant(restaurant);
         }
-        System.out.println("Restaurant with id : "+ id +" register request was sent.");
+        System.out.println("Restaurant with id : "+ restaurant.getId() +" register request was sent.");
     }
 
 }

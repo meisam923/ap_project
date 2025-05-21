@@ -1,7 +1,7 @@
-package model;
+package Services;
 
-import Services.AuthService;
 import controller.UserController;
+import model.*;
 
 public class UserService {
     private final UserController userController = UserController.getInstance();

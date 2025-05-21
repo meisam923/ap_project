@@ -3,19 +3,56 @@ package model;
 import java.time.LocalTime;
 import jakarta.persistence.*;
 // maybe needs some modification
-@Embeddable
+
+@Entity (name="periods")
 public class Period {
 
-    private long id;
-    private LocalTime start_time;
-    private LocalTime end_time;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Period(LocalTime start_time, LocalTime end_time) {
-        this.start_time = start_time;
-        this.end_time = end_time;
+    private LocalTime startTime;
+    private LocalTime endTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
+
+    public Period() {
     }
 
-    protected Period() {
+    public Period(LocalTime startTime, LocalTime endTime, Restaurant restaurant) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.restaurant = restaurant;
+    }
 
+    public Long getId() {
+        return id;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
     }
 }
+
