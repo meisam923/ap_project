@@ -1,16 +1,18 @@
-package model;
+package Services;
+
+import model.Restaurant;
+import observers.RestaurantObserver;
 
 import java.util.ArrayList;
 
-//singleton
-public class RestaurantRegisterSystem implements RestaurantSubject {
-    private static RestaurantRegisterSystem instance;
+public class RestaurantRegisterService {
+    private static RestaurantRegisterService instance;
 
     private ArrayList<RestaurantObserver> observers = new ArrayList<RestaurantObserver>();
 
-    public static RestaurantRegisterSystem getInstance() {
+    public static RestaurantRegisterService getInstance() {
         if (instance == null) {
-            instance = new RestaurantRegisterSystem();
+            instance = new RestaurantRegisterService();
         }
         return instance;
     }
@@ -27,10 +29,8 @@ public class RestaurantRegisterSystem implements RestaurantSubject {
         for (RestaurantObserver o : observers) {
             o.registerRestaurant(restaurant);
         }
-        System.out.println("Restaurant " + restaurant + " register request was sent.");
-        return ;
+        System.out.println("Restaurant with id : "+ restaurant.getId() +" register request was sent.");
     }
 
-
-
 }
+

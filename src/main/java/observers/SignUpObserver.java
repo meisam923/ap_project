@@ -1,4 +1,6 @@
-package model;
+package observers;
+
+import model.User;
 
 // define interface
 public interface SignUpObserver {

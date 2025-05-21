@@ -1,7 +1,10 @@
-package model;
+package Services;
+
+import controller.UserController;
+import model.*;
 
 public class UserService {
-    private final UserManager userManager = UserManager.getInstance();
+    private final UserController userController = UserController.getInstance();
 
     public void editProfile(
             String sessionToken,
@@ -15,15 +18,15 @@ public class UserService {
     ) {
         User user = AuthService.getInstance().requireLogin(sessionToken);
 
-        userManager.updateBasicProfile(
+        userController.updateBasicProfile(
                 user, firstName, lastName, phone, email, password);
 
         switch (user.getRole()) {
-            case CUSTOMER -> userManager.updateCustomerDetails(
+            case CUSTOMER -> userController.updateCustomerDetails(
                     (Customer) user, address, location);
-            case OWNER -> userManager.updateOwnerDetails(
+            case OWNER -> userController.updateOwnerDetails(
                     (Owner) user, address, location);
-            case DELIVERY_MAN -> userManager.updateDeliveryLocation(
+            case DELIVERY_MAN -> userController.updateDeliveryLocation(
                     (Deliveryman) user, location);
         }
 

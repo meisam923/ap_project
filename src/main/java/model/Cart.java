@@ -14,8 +14,16 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany
+    @OneToMany
     private List<Item> items = new ArrayList<>();
+
+    @JoinColumn
+    @OneToOne
+    private Customer customer;
+
+    @JoinColumn
+    @OneToOne
+    private Menu menu;
 
     @Column(name = "coupon_code")
     private String couponCode;

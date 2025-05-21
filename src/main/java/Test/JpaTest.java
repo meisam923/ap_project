@@ -6,7 +6,6 @@ import jakarta.persistence.Persistence;
 import model.Address;
 import model.Customer;
 import model.Location;
-import model.Role;
 
 public class JpaTest {
     public static void main(String[] args) {

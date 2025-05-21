@@ -1,6 +1,7 @@
 package model;
 
 import jakarta.persistence.Embeddable;
+import org.jetbrains.annotations.NotNull;
 
 @Embeddable
 public final class Location {
@@ -24,7 +25,7 @@ public final class Location {
     }
 
 
-    public double distanceTo(Location other) {
+    public double distanceTo(@NotNull Location other) {
         final int EARTH_RADIUS_KM = 6371;
 
         double latDistance = Math.toRadians(other.latitude - this.latitude);

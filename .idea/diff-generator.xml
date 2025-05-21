@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DiffGenerationConfig">
     <option name="snapshotDb" value="false" />
-    <option name="snapshotDbValue" value="69c2a030-33f0-45e3-ae39-e988d07e9bea" />
+    <option name="snapshotDbValue" value="54e0f849-53b3-4b14-969f-47b044a0083e" />
     <option name="snapshotModelValue" value="approject:MyPU" />
     <option name="sourceModelValue" value="approject:MyPU" />
     <option name="targetDbValue" value="e2b47ee4-b8f3-41ee-b388-400865beca5a" />

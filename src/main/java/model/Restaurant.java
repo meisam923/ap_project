@@ -1,9 +1,12 @@
 package model;
 
+import enums.RestaurantCategory;
+import enums.RestaurantStatus;
 import exception.NotAcceptableException;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -18,17 +21,22 @@ public class Restaurant {
     private final Address address;// human-readable address (not used for distance)
     @Embedded
     private final Location location;// a coordinate system
+    @Column (unique = true)
     private String phone_number;
 
     private String title;
     @OneToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
-    @OneToMany
-    private ArrayList<Period> working_periods;
 
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Period> periods;
+    @OneToOne
+    private Menu menu;
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
+    @Enumerated(EnumType.STRING)
+    private RestaurantStatus status;
 
     public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         validateField(address, location, phone_number, title, owner, category);
@@ -37,8 +45,9 @@ public class Restaurant {
         this.phone_number = phone_number;
         this.title = title;
         this.owner = owner;
-        this.working_periods = new ArrayList<>();
+        this.periods = new ArrayList<>();
         this.category = RestaurantCategory.buildCategory(category);
+        this.status = RestaurantStatus.WAITING;
 
     }
 
@@ -48,33 +57,14 @@ public class Restaurant {
     }
 
     public boolean setPeriod(LocalTime start, LocalTime end) {
-        if (this.working_periods.size() == 2) {
+        if (this.periods.size() == 2) {
             return false;
         }
-        Period period = new Period(start, end);
-        this.working_periods.add(period);
+        Period period = new Period(start, end,this);
+        this.periods.add(period);
         return true;
     }
 
-//    public void addItemS (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant,String type) throws NotAcceptableException {
-//        Item new_item;
-//        if (type.equals("Drink")) {
-//            new_item=new Drink(title,description,price,count,hashtags,restaurant,ItemCategory.DRINK) ;
-//            menu.addItem(new_item);
-//            return;
-//        }
-//        else {
-//            if (ItemCategory.buildCategory(type)==null) {
-//                System.out.println("Invalid Category");
-//                return ;
-//            }
-//            new_item=new Food(title,description,price,count,hashtags,restaurant,ItemCategory.buildCategory(type)) ;
-//            menu.addItem(new_item);
-//            return;
-//
-//        }
-
-    //}
 
     public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
@@ -124,12 +114,12 @@ public class Restaurant {
         this.owner = owner;
     }
 
-    public ArrayList<Period> getWorking_periods() {
-        return working_periods;
+    public List<Period> getWorking_periods() {
+        return periods;
     }
 
-    public void setWorking_periods(ArrayList<Period> working_periods) {
-        this.working_periods = working_periods;
+    public void setPeriods(ArrayList<Period> working_periods) {
+        this.periods = working_periods;
     }
 
     public RestaurantCategory getCategory() {

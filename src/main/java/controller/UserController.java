@@ -1,14 +1,15 @@
-package model;
+package controller;
+
+import model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 //singleton class :)
-public class UserManager {
-    private static UserManager instance;
+public class UserController {
+    private static UserController instance;
 
     private final List<User> users = new ArrayList<>();
     private final Map<String, User> userByPublicId = new HashMap<>();
@@ -21,12 +22,12 @@ public class UserManager {
     private final List<Deliveryman> deliverymen = new ArrayList<>();
     private final Map<String, Deliveryman> deliverymenByPublicId = new HashMap<>();
 
-    private UserManager() {
+    private UserController() {
     }
 
-    public static UserManager getInstance() {
+    public static UserController getInstance() {
         if (instance == null) {
-            instance = new UserManager();
+            instance = new UserController();
         }
         return instance;
     }

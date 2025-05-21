@@ -1,5 +1,7 @@
 package model;   // or simply `model`
 
+import enums.Role;
+
 public class UserPayload {
     private final String publicId;
     private final String email;
