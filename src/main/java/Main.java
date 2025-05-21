@@ -1,25 +1,28 @@
+import com.sun.net.httpserver.HttpServer;
 import dao.RestaurantDao;
 import dao.UserDao;
 import enums.RestaurantCategory;
 import exception.NotAcceptableException;
+import handler.HelloHandler;
 import jakarta.persistence.*;
 import model.*;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.time.LocalTime;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
+        int port = 8000;
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
+        // Register handler at /hello
+        server.createContext("/hello", new HelloHandler());
 
-
-
-
-
-
-
-
-
+        server.setExecutor(null); // uses default executor
+        server.start();
+        System.out.println("Server is running at http://localhost:" + port + "/hello");
 
 
         /*EntityManagerFactory emf = Persistence.createEntityManagerFactory("MyPU");
