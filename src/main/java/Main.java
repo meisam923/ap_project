@@ -1,11 +1,29 @@
+import dao.RestaurantDao;
+import dao.UserDao;
+import enums.RestaurantCategory;
+import exception.NotAcceptableException;
 import jakarta.persistence.*;
 import model.*;
 
+import java.time.LocalTime;
+
 public class Main {
     public static void main(String[] args) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MyPU");
-        EntityManager em = emf.createEntityManager();
 
+
+
+
+
+
+
+
+
+
+
+
+
+        /*EntityManagerFactory emf = Persistence.createEntityManagerFactory("MyPU");
+        EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
 
@@ -21,39 +39,40 @@ public class Main {
             customer.setAddress(new Address("Tehran12345", "Home"));
             em.merge(customer);
 
-            Restaurant sampleRestaurant = new Restaurant();
-            em.merge(sampleRestaurant);
 
-            Owner owner = new Owner(
-                    "Sara", "Ahmadi",
-                    "0933351234567",
-                    "rezaaaaj123rezaj123@gmail.com",
-                    "owner_pass",
-                    new Address("1231", "131"),
-                    new Location(123, 123)
-            );
-            owner.setLocation(new Location(35.8, 51.5));
-            owner.setAddress(new Address("Street", "54321"));
+            UserDao userDao = new UserDao();
+            User us=userDao.findUserByEmail("seyedmohammadrezahamidi@gmail.com");
+            RestaurantDao restaurantDao = new RestaurantDao();
+            Restaurant rs=restaurantDao.findByOwnerId(((Owner)us).getId());
+            rs.setPhone_number("09998765432");
+            LocalTime start = LocalTime.of(12,15);
+            LocalTime end = LocalTime.of(14,15);
+            if (rs.setPeriod(start, end))
+                System.out.println("set");
+            restaurantDao.update(rs);
+
+            Restaurant sampleRestaurant = new Restaurant (new Address("tst","tst"),new Location(90,90),"09903099157","kababi",owner, "Cafe");
+
+           restaurantDao.save(sampleRestaurant);
             owner.setRestaurant(sampleRestaurant);
             em.merge(owner);
 
             em.getTransaction().commit();
-
             System.out.println("\nAll Users in DB:");
             TypedQuery<User> q = em.createQuery("SELECT u FROM User u", User.class);
             for (User u : q.getResultList()) {
                 System.out.printf("- %s: %s %s (%s)%n",
                         u.getRole(), u.getFirstName(), u.getLastName(), u.getEmail());
             }
+        } catch (NotAcceptableException e) {
+            System.err.println(e.getMessage());
         } finally {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
             em.close();
             emf.close();
-        }
-
-
+        }*/
     }
 }
 
