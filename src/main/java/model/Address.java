@@ -1,7 +1,11 @@
 package model;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Embeddable
 public final class Address {
     private String addressDetails;
@@ -12,15 +16,7 @@ public final class Address {
         this.addressTitle = addressTitle;
     }
 
-    protected Address() {
-    }
-
-    public String getAddressDetails() {
-        return addressDetails;
-    }
-
-    public String getAddressTitle() {
-        return addressTitle;
+    public Address() {
     }
 
     @Override

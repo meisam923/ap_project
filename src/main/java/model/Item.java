@@ -3,11 +3,15 @@ package model;
 import enums.ItemCategory;
 import exception.NotAcceptableException;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "items")
@@ -40,14 +44,6 @@ public class Item {
     @Lob
     private byte[] image;
 
-    public Menu getMenu() {
-        return menu;
-    }
-
-    public void setMenu(Menu menu) {
-        this.menu = menu;
-    }
-
     public Item() {
     }
 
@@ -66,10 +62,6 @@ public class Item {
         this.price = new Price(priceValue);
     }
 
-    public Price getPrice() {
-        return price;
-    }
-
     public static void validateField(String title, String description, int price, int count, ArrayList<String> hashtags) throws NotAcceptableException {
         if (title == null || price <= 0 || count < 0 || hashtags == null ||
                 (!title.matches("(?i)^[a-z]{1,20}$") ||
@@ -77,36 +69,16 @@ public class Item {
             throw new NotAcceptableException("invalid field");
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
     public void setHashtags(ArrayList<String> hashtags) {
         this.hashtags = hashtags;
     }
 
-
-    public void setCategory(ItemCategory category) {
-        this.category = category;
-    }
 
     public void setPrice(int price) throws NotAcceptableException {
         if (price >= 0)
             this.price.setPrice(price);
         else
             throw new NotAcceptableException("invalid argument");
-    }
-
-    public void setImage(byte[] image) {
-        this.image = image;
     }
 
     public void setDiscount(int percentage, LocalDateTime expiration) {
@@ -120,46 +92,15 @@ public class Item {
         this.count += quantity;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public List<String> getHashtags() {
-        return hashtags;
-    }
-
     public void setHashtags(List<String> hashtags) {
         this.hashtags = hashtags;
     }
 
 
-    public ItemCategory getCategory() {
-        return category;
-    }
-
     public void setPrice(Price price) {
         this.price = price;
     }
 
-    public byte[] getImage() {
-        return image;
-    }
 }
 
 

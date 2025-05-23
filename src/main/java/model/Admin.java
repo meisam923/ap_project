@@ -2,11 +2,13 @@ package model;
 
 import enums.Role;
 import jakarta.persistence.*;
-import observers.RestaurantObserver;
-import org.jetbrains.annotations.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 
+@Getter
+@Setter
 @Entity
 public class Admin {
 
@@ -16,21 +18,12 @@ public class Admin {
     @Enumerated(EnumType.STRING)
     private Role role = Role.ADMIN;
 
-    //private ArrayList<Long> notRegisteredRestaurantIds =new ArrayList<>();
+    private ArrayList<Long> notRegisteredRestaurantIds =new ArrayList<>();
 
-//    public void registerRestaurant(long id) {
-//
-//        notRegisteredRestaurantIds.add(id);
-//    }
-    public void setId(Long id) {
-        this.id = id;
+    public void registerRestaurant(long id) {
+        notRegisteredRestaurantIds.add(id);
     }
-
-    public Long getId() {
-        return id;
+    public void removeRestaurant(long id) {
+        notRegisteredRestaurantIds.remove(id);
     }
-
-//    public ArrayList<Long> getNotRegisteredRestaurantIds() {
-//        return notRegisteredRestaurantIds;
-//    }
 }

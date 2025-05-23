@@ -1,4 +1,4 @@
-package controller;
+package Controller;
 
 import dao.RestaurantDao;
 import model.Admin;

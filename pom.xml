@@ -21,6 +21,15 @@
             <version>42.7.3</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version> <!-- use latest stable version -->
+            <scope>provided</scope>
+        </dependency>
+
+
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
