@@ -6,7 +6,7 @@ import util.JpaUtil;
 
 public class RestaurantDao {
 
-    public void save(Restaurant restaurant) {
+    public void save(Restaurant restaurant)  {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {

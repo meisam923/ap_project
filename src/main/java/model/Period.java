@@ -1,6 +1,8 @@
 package model;
 
 import java.time.LocalTime;
+
+import com.google.gson.annotations.JsonAdapter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +12,7 @@ import lombok.Setter;
 @Setter
 @Entity (name="periods")
 public class Period {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +35,5 @@ public class Period {
     }
 
 }
+
 
