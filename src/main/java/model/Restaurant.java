@@ -21,24 +21,31 @@ public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Embedded
     private final Address address;// human-readable address (not used for distance)
+
     @Embedded
     private final Location location;// a coordinate system
+
     @Column (unique = true)
     private String phone_number;
 
     private String title;
+
     @OneToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
     private List<Period> periods;
+
     @OneToOne
     private Menu menu;
+
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
+
     @Enumerated(EnumType.STRING)
     private RestaurantStatus status;
 
