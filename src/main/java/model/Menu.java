@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 public class Menu {
+
 
     @OneToMany
     private List<Item> items = new ArrayList<>();
@@ -26,12 +31,5 @@ public class Menu {
         items.remove(item);
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }
 

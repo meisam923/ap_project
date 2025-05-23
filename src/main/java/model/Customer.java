@@ -2,10 +2,14 @@ package model;
 
 import enums.Role;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "customers")
 @DiscriminatorValue("CUSTOMER")
@@ -36,26 +40,6 @@ public class Customer extends User {
         super(firstName, lastName, phoneNumber, email, password, Role.CUSTOMER);
         this.address = address;
         this.location = location;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public List<Order> getOrdersAssigned() {
-        return ordersAssigned;
     }
 
     public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {

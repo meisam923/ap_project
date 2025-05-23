@@ -1,6 +1,7 @@
 package Services;
 
-import controller.UserController;
+import Controller.UserController;
+import dao.RefreshTokenDao;
 import enums.Role;
 import model.*;
 import observers.ForgetPasswordObserver;
@@ -10,8 +11,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import util.JwtUtil;
 
-
+import java.time.LocalDateTime;
 import java.util.*;
+
 
 public class AuthService {
     private static AuthService instance;
@@ -22,9 +24,11 @@ public class AuthService {
     private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
 
     private final Map<String, Long> resetTimestamps = new HashMap<>();
-    private final Map<String, Integer> resetCode = new HashMap<>();
 
-    private AuthService() {}
+    private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
+
+    private AuthService() {
+    }
 
     public static AuthService getInstance() {
         if (instance == null) {
@@ -35,53 +39,46 @@ public class AuthService {
 
     public String login(String email, String password) {
         User user = userController.findByEmail(email);
-        if (user == null) {
-            System.out.println("User not found.");
-            return null;
-        }
-        if (!user.getPassword().equals(password)) {
-            System.out.println("Wrong password.");
+        if (user == null || !user.getPassword().equals(password)) {
+            System.out.println("Invalid credentials.");
             return null;
         }
 
-        String jwt = JwtUtil.generateToken(user);
+        String accessToken = JwtUtil.generateToken(user);
+        String refreshTokenStr = JwtUtil.generateRefreshToken(user, 7 * 24 * 60 * 60 * 1000);
+
+        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now());
+        refreshTokenDao.deleteByUser(user);
+        refreshTokenDao.save(refreshToken);
+
         for (LoginObserver obs : loginObservers) {
             obs.onUserLoggedIn(user);
         }
-        return jwt;
+
+        return accessToken;
     }
 
     public String generateRefreshToken(@NotNull User user, long refreshTokenValidityMs) {
-        return JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);
+        String refreshTokenStr = JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);
+        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now());
+        refreshTokenDao.deleteByUser(user);
+        refreshTokenDao.save(refreshToken);
+        return refreshTokenStr;
     }
 
     public boolean isTokenExpired(String token) {
         return JwtUtil.isTokenExpired(token);
     }
 
-
-    public User register(
-            Role role,
-            String firstName,
-            String lastName,
-            String phone,
-            String email,
-            String password,
-            Location location,
-            Address address,
-            Restaurant restaurant
-    ) {
+    public User register(Role role, String firstName, String lastName, String phone, String email, String password, Location location, Address address, Restaurant restaurant) {
         if (userController.findByEmail(email) != null) {
             System.out.println("Email already exists.");
             return null;
         }
+
         User user;
         try {
-            user = UserFactory.createUser(
-                    role, firstName, lastName,
-                    phone, email, password,
-                    location, address, restaurant
-            );
+            user = UserFactory.createUser(role, firstName, lastName, phone, email, password, location, address, restaurant);
         } catch (IllegalArgumentException e) {
             System.out.println("Registration failed: " + e.getMessage());
             return null;
@@ -102,7 +99,6 @@ public class AuthService {
         }
 
         int code = createResetCode();
-        resetCode.put(email, code);
         resetTimestamps.put(email, System.currentTimeMillis());
 
         for (ForgetPasswordObserver obs : forgetPasswordObservers) {
@@ -143,36 +139,21 @@ public class AuthService {
     public void deleteAccount(String token) {
         try {
             User user = requireLogin(token);
+            refreshTokenDao.deleteByUser(user);
             boolean removed = userController.removeUser(user);
-            if (removed) {
-                System.out.println("Account for " + user.getFirstName() + " has been deleted.");
-            } else {
-                System.out.println("Error: Failed to delete account for " + user.getFirstName() + ".");
-            }
+            System.out.println(removed ? "Account deleted." : "Failed to delete account.");
         } catch (IllegalStateException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public void editProfile(
-            String token,
-            String firstName,
-            String lastName,
-            String phone,
-            String email,
-            String password,
-            Address address,
-            Location location
-    ) {
+    public void editProfile(String token, String firstName, String lastName, String phone, String email, String password, Address address, Location location) {
         User user = requireLogin(token);
         userController.updateBasicProfile(user, firstName, lastName, phone, email, password);
         switch (user.getRole()) {
-            case CUSTOMER -> userController.updateCustomerDetails(
-                    (Customer) user, address, location);
-            case OWNER -> userController.updateOwnerDetails(
-                    (Owner) user, address, location);
-            case DELIVERY_MAN -> userController.updateDeliveryLocation(
-                    (Deliveryman) user, location);
+            case CUSTOMER -> userController.updateCustomerDetails((Customer) user, address, location);
+            case OWNER -> userController.updateOwnerDetails((Owner) user, address, location);
+            case DELIVERY_MAN -> userController.updateDeliveryLocation((Deliveryman) user, location);
         }
         System.out.println("Profile updated for " + user.getFirstName());
     }
@@ -196,7 +177,6 @@ public class AuthService {
     }
 
     private void cleanupReset(String email) {
-        resetCode.remove(email);
         resetTimestamps.remove(email);
     }
 
@@ -214,22 +194,6 @@ public class AuthService {
 
     public void registerForgetPasswordObserver(ForgetPasswordObserver obs) {
         forgetPasswordObservers.add(obs);
-    }
-
-    public UserController getUserManager() {
-        return userController;
-    }
-
-    public List<LoginObserver> getLoginObservers() {
-        return List.copyOf(loginObservers);
-    }
-
-    public List<SignUpObserver> getSignUpObservers() {
-        return List.copyOf(signUpObservers);
-    }
-
-    public Map<String, Integer> getResetCode() {
-        return Collections.unmodifiableMap(resetCode);
     }
 }
 

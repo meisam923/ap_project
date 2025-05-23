@@ -2,7 +2,11 @@ package model;
 
 import enums.Role;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "owners")
 @PrimaryKeyJoinColumn(name = "id")
@@ -35,26 +39,4 @@ public class Owner extends User {
     }
 
 
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Restaurant getRestaurant() {
-        return restaurant;
-    }
-    public void setRestaurant(Restaurant restaurant) {
-        this.restaurant = restaurant;
-    }
 }

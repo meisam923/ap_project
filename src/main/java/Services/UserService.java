@@ -1,6 +1,6 @@
 package Services;
 
-import controller.UserController;
+import Controller.UserController;
 import model.*;
 
 public class UserService {
@@ -13,21 +13,32 @@ public class UserService {
             String phone,
             String email,
             String password,
-            Address address,     // may be null
-            Location location    // may be null
+            Address address,     // nullable
+            Location location    // nullable
     ) {
         User user = AuthService.getInstance().requireLogin(sessionToken);
 
-        userController.updateBasicProfile(
-                user, firstName, lastName, phone, email, password);
+        userController.updateBasicProfile(user, firstName, lastName, phone, email, password);
 
         switch (user.getRole()) {
-            case CUSTOMER -> userController.updateCustomerDetails(
-                    (Customer) user, address, location);
-            case OWNER -> userController.updateOwnerDetails(
-                    (Owner) user, address, location);
-            case DELIVERY_MAN -> userController.updateDeliveryLocation(
-                    (Deliveryman) user, location);
+            case CUSTOMER -> {
+                if (address == null || location == null) {
+                    throw new IllegalArgumentException("Address and location must be provided for customer profile update.");
+                }
+                userController.updateCustomerDetails((Customer) user, address, location);
+            }
+            case OWNER -> {
+                if (address == null || location == null) {
+                    throw new IllegalArgumentException("Address and location must be provided for owner profile update.");
+                }
+                userController.updateOwnerDetails((Owner) user, address, location);
+            }
+            case DELIVERY_MAN -> {
+                if (location == null) {
+                    throw new IllegalArgumentException("Location must be provided for deliveryman profile update.");
+                }
+                userController.updateDeliveryLocation((Deliveryman) user, location);
+            }
         }
 
         System.out.println("Profile updated for " + user.getFirstName());

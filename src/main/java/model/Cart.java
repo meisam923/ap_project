@@ -2,11 +2,15 @@ package model;
 
 import exception.NotAcceptableException;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "carts")
 public class Cart {
@@ -93,11 +97,4 @@ public class Cart {
         return List.copyOf(items);
     }
 
-    public String getCouponCode() {
-        return couponCode;
-    }
-
-    public Integer getCouponPercentage() {
-        return couponPercentage;
-    }
 }

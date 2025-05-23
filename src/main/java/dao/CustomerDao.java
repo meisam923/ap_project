@@ -2,6 +2,7 @@ package dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import model.Customer;
 import util.JpaUtil;
@@ -122,5 +123,31 @@ public class CustomerDao implements IDao<Customer, Long> {
             em.close();
         }
     }
+
+    public Customer findByEmail(String email) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Customer> query = em.createQuery(
+                    "SELECT c FROM Customer c WHERE c.email = :email", Customer.class);
+            query.setParameter("email", email);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    public Customer findByPublicId(String publicId) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Customer> query = em.createQuery("SELECT u FROM Customer u WHERE u.publicId = :publicId", Customer.class);
+            query.setParameter("publicId", publicId);
+            return query.getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
 
 }
