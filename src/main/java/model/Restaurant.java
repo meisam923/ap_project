@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "restaurants")
 public class Restaurant {
@@ -46,7 +50,7 @@ public class Restaurant {
     private RestaurantStatus status;
 
     public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
-        validateField(address, location, phone_number, title, owner, category);
+        //validateField(address, location, phone_number, title, owner, category);
         this.address = address;
         this.location = location;
         this.phone_number = phone_number;
@@ -73,68 +77,11 @@ public class Restaurant {
     }
 
 
-    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
-        if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
-                (!phone_number.matches("0\\d{10}")) ||
-                (!title.matches("(?i)^[a-z]{1,20}$") ||
-                        (RestaurantCategory.buildCategory(category) == null)))
-            throw new NotAcceptableException("invalid field");
-    }
-
-    public Owner getOwner() {
-        return owner;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public String getPhone_number() {
-        return phone_number;
-    }
-
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setOwner(Owner owner) {
-        this.owner = owner;
-    }
-
-    public List<Period> getWorking_periods() {
-        return periods;
-    }
-
-    public void setPeriods(ArrayList<Period> working_periods) {
-        this.periods = working_periods;
-    }
-
-    public RestaurantCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(RestaurantCategory category) {
-        this.category = category;
-    }
+//    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
+//        if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
+//                (!phone_number.matches("0\\d{10}")) ||
+//                (!title.matches("(?i)^[a-z]{1,20}$") ||
+//                        (RestaurantCategory.buildCategory(category) == null)))
+//            throw new NotAcceptableException("invalid field");
+//    }
 }
-

@@ -1,10 +1,12 @@
-package controller;
+package Controller;
 
 import Services.RestaurantRegisterService;
 import com.google.gson.Gson;
 import dao.RestaurantDao;
+
 import dao.UserDao;
 import exception.InvalidInputException;
+
 import exception.NotAcceptableException;
 import model.*;
 import observers.RestaurantObserver;
@@ -14,13 +16,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+//user dao is now not used anymore, instead we use dedicated daos for different user types
+
 public class RestaurantController {
     private static RestaurantRegisterService restaurantRegisterService;
     private static RestaurantDao restaurantDao;
-    private static UserDao userDao;
 
     public RestaurantController() {
-        userDao = new UserDao();
         restaurantDao = new RestaurantDao();
         restaurantRegisterService =  RestaurantRegisterService.getInstance();
     }
