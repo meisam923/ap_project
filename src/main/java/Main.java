@@ -4,6 +4,7 @@ import dao.UserDao;
 import enums.RestaurantCategory;
 import exception.NotAcceptableException;
 import handler.HelloHandler;
+import handler.RestaurantHandler;
 import jakarta.persistence.*;
 import model.*;
 
@@ -14,11 +15,14 @@ import java.time.LocalTime;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        int port = 8000;
+        int port = 8080;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
         // Register handler at /hello
         server.createContext("/hello", new HelloHandler());
+
+        server.createContext("/restaurants", new RestaurantHandler());
+
 
         server.setExecutor(null); // uses default executor
         server.start();

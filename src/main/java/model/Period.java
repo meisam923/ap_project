@@ -1,11 +1,14 @@
 package model;
 
 import java.time.LocalTime;
+
+import com.google.gson.annotations.JsonAdapter;
 import jakarta.persistence.*;
 // maybe needs some modification
 
 @Entity (name="periods")
 public class Period {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,4 +58,5 @@ public class Period {
         this.restaurant = restaurant;
     }
 }
+
 
