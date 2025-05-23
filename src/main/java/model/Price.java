@@ -3,11 +3,15 @@ package model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 //toman price class
 @Embeddable
+@Getter
+@Setter
 public class Price {
     private long price;
 
@@ -23,10 +27,6 @@ public class Price {
 
     public static long sumPrice(Price p1, Price p2) {
         return p1.price + p2.price;
-    }
-
-    public void setPrice(long price) {
-        this.price = price;
     }
 
     public void setDiscount(int percentage, LocalDateTime expiration) {
@@ -61,7 +61,8 @@ public class Price {
     }
 
 }
-
+@Getter
+@Setter
 @Embeddable
 class Discount {
 
@@ -72,7 +73,6 @@ class Discount {
     private LocalDateTime expiration;
 
     public Discount() {
-        // Required by JPA
     }
 
     public Discount(int percentage, LocalDateTime expiration) {
@@ -84,11 +84,4 @@ class Discount {
         return expiration != null && now.isBefore(expiration);
     }
 
-    public int getPercentage() {
-        return percentage;
-    }
-
-    public LocalDateTime getExpiration() {
-        return expiration;
-    }
 }

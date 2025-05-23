@@ -1,5 +1,6 @@
 package Services;
 
+import dao.RefreshTokenDao;
 import jakarta.mail.MessagingException;
 import model.Restaurant;
 import model.User;
@@ -11,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class NotificationService implements SignUpObserver, LoginObserver, ForgetPasswordObserver, RestaurantObserver {
-    private final AuthService authService = AuthService.getInstance();
 
     @Override
     public void onUserRegistered(@NotNull User user) {
@@ -73,6 +73,7 @@ public class NotificationService implements SignUpObserver, LoginObserver, Forge
             System.err.println("Failed to send login notification email.");
             e.printStackTrace();
         }
+
     }
 }
 

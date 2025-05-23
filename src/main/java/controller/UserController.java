@@ -1,26 +1,23 @@
-package controller;
+package Controller;
 
+import dao.CustomerDao;
+import dao.DeliverymanDao;
+import dao.OwnerDao;
+import lombok.Getter;
+import lombok.Setter;
 import model.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-//singleton class :)
+@Getter
+@Setter
 public class UserController {
     private static UserController instance;
 
-    private final List<User> users = new ArrayList<>();
-    private final Map<String, User> userByPublicId = new HashMap<>();
-
-    // these lists might be useful later
-    private final List<Customer> customers = new ArrayList<>();
-    private final Map<String, Customer> customerByPublicId = new HashMap<>();
-    private final List<Owner> owners = new ArrayList<>();
-    private final Map<String, Owner> ownerByPublicId = new HashMap<>();
-    private final List<Deliveryman> deliverymen = new ArrayList<>();
-    private final Map<String, Deliveryman> deliverymenByPublicId = new HashMap<>();
+    private final CustomerDao customerDao = new CustomerDao();
+    private final OwnerDao ownerDao = new OwnerDao();
+    private final DeliverymanDao deliverymanDao = new DeliverymanDao();
 
     private UserController() {
     }
@@ -35,145 +32,110 @@ public class UserController {
     public void addUser(User user) {
         if (user == null) return;
 
-        // Add to general user list and map
-        users.add(user);
-        userByPublicId.put(user.getPublicId(), user);
-
-        // Categorize and store based on role
-        if (user instanceof Customer customer) {
-            customers.add(customer);
-            customerByPublicId.put(customer.getPublicId(), customer);
-        } else if (user instanceof Owner owner) {
-            owners.add(owner);
-            ownerByPublicId.put(owner.getPublicId(), owner);
-        } else if (user instanceof Deliveryman deliveryman) {
-            deliverymen.add(deliveryman);
-            deliverymenByPublicId.put(deliveryman.getPublicId(), deliveryman);
+        switch (user) {
+            case Customer customer -> customerDao.save(customer);
+            case Owner owner -> ownerDao.save(owner);
+            case Deliveryman deliveryman -> deliverymanDao.save(deliveryman);
+            default -> System.out.println("Unknown user type");
         }
     }
 
-    //u can find a user by publicId and Email
     public User findByPublicId(String publicId) {
-        return userByPublicId.get(publicId);
+        User user;
+        user = customerDao.findByPublicId(publicId);
+        if (user != null) return user;
+        user = ownerDao.findByPublicId(publicId);
+        if (user != null) return user;
+        return deliverymanDao.findByPublicId(publicId);
     }
 
     public User findByEmail(String email) {
-        for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
-                return user;
+        User user;
+        user = customerDao.findByEmail(email);
+        if (user != null) return user;
+        user = ownerDao.findByEmail(email);
+        if (user != null) return user;
+        return deliverymanDao.findByEmail(email);
+    }
+
+    public void resetPassword(User user, String password) {
+        if (user == null || password == null) return;
+        user.setPassword(password);
+
+        switch (user) {
+            case Customer customer -> customerDao.update(customer);
+            case Owner owner -> ownerDao.update(owner);
+            case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
+            default -> System.out.println("Unknown user type");
+        }
+    }
+
+    public boolean removeUser(User user) {
+        if (user == null) return false;
+
+        switch (user) {
+            case Customer customer -> customerDao.delete(customer);
+            case Owner owner -> ownerDao.delete(owner);
+            case Deliveryman deliveryman -> deliverymanDao.delete(deliveryman);
+            default -> {
+                System.out.println("Unknown user type");
+                return false;
             }
         }
-        return null;
+
+        return true;
     }
 
-    //reset password
-    public void resetPassword(User user, String password) {
-        if (user == null) return;
-        user.setPassword(password);
-    }
+    public boolean updateBasicProfile(User user, String firstName, String lastName, String phone, String email, String password) {
+        if (user == null) return false;
 
-    //remove user
-    public boolean removeUser(User user) {
-        boolean removedMaster = users.remove(user);
-
-        if (user instanceof Customer) {
-            customers.remove(user);
-        } else if (user instanceof Owner) {
-            owners.remove(user);
-        } else if (user instanceof Deliveryman) {
-            deliverymen.remove(user);
-        }
-
-        return removedMaster;
-    }
-
-    public boolean updateBasicProfile(
-            User user,
-            String firstName,
-            String lastName,
-            String phone,
-            String email,
-            String password
-    ) {
-        if (user == null || !users.contains(user)) return false;
         if (firstName != null) user.setFirstName(firstName);
         if (lastName != null) user.setLastName(lastName);
         if (phone != null) user.setPhoneNumber(phone);
         if (email != null) user.setEmail(email);
         if (password != null) user.setPassword(password);
+
+        switch (user) {
+            case Customer customer -> customerDao.update(customer);
+            case Owner owner -> ownerDao.update(owner);
+            case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
+            default -> {
+                System.out.println("Unknown user type");
+                return false;
+            }
+        }
+
         return true;
     }
 
-    public boolean updateCustomerDetails(
-            Customer customer,
-            Address newAddress,
-            Location newLocation
-    ) {
-        if (customer == null || !customers.contains(customer)) return false;
+    public boolean updateCustomerDetails(Customer customer, Address newAddress, Location newLocation) {
+        if (customer == null) return false;
         if (newAddress != null) customer.setAddress(newAddress);
         if (newLocation != null) customer.setLocation(newLocation);
+        customerDao.update(customer);
         return true;
     }
 
-    public boolean updateOwnerDetails(
-            Owner owner,
-            Address newAddress,
-            Location newLocation
-    ) {
-        if (owner == null || !owners.contains(owner)) return false;
+    public boolean updateOwnerDetails(Owner owner, Address newAddress, Location newLocation) {
+        if (owner == null) return false;
         if (newAddress != null) owner.setAddress(newAddress);
         if (newLocation != null) owner.setLocation(newLocation);
+        ownerDao.update(owner);
         return true;
     }
 
-    // For Deliveryman maybe only location changes idk yet
-    public boolean updateDeliveryLocation(
-            Deliveryman dm,
-            Location newLocation
-    ) {
-        if (dm == null || !deliverymen.contains(dm)) return false;
-        if (newLocation != null) dm.setLocation(newLocation);
+    public boolean updateDeliveryLocation(Deliveryman dm, Location newLocation) {
+        if (dm == null || newLocation == null) return false;
+        dm.setLocation(newLocation);
+        deliverymanDao.update(dm);
         return true;
     }
 
-
-    //getters & setters
-    //getter for allUsers
     public List<User> getAllUsers() {
-        return new ArrayList<>(users);
-    }  //returns a copy instead of the user list itself (list can not be modified)
-
-    public List<User> getUsers() {
-        return users;
+        List<User> allUsers = new ArrayList<>();
+        allUsers.addAll(customerDao.getAll());
+        allUsers.addAll(ownerDao.getAll());
+        allUsers.addAll(deliverymanDao.getAll());
+        return allUsers;
     }
-
-    public Map<String, User> getUserByPublicId() {
-        return userByPublicId;
-    }
-
-    public List<Customer> getCustomers() {
-        return customers;
-    }
-
-    public Map<String, Customer> getCustomerByPublicId() {
-        return customerByPublicId;
-    }
-
-    public List<Owner> getOwners() {
-        return owners;
-    }
-
-    public Map<String, Owner> getOwnerByPublicId() {
-        return ownerByPublicId;
-    }
-
-    public List<Deliveryman> getDeliverymen() {
-        return deliverymen;
-    }
-
-    public Map<String, Deliveryman> getDeliverymenByPublicId() {
-        return deliverymenByPublicId;
-    }
-
 }
-

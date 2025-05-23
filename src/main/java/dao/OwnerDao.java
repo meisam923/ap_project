@@ -2,6 +2,7 @@ package dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import model.Owner;
 import util.JpaUtil;
@@ -115,6 +116,31 @@ public class OwnerDao implements IDao<Owner, Long>{
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            em.close();
+        }
+    }
+
+    public Owner findByEmail(String email) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Owner> query = em.createQuery(
+                    "SELECT c FROM Owner c WHERE c.email = :email", Owner.class);
+            query.setParameter("email", email);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    public Owner findByPublicId(String publicId) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Owner> query = em.createQuery("SELECT u FROM Owner u WHERE u.publicId = :publicId", Owner.class);
+            query.setParameter("publicId", publicId);
+            return query.getSingleResult();
         } finally {
             em.close();
         }

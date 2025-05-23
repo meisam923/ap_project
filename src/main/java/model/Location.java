@@ -1,8 +1,11 @@
 package model;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-
+@Setter
+@Getter
 @Embeddable
 public final class Location {
     private double latitude;
@@ -13,15 +16,7 @@ public final class Location {
         this.longitude = longitude;
     }
 
-    protected Location() {
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
+    public Location() {
     }
 
 

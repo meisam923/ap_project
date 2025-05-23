@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "restaurants")
 public class Restaurant {
@@ -81,46 +85,6 @@ public class Restaurant {
             throw new NotAcceptableException("invalid field");
     }
 
-    public Owner getOwner() {
-        return owner;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public String getPhone_number() {
-        return phone_number;
-    }
-
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setOwner(Owner owner) {
-        this.owner = owner;
-    }
-
     public List<Period> getWorking_periods() {
         return periods;
     }
@@ -129,12 +93,5 @@ public class Restaurant {
         this.periods = working_periods;
     }
 
-    public RestaurantCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(RestaurantCategory category) {
-        this.category = category;
-    }
 }
 

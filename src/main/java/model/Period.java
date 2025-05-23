@@ -2,8 +2,12 @@ package model;
 
 import java.time.LocalTime;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 // maybe needs some modification
 
+@Getter
+@Setter
 @Entity (name="periods")
 public class Period {
 
@@ -27,32 +31,5 @@ public class Period {
         this.restaurant = restaurant;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public Restaurant getRestaurant() {
-        return restaurant;
-    }
-
-    public void setRestaurant(Restaurant restaurant) {
-        this.restaurant = restaurant;
-    }
 }
 

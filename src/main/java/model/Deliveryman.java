@@ -2,8 +2,13 @@ package model;
 
 import enums.Role;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "deliverymen")
 @PrimaryKeyJoinColumn(name = "id")
@@ -30,19 +35,4 @@ public class Deliveryman extends User {
         this.location = location;
     }
 
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public ArrayList<Order> getOrdersAssigned() {
-        return ordersAssigned;
-    }
-
-    public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {
-        this.ordersAssigned = ordersAssigned;
-    }
 }

@@ -2,77 +2,147 @@ package dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
-import model.Restaurant;
 import model.User;
 import util.JpaUtil;
 
-public class UserDao {
-    public User findUserByEmail(String email) {
+import java.util.List;
+
+@Deprecated
+public class UserDao implements IDao<User, Long>{
+    @Override
+    public void save(User entity) {
         EntityManager em = JpaUtil.getEntityManager();
-        User user = null;
+        EntityTransaction tx = em.getTransaction();
         try {
-            TypedQuery<User> query = em.createQuery(
-                    "SELECT r FROM User r WHERE r.email = :email", User.class);
-            query.setParameter("email", email);
-            user= query.getSingleResult();
-        } catch (NoResultException e) {
-            System.out.println("No user found for email : " + email);
+            tx.begin();
+            em.persist(entity);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public User findById(Long l) {
+        EntityManager em = JpaUtil.getEntityManager();
+        User User = null;
+        try {
+            User = em.find(User.class, l);
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+        return User;
+    }
+
+    @Override
+    public List<User> getAll() {
+        EntityManager em = JpaUtil.getEntityManager();
+        List<User> Users = List.of();
+        try {
+            TypedQuery<User> query =
+                    em.createQuery("SELECT c FROM User c", User.class);
+            Users = query.getResultList();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             em.close();
         }
-        return user;
+        return Users;
     }
 
-    public void save(User user) {
+
+
+    @Override
+    public void update(User entity) {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-        try{
+        try {
             tx.begin();
-            em.persist(user);
+            em.merge(entity);
             tx.commit();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
             e.printStackTrace();
-        }
-        finally{
+        } finally {
             em.close();
         }
     }
 
-    public void delete(User user) {
+    @Override
+    public void deleteById(Long l) {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-        try{
+        try {
             tx.begin();
-            em.remove(user);
+            User User = em.find(User.class, l);
+            if (User != null) em.remove(User);
             tx.commit();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
             e.printStackTrace();
-        }
-        finally{
+        } finally {
             em.close();
         }
     }
 
-    public void update(User user) {
+    @Override
+    public void delete(User entity) {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-        try{
+        try {
             tx.begin();
-            em.merge(user);
+            if (!em.contains(entity)) {
+                entity = em.merge(entity);
+            }
+            em.remove(entity);
             tx.commit();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
             e.printStackTrace();
-        }
-        finally{
+        } finally {
             em.close();
         }
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            return em.find(User.class, id) != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
+    public User findByPublicId(String publicId) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.publicId = :publicId", User.class);
+            query.setParameter("publicId", publicId);
+            return query.getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    public User findByEmail(String email) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try{
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+            query.setParameter("email", email);
+            return query.getSingleResult();
+        }  finally {
+            em.close();
+        }
+    }
+
 }
-

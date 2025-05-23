@@ -1,7 +1,9 @@
 package model;   // or simply `model`
 
 import enums.Role;
+import lombok.Getter;
 
+@Getter
 public class UserPayload {
     private final String publicId;
     private final String email;
@@ -13,15 +15,4 @@ public class UserPayload {
         this.role     = role;
     }
 
-    public String getPublicId() {
-        return publicId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Role getRole() {
-        return role;
-    }
 }
