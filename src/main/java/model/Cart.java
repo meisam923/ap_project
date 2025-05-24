@@ -71,7 +71,7 @@ public class Cart {
         LocalDateTime now = LocalDateTime.now();
         long sum = 0;
         for (Item item : items) {
-            sum += item.getPrice().getPriceWithDiscount(now);
+            sum += item.getPrice().getPrice();
         }
         return sum;
     }

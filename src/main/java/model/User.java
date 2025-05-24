@@ -21,7 +21,7 @@ public abstract class User {
     // Getters & setters
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private int id;
 
     @Column(unique = true, nullable = false, updatable = false)
     private String publicId = UUID.randomUUID().toString(); // UUID for external reference

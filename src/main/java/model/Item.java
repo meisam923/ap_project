@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,10 +79,6 @@ public class Item {
             this.price.setPrice(price);
         else
             throw new NotAcceptableException("invalid argument");
-    }
-
-    public void setDiscount(int percentage, LocalDateTime expiration) {
-        price.setDiscount(percentage, expiration);
     }
 
     public void decreaseCount(int quantity) {

@@ -8,25 +8,16 @@ import com.sun.net.httpserver.HttpHandler;
 import Controller.RestaurantController;
 import exception.InvalidInputException;
 import model.Restaurant;
-import util.LocalDateTimeAdapter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.util.Arrays;
+
 
 public class RestaurantHandler implements HttpHandler {
     private RestaurantController restaurantController=new RestaurantController();
-    private final Gson gson;
-    public RestaurantHandler() {
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                // .setPrettyPrinting() // Optional: for nicely formatted JSON output
-                .create();
-    }
+    private final Gson gson=new Gson();
 
     @Override
     public void handle (HttpExchange exchange ) throws IOException {
@@ -61,6 +52,8 @@ public class RestaurantHandler implements HttpHandler {
             restaurant= gson.fromJson(json, Restaurant.class);
             response=restaurantController.createRestaurant(restaurant);
             System.out.println("Created restaurant " + restaurant.getTitle());
+            sendResponse(exchange,201,response,"application/json");
+
         }
         catch (JsonSyntaxException e)
         {
@@ -76,8 +69,6 @@ public class RestaurantHandler implements HttpHandler {
             e.printStackTrace();
             sendErrorResponse(exchange, 500, e.getMessage());
         }
-        sendResponse(exchange,201,response,"application/json");
-
     }
     private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", contentType);

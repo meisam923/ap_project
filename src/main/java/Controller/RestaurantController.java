@@ -38,7 +38,6 @@ public class RestaurantController {
         if (restaurant.getPhone_number()== null || restaurant.getPhone_number().length()!=11) {
             throw new InvalidInputException(400, "phone");
         }
-        restaurant.setOwner(new Owner());
         restaurantDao.save(restaurant);
         return new Gson().toJson(restaurant);
     }

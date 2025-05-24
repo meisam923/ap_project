@@ -2,7 +2,11 @@ package Controller;
 
 import Services.UserService;
 import dao.RefreshTokenDao;
+import dao.UserDao;
+import dto.UserDto;
 import enums.Role;
+import exception.AlreadyExistValueException;
+import exception.InvalidInputException;
 import model.*;
 import observers.ForgetPasswordObserver;
 import observers.LoginObserver;
@@ -29,6 +33,7 @@ public class AuthController {
 
     private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
 
+    private final UserDao userDao = new UserDao();
     private AuthController() {
     }
 
@@ -72,28 +77,38 @@ public class AuthController {
         return JwtUtil.isTokenExpired(token);
     }
 
-    public User register(Role role, String fullName, String phoneNumber, String email, String password,
-                         String address, Restaurant restaurant, String profileImageBase64,
-                         String bankName, String accountNumber) {
-        if (userController.findByEmail(email) != null) {
-            System.out.println("Email already exists.");
-            return null;
+    public UserDto register(UserDto userdto) throws InvalidInputException, AlreadyExistValueException {
+        if (userdto.validateFields()!=null) {
+            throw new InvalidInputException(400, userdto.validateFields());
         }
-
-        User user;
-        try {
-            user = createUser(role, fullName, phoneNumber, email, password, bankName, accountNumber, address, restaurant, profileImageBase64);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Registration failed: " + e.getMessage());
-            return null;
+        if (userDao.findByPhoneNumber(userdto.getPhone())!=null) {
+            throw new AlreadyExistValueException(409,"Phone number");
         }
-
-        userController.addUser(user);
-        for (SignUpObserver obs : signUpObservers) {
-            obs.onUserRegistered(user);
+        if (userDao.findByEmail(userdto.getEmail())!=null) {
+            throw new AlreadyExistValueException(409,"Email");
         }
-        return user;
-    }
+        User user = null;
+        switch(userdto.getRole()) {
+            case "buyer":
+                user = new Customer(userdto.getFull_name(), userdto.getAddress(),
+                        userdto.getPhone(), userdto.getEmail(), userdto.getPassword(), userdto.getProfileImageBase64(), userdto.getBank_info().getBank_name(), userdto.getBank_info().getAccount_number());
+                break;
+            case "vendor":
+                user = new Owner(userdto.getFull_name(), userdto.getAddress(),
+                        userdto.getPhone(), userdto.getEmail(), userdto.getPassword(), userdto.getProfileImageBase64(), userdto.getBank_info().getBank_name(), userdto.getBank_info().getAccount_number());
+                break;
+            case "courier":
+                user = new Deliveryman(userdto.getFull_name(), userdto.getAddress(),
+                        userdto.getPhone(), userdto.getEmail(), userdto.getPassword(), userdto.getProfileImageBase64(), userdto.getBank_info().getBank_name(), userdto.getBank_info().getAccount_number());
+                break;}
+            userController.addUser(user);
+            userdto.setUser_id(user.getId());
+            userdto.setToken(generateRefreshToken(user, 0));
+            for (SignUpObserver obs : signUpObservers) {
+                obs.onUserRegistered(user);
+            }
+            return userdto;
+        }
 
     public void requestPasswordReset(String email) {
         User user = userController.findByEmail(email);
@@ -239,7 +254,7 @@ class UserFactory {
             case CUSTOMER -> new Customer(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
             case OWNER -> {
                 if (restaurant == null) throw new IllegalArgumentException("Restaurant required for Owner");
-                yield new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber, restaurant);
+                yield new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
             }
             case DELIVERY_MAN ->
                     new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);

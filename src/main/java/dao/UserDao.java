@@ -145,4 +145,15 @@ public class UserDao implements IDao<User, Long>{
         }
     }
 
+    public User findByPhoneNumber(String phoneNumber) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try{
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.phoneNumber = :phoneNumber", User.class);
+            query.setParameter("phoneNumber", phoneNumber);
+            return query.getSingleResult();
+        }  finally {
+            em.close();
+        }
+    }
+
 }

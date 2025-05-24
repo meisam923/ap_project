@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dto.UserDto;
+import exception.AlreadyExistValueException;
+import exception.InvalidInputException;
 import model.Customer;
 import model.User;
 
@@ -12,10 +15,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AuthHandler implements HttpHandler {
-    private final AuthController authService = AuthController.getInstance();
+    private final AuthController authcontroller = AuthController.getInstance();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -27,11 +31,20 @@ public class AuthHandler implements HttpHandler {
         }
         if (method.equals("POST") && path.equals("/auth/register")) {
             createUser(exchange);
+        } else if (method.equals("POST") && path.equals("/auth/login")) {
+
+        } else if (method.equals("GET") && path.equals("/auth/profile")) {
+
+        } else if (method.equals("PUT") && path.equals("/auth/profile")) {
+
+        } else if (method.equals("POSt") && path.equals("/auth/logout")) {
+
+        } else {
+            sendErrorResponse(exchange, 404, "Resource not found");
         }
     }
-    public void createUser(HttpExchange exchange) throws IOException {
 
-        Map mapper = new ObjectMapper().readValue(exchange.getRequestBody(), Map.class);
+    public void createUser(HttpExchange exchange) throws IOException {
 
         StringBuilder jsonBody = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))) {
@@ -45,16 +58,23 @@ public class AuthHandler implements HttpHandler {
         }
         String body = jsonBody.toString();
         System.out.println("Received JSON: " + body);
-        String response = "";
-
-        User user;
-
-        if (mapper.containsKey("role") && mapper.get("role").equals("customer")) {
-            user = new Gson().fromJson(body, Customer.class);
+        UserDto userdto = new Gson().fromJson(body, UserDto.class);
+        Map<String, Object> responsebody = new HashMap<>();
+        responsebody.put("message", "User registered successfully");
+        responsebody.put("user_id", userdto.getUser_id());
+        responsebody.put("token", userdto.getToken());
+        String json = new Gson().toJson(responsebody);
+        sendResponse(exchange, 200, json, "application/json");
+        try {
+            userdto = authcontroller.register(userdto);
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (AlreadyExistValueException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (Exception e) {
+            sendErrorResponse(exchange, 500, "Internal Server Error");
         }
-
     }
-
 
     private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", contentType);
@@ -63,7 +83,6 @@ public class AuthHandler implements HttpHandler {
             os.write(responseBody.getBytes());
         }
     }
-
 
     private void sendErrorResponse(HttpExchange exchange, int statusCode, String errorMessage) throws IOException {
         String jsonError = String.format("{ \"error\": \"%s\" }", errorMessage);
