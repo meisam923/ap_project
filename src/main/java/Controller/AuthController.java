@@ -1,6 +1,6 @@
-package Services;
+package Controller;
 
-import Controller.UserController;
+import Services.UserService;
 import dao.RefreshTokenDao;
 import enums.Role;
 import model.*;
@@ -14,27 +14,27 @@ import util.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static Services.UserFactory.createUser;
+import static Controller.UserFactory.createUser;
 
 
-public class AuthService {
-    private static AuthService instance;
+public class AuthController {
 
-    private final UserController userController = UserController.getInstance();
+    private static AuthController instance;
+
+    private final UserService userController = UserService.getInstance();
     private final List<LoginObserver> loginObservers = new ArrayList<>();
     private final List<SignUpObserver> signUpObservers = new ArrayList<>();
     private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
-
     private final Map<String, Long> resetTimestamps = new HashMap<>();
 
     private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
 
-    private AuthService() {
+    private AuthController() {
     }
 
-    public static AuthService getInstance() {
+    public static AuthController getInstance() {
         if (instance == null) {
-            instance = new AuthService();
+            instance = new AuthController();
         }
         return instance;
     }
@@ -110,11 +110,10 @@ public class AuthService {
         }
 
         Scanner scanner = new Scanner(System.in);
-        try { // Added try-finally for scanner
+        try {
             while (true) {
                 if (isCodeExpired(email)) {
                     System.out.println("Reset code expired. Please request a new one.");
-                    // cleanupReset(email); // Moved to finally
                     return;
                 }
 
@@ -138,7 +137,7 @@ public class AuthService {
                     System.out.println("Incorrect code. Try again.");
                 }
             }
-        } finally { // Ensure cleanupReset and scanner.close are called
+        } finally {
             cleanupReset(email);
             scanner.close();
         }

@@ -1,30 +1,30 @@
-package Controller;
+package Services;
 
 import dao.CustomerDao;
 import dao.DeliverymanDao;
 import dao.OwnerDao;
 import lombok.Getter;
 import lombok.Setter;
-import model.*; // Assuming this imports User, Customer, Owner, Deliveryman, Location
+import model.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-public class UserController {
-    private static UserController instance;
+public class UserService {
+    private static UserService instance;
 
     private final CustomerDao customerDao = new CustomerDao();
     private final OwnerDao ownerDao = new OwnerDao();
     private final DeliverymanDao deliverymanDao = new DeliverymanDao();
 
-    private UserController() {
+    private UserService() {
     }
 
-    public static UserController getInstance() {
+    public static UserService getInstance() {
         if (instance == null) {
-            instance = new UserController();
+            instance = new UserService();
         }
         return instance;
     }
