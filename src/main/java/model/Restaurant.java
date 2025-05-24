@@ -22,8 +22,6 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Embedded
-    private final Address address;// human-readable address (not used for distance)
 
     @Embedded
     private final Location location;// a coordinate system
@@ -32,6 +30,8 @@ public class Restaurant {
     private String phone_number;
 
     private String title;
+
+    private String address;
 
     @OneToOne
     @JoinColumn(name = "owner_id")
@@ -49,7 +49,7 @@ public class Restaurant {
     @Enumerated(EnumType.STRING)
     private RestaurantStatus status;
 
-    public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
+    public Restaurant(String address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         //validateField(address, location, phone_number, title, owner, category);
         this.address = address;
         this.location = location;

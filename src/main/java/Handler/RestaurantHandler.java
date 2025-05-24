@@ -1,21 +1,20 @@
-package handler;
+package Handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import controller.RestaurantController;
+import Controller.RestaurantController;
 import exception.InvalidInputException;
 import model.Restaurant;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 public class RestaurantHandler implements HttpHandler {
-    private RestaurantController restaurantController=new RestaurantController();
+    private final RestaurantController restaurantController=new RestaurantController();
 
 
     @Override
@@ -30,7 +29,6 @@ public class RestaurantHandler implements HttpHandler {
         if (method.equals("POST") && path.equals("/restaurants")) {
             createRestaurant(exchange);
         }
-
     }
     private void createRestaurant(HttpExchange exchange) throws IOException {
         StringBuilder jsonBody = new StringBuilder();

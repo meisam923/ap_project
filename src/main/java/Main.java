@@ -1,15 +1,8 @@
 import com.sun.net.httpserver.HttpServer;
-import dao.RestaurantDao;
-import dao.UserDao;
-import enums.RestaurantCategory;
-import exception.NotAcceptableException;
-import handler.HelloHandler;
-import jakarta.persistence.*;
-import model.*;
+import Handler.HelloHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.time.LocalTime;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -65,7 +58,7 @@ public class Main {
             TypedQuery<User> q = em.createQuery("SELECT u FROM User u", User.class);
             for (User u : q.getResultList()) {
                 System.out.printf("- %s: %s %s (%s)%n",
-                        u.getRole(), u.getFirstName(), u.getLastName(), u.getEmail());
+                        u.getRole(), u.getFullName(), u.getLastName(), u.getEmail());
             }
         } catch (NotAcceptableException e) {
             System.err.println(e.getMessage());

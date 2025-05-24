@@ -31,7 +31,7 @@ public class RestaurantController {
         if (restaurant.getTitle() == null) {
             throw new InvalidInputException(400, "name");
         }
-        if (restaurant.getAddress().getAddressDetails() == null) {
+        if (restaurant.getAddress() == null) {
             throw new InvalidInputException(400, "address");
         }
         if (restaurant.getPhone_number()== null || restaurant.getPhone_number().length()!=10) {
