@@ -12,6 +12,7 @@ import model.*;
 import observers.RestaurantObserver;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,16 +32,15 @@ public class RestaurantController {
         if (restaurant.getTitle() == null) {
             throw new InvalidInputException(400, "name");
         }
-        if (restaurant.getAddress().getAddressDetails() == null) {
+        if (restaurant.getAddress()== null) {
             throw new InvalidInputException(400, "address");
         }
-        if (restaurant.getPhone_number()== null || restaurant.getPhone_number().length()!=10) {
+        if (restaurant.getPhone_number()== null || restaurant.getPhone_number().length()!=11) {
             throw new InvalidInputException(400, "phone");
         }
         restaurant.setOwner(new Owner());
         restaurantDao.save(restaurant);
         return new Gson().toJson(restaurant);
-
     }
     public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant, @NotNull String type) throws NotAcceptableException {
         /*Item new_item;

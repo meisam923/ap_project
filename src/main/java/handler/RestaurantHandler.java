@@ -1,22 +1,32 @@
-package handler;
+package Handler;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import controller.RestaurantController;
+import Controller.RestaurantController;
 import exception.InvalidInputException;
 import model.Restaurant;
+import util.LocalDateTimeAdapter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 
 public class RestaurantHandler implements HttpHandler {
     private RestaurantController restaurantController=new RestaurantController();
-
+    private final Gson gson;
+    public RestaurantHandler() {
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                // .setPrettyPrinting() // Optional: for nicely formatted JSON output
+                .create();
+    }
 
     @Override
     public void handle (HttpExchange exchange ) throws IOException {
@@ -48,7 +58,7 @@ public class RestaurantHandler implements HttpHandler {
         String response = "";
         Restaurant restaurant = null;
         try{
-        restaurant= new Gson().fromJson(json, Restaurant.class);
+            restaurant= gson.fromJson(json, Restaurant.class);
             response=restaurantController.createRestaurant(restaurant);
             System.out.println("Created restaurant " + restaurant.getTitle());
         }
@@ -63,6 +73,7 @@ public class RestaurantHandler implements HttpHandler {
             System.out.println("Restaurant " + restaurant.getTitle() + " is invalid");
         }
         catch (Exception e) {
+            e.printStackTrace();
             sendErrorResponse(exchange, 500, e.getMessage());
         }
         sendResponse(exchange,201,response,"application/json");

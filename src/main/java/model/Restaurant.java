@@ -1,10 +1,11 @@
 package model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.gson.annotations.SerializedName;
 import enums.RestaurantCategory;
 import enums.RestaurantStatus;
 import exception.NotAcceptableException;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,22 +24,20 @@ public class Restaurant {
     private Long id;
 
     @Embedded
-    private final Address address;// human-readable address (not used for distance)
-
+    private String  address;// human-readable address (not used for distance)
     @Embedded
     private final Location location;// a coordinate system
 
+    @SerializedName("phone")
     @Column (unique = true)
     private String phone_number;
 
+    @SerializedName("name")
     private String title;
 
     @OneToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
-
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
-    private List<Period> periods;
 
     @OneToOne
     private Menu menu;
@@ -49,14 +48,19 @@ public class Restaurant {
     @Enumerated(EnumType.STRING)
     private RestaurantStatus status;
 
-    public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
+    private int tax_fee;
+
+    private int additional_fee;
+
+    private String logoBase64;
+
+    public Restaurant(String address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
         //validateField(address, location, phone_number, title, owner, category);
         this.address = address;
         this.location = location;
         this.phone_number = phone_number;
         this.title = title;
         this.owner = owner;
-        this.periods = new ArrayList<>();
         this.category = RestaurantCategory.buildCategory(category);
         this.status = RestaurantStatus.WAITING;
 
@@ -67,14 +71,6 @@ public class Restaurant {
         location = new Location(0,0);
     }
 
-    public boolean setPeriod(LocalTime start, LocalTime end) {
-        if (this.periods.size() == 2) {
-            return false;
-        }
-        Period period = new Period(start, end,this);
-        this.periods.add(period);
-        return true;
-    }
 
 
 //    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
