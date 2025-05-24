@@ -1,6 +1,6 @@
-package Services;
+package Controller;
 
-import Controller.UserController;
+import Services.UserService;
 import dao.RefreshTokenDao;
 import enums.Role;
 import model.*;
@@ -14,25 +14,27 @@ import util.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static Controller.UserFactory.createUser;
 
-public class AuthService {
-    private static AuthService instance;
 
-    private final UserController userController = UserController.getInstance();
+public class AuthController {
+
+    private static AuthController instance;
+
+    private final UserService userController = UserService.getInstance();
     private final List<LoginObserver> loginObservers = new ArrayList<>();
     private final List<SignUpObserver> signUpObservers = new ArrayList<>();
     private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
-
     private final Map<String, Long> resetTimestamps = new HashMap<>();
 
     private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
 
-    private AuthService() {
+    private AuthController() {
     }
 
-    public static AuthService getInstance() {
+    public static AuthController getInstance() {
         if (instance == null) {
-            instance = new AuthService();
+            instance = new AuthController();
         }
         return instance;
     }
@@ -47,7 +49,7 @@ public class AuthService {
         String accessToken = JwtUtil.generateToken(user);
         String refreshTokenStr = JwtUtil.generateRefreshToken(user, 7 * 24 * 60 * 60 * 1000);
 
-        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now());
+        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now().plusDays(7));
         refreshTokenDao.deleteByUser(user);
         refreshTokenDao.save(refreshToken);
 
@@ -60,7 +62,7 @@ public class AuthService {
 
     public String generateRefreshToken(@NotNull User user, long refreshTokenValidityMs) {
         String refreshTokenStr = JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);
-        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now());
+        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now().plusNanos(refreshTokenValidityMs * 1_000_000L));
         refreshTokenDao.deleteByUser(user);
         refreshTokenDao.save(refreshToken);
         return refreshTokenStr;
@@ -70,7 +72,9 @@ public class AuthService {
         return JwtUtil.isTokenExpired(token);
     }
 
-    public User register(Role role, String firstName, String lastName, String phone, String email, String password, Location location, Address address, Restaurant restaurant) {
+    public User register(Role role, String fullName, String phoneNumber, String email, String password,
+                         String address, Restaurant restaurant, String profileImageBase64,
+                         String bankName, String accountNumber) {
         if (userController.findByEmail(email) != null) {
             System.out.println("Email already exists.");
             return null;
@@ -78,7 +82,7 @@ public class AuthService {
 
         User user;
         try {
-            user = UserFactory.createUser(role, firstName, lastName, phone, email, password, location, address, restaurant);
+            user = createUser(role, fullName, phoneNumber, email, password, bankName, accountNumber, address, restaurant, profileImageBase64);
         } catch (IllegalArgumentException e) {
             System.out.println("Registration failed: " + e.getMessage());
             return null;
@@ -106,34 +110,37 @@ public class AuthService {
         }
 
         Scanner scanner = new Scanner(System.in);
-        while (true) {
-            if (isCodeExpired(email)) {
-                System.out.println("Reset code expired. Please request a new one.");
-                cleanupReset(email);
-                return;
-            }
+        try {
+            while (true) {
+                if (isCodeExpired(email)) {
+                    System.out.println("Reset code expired. Please request a new one.");
+                    return;
+                }
 
-            System.out.print("Enter the reset code (you have 1 minute): ");
-            String input = scanner.nextLine().trim();
-            int entered;
-            try {
-                entered = Integer.parseInt(input);
-            } catch (NumberFormatException ex) {
-                System.out.println("Invalid format. Please enter digits only.");
-                continue;
-            }
+                System.out.print("Enter the reset code (you have 1 minute): ");
+                String input = scanner.nextLine().trim();
+                int entered;
+                try {
+                    entered = Integer.parseInt(input);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Invalid format. Please enter digits only.");
+                    continue;
+                }
 
-            if (entered == code) {
-                System.out.print("Enter new password: ");
-                String newPass = scanner.nextLine();
-                userController.resetPassword(user, newPass);
-                System.out.println("Password reset successful.");
-                break;
-            } else {
-                System.out.println("Incorrect code. Try again.");
+                if (entered == code) {
+                    System.out.print("Enter new password: ");
+                    String newPass = scanner.nextLine();
+                    userController.resetPassword(user, newPass);
+                    System.out.println("Password reset successful.");
+                    break;
+                } else {
+                    System.out.println("Incorrect code. Try again.");
+                }
             }
+        } finally {
+            cleanupReset(email);
+            scanner.close();
         }
-        cleanupReset(email);
     }
 
     public void deleteAccount(String token) {
@@ -147,15 +154,30 @@ public class AuthService {
         }
     }
 
-    public void editProfile(String token, String firstName, String lastName, String phone, String email, String password, Address address, Location location) {
+    public void editProfile(String token, String fullName, String phoneNumber, String email, String password,
+                            String address, Location location) {
         User user = requireLogin(token);
-        userController.updateBasicProfile(user, firstName, lastName, phone, email, password);
+
+        userController.updateBasicProfile(user, fullName, phoneNumber, email, password);
+
         switch (user.getRole()) {
-            case CUSTOMER -> userController.updateCustomerDetails((Customer) user, address, location);
-            case OWNER -> userController.updateOwnerDetails((Owner) user, address, location);
-            case DELIVERY_MAN -> userController.updateDeliveryLocation((Deliveryman) user, location);
+            case CUSTOMER:
+                if (user instanceof Customer customer) {
+                    userController.updateCustomerDetails(customer, address, location);
+                }
+                break;
+            case OWNER:
+                if (user instanceof Owner owner) {
+                    userController.updateOwnerDetails(owner, address, location);
+                }
+                break;
+            case DELIVERY_MAN:
+                if (user instanceof Deliveryman deliveryman) {
+                    userController.updateDeliveryLocation(deliveryman, location);
+                }
+                break;
         }
-        System.out.println("Profile updated for " + user.getFirstName());
+        System.out.println("Profile updated for " + (user.getFullName() != null ? user.getFullName() : "user with ID " + user.getPublicId()));
     }
 
     @Contract("null -> fail")
@@ -164,9 +186,12 @@ public class AuthService {
             throw new IllegalStateException("No token provided.");
         }
         UserPayload payload = JwtUtil.verifyToken(token);
+        if (payload == null) {
+            throw new IllegalStateException("Invalid or expired token payload.");
+        }
         User user = userController.findByPublicId(payload.getPublicId());
         if (user == null) {
-            throw new IllegalStateException("Invalid or expired token.");
+            throw new IllegalStateException("User not found for token or token expired.");
         }
         return user;
     }
@@ -181,7 +206,7 @@ public class AuthService {
     }
 
     private int createResetCode() {
-        return new Random().nextInt(10000, 99999);
+        return new Random().nextInt(10000, 100000);
     }
 
     public void registerLoginObserver(LoginObserver obs) {
@@ -197,27 +222,28 @@ public class AuthService {
     }
 }
 
-
 class UserFactory {
     public static @NotNull User createUser(
             @NotNull Role role,
-            String firstName,
-            String lastName,
-            String phone,
+            String fullName,
+            String phoneNumber,
             String email,
             String password,
-            Location location,
-            Address address,
-            Restaurant restaurant
+            String bankName,
+            String accountNumber,
+            String address,
+            Restaurant restaurant,
+            String profileImageBase64
     ) {
         return switch (role) {
-            case CUSTOMER -> new Customer(firstName, lastName, phone, email, password, address, location);
+            case CUSTOMER -> new Customer(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
             case OWNER -> {
                 if (restaurant == null) throw new IllegalArgumentException("Restaurant required for Owner");
-                yield new Owner(firstName, lastName, phone, email, password, address, location);
+                yield new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber, restaurant);
             }
-            case DELIVERY_MAN -> new Deliveryman(firstName, lastName, phone, email, password, location);
-            default -> throw new IllegalArgumentException("Invalid role");
+            case DELIVERY_MAN ->
+                    new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+            default -> throw new IllegalArgumentException("Invalid role: " + role);
         };
     }
 }

@@ -25,14 +25,7 @@ public class Deliveryman extends User {
         setRole(Role.DELIVERY_MAN);
     }
 
-    public Deliveryman(String firstName,
-                       String lastName,
-                       String phoneNumber,
-                       String email,
-                       String password,
-                       Location location) {
-        super(firstName, lastName, phoneNumber, email, password, Role.DELIVERY_MAN);
-        this.location = location;
+    public Deliveryman(String fullName, String address, String phoneNumber, String email, String password, String profileImageBase64, String bankName, String accountNumber) {
+        super(fullName, address, phoneNumber, email, password, Role.DELIVERY_MAN, profileImageBase64, bankName, accountNumber);
     }
-
 }

@@ -1,5 +1,6 @@
 package model;
 
+import com.google.gson.annotations.SerializedName;
 import enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,9 +26,12 @@ public abstract class User {
     @Column(unique = true, nullable = false, updatable = false)
     private String publicId = UUID.randomUUID().toString(); // UUID for external reference
 
-    private String firstName;
-    private String lastName;
+    @SerializedName("full_name")
+    private String fullName;
 
+    private String address;
+
+    @SerializedName("phone")
     @Column(unique = true)
     private String phoneNumber;
 
@@ -36,11 +40,15 @@ public abstract class User {
 
     private String password;
 
+    @SerializedName("role")
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Lob
-    private byte[] image; // Profile picture
+    private String profileImageBase64;
+
+    private String bankName;
+
+    private String accountNumber;
 
     private boolean isVerified = false;
 
@@ -50,13 +58,15 @@ public abstract class User {
     // Constructors
     public User() {}
 
-    public User(String firstName, String lastName, String phoneNumber, String email, String password, Role role) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public User(String fullName, String address, String phoneNumber, String email, String password, Role role, String profileImageBase64, String bankName, String accountNumber) {
+        this.fullName = fullName;
+        this.address = address;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.profileImageBase64 = profileImageBase64;
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
     }
-
 }

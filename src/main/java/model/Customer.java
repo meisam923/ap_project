@@ -17,9 +17,6 @@ import java.util.List;
 public class Customer extends User {
 
     @Embedded
-    private Address address;   // human-readable address
-
-    @Embedded
     private Location location; // a coordinate system
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -30,19 +27,8 @@ public class Customer extends User {
         setRole(Role.CUSTOMER);
     }
 
-    public Customer(String firstName,
-                    String lastName,
-                    String phoneNumber,
-                    String email,
-                    String password,
-                    Address address,
-                    Location location) {
-        super(firstName, lastName, phoneNumber, email, password, Role.CUSTOMER);
-        this.address = address;
-        this.location = location;
+    public Customer(String fullName, String address, String phoneNumber, String email, String password, String profileImageBase64, String bankName, String accountNumber) {
+        super(fullName, address, phoneNumber, email, password, Role.CUSTOMER, profileImageBase64, bankName, accountNumber);
     }
 
-    public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {
-        this.ordersAssigned = ordersAssigned;
-    }
 }

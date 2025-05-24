@@ -1,5 +1,8 @@
 package exception;
 
+import lombok.Getter;
+
+@Getter
 public class InvalidInputException extends Exception {
     private final int statusCode;
 
@@ -8,8 +11,5 @@ public class InvalidInputException extends Exception {
         this.statusCode = statusCode;
     }
 
-    public int getStatusCode() {
-        return statusCode;
-    }
 }
 

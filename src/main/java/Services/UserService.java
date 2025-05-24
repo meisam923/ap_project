@@ -1,46 +1,187 @@
 package Services;
 
-import Controller.UserController;
+import dao.CustomerDao;
+import dao.DeliverymanDao;
+import dao.OwnerDao;
+import lombok.Getter;
+import lombok.Setter;
 import model.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
 public class UserService {
-    private final UserController userController = UserController.getInstance();
+    private static UserService instance;
 
-    public void editProfile(
-            String sessionToken,
-            String firstName,
-            String lastName,
-            String phone,
-            String email,
-            String password,
-            Address address,     // nullable
-            Location location    // nullable
-    ) {
-        User user = AuthService.getInstance().requireLogin(sessionToken);
+    private final CustomerDao customerDao = new CustomerDao();
+    private final OwnerDao ownerDao = new OwnerDao();
+    private final DeliverymanDao deliverymanDao = new DeliverymanDao();
 
-        userController.updateBasicProfile(user, firstName, lastName, phone, email, password);
+    private UserService() {
+    }
 
-        switch (user.getRole()) {
-            case CUSTOMER -> {
-                if (address == null || location == null) {
-                    throw new IllegalArgumentException("Address and location must be provided for customer profile update.");
-                }
-                userController.updateCustomerDetails((Customer) user, address, location);
-            }
-            case OWNER -> {
-                if (address == null || location == null) {
-                    throw new IllegalArgumentException("Address and location must be provided for owner profile update.");
-                }
-                userController.updateOwnerDetails((Owner) user, address, location);
-            }
-            case DELIVERY_MAN -> {
-                if (location == null) {
-                    throw new IllegalArgumentException("Location must be provided for deliveryman profile update.");
-                }
-                userController.updateDeliveryLocation((Deliveryman) user, location);
+    public static UserService getInstance() {
+        if (instance == null) {
+            instance = new UserService();
+        }
+        return instance;
+    }
+
+    public void addUser(User user) {
+        if (user == null) return;
+
+        switch (user) {
+            case Customer customer -> customerDao.save(customer);
+            case Owner owner -> ownerDao.save(owner);
+            case Deliveryman deliveryman -> deliverymanDao.save(deliveryman);
+            default -> System.out.println("Unknown user type, cannot add: " + user.getClass().getName());
+        }
+    }
+
+    public User findByPublicId(String publicId) {
+        User user;
+        user = customerDao.findByPublicId(publicId);
+        if (user != null) return user;
+        user = ownerDao.findByPublicId(publicId);
+        if (user != null) return user;
+        user = deliverymanDao.findByPublicId(publicId);
+        if (user != null) return user;
+        return null;
+    }
+
+    public User findByEmail(String email) {
+        User user;
+        user = customerDao.findByEmail(email);
+        if (user != null) return user;
+        user = ownerDao.findByEmail(email);
+        if (user != null) return user;
+        user = deliverymanDao.findByEmail(email);
+        if (user != null) return user;
+        return null;
+    }
+
+    public void resetPassword(User user, String password) {
+        if (user == null || password == null || password.isBlank()) return;
+        user.setPassword(password);
+
+        switch (user) {
+            case Customer customer -> customerDao.update(customer);
+            case Owner owner -> ownerDao.update(owner);
+            case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
+            default -> System.out.println("Unknown user type, cannot reset password: " + user.getClass().getName());
+        }
+    }
+
+    public boolean removeUser(User user) {
+        if (user == null) return false;
+
+        switch (user) {
+            case Customer customer -> customerDao.delete(customer);
+            case Owner owner -> ownerDao.delete(owner);
+            case Deliveryman deliveryman -> deliverymanDao.delete(deliveryman);
+            default -> {
+                System.out.println("Unknown user type, cannot remove: " + user.getClass().getName());
+                return false;
             }
         }
+        return true;
+    }
 
-        System.out.println("Profile updated for " + user.getFirstName());
+    public boolean updateBasicProfile(User user, String fullName, String phoneNumber, String email, String password) {
+        if (user == null) return false;
+
+        boolean changed = false;
+        if (fullName != null && !fullName.equals(user.getFullName())) {
+            user.setFullName(fullName);
+            changed = true;
+        }
+        if (phoneNumber != null && !phoneNumber.equals(user.getPhoneNumber())) {
+            user.setPhoneNumber(phoneNumber);
+            changed = true;
+        }
+        if (email != null && !email.equals(user.getEmail())) {
+            user.setEmail(email);
+            changed = true;
+        }
+        if (password != null && !password.isBlank()) {
+            user.setPassword(password);
+            changed = true;
+        }
+
+        if (changed) {
+            switch (user) {
+                case Customer customer -> customerDao.update(customer);
+                case Owner owner -> ownerDao.update(owner);
+                case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
+                default -> {
+                    System.out.println("Unknown user type, basic profile not updated in DB: " + user.getClass().getName());
+                    return false;
+                }
+            }
+        }
+        return changed;
+    }
+
+    public boolean updateCustomerDetails(Customer customer, String newAddress, Location newLocation) {
+        if (customer == null) return false;
+        boolean changed = false;
+
+        if (newAddress != null && !newAddress.equals(customer.getAddress())) {
+            customer.setAddress(newAddress);
+            changed = true;
+        }
+        if (newLocation != null && (customer.getLocation() == null || !newLocation.equals(customer.getLocation()))) {
+            customer.setLocation(newLocation);
+            changed = true;
+        }
+
+        if (changed) {
+            customerDao.update(customer);
+        }
+        return changed;
+    }
+
+    public boolean updateOwnerDetails(Owner owner, String newAddress, Location newLocation) {
+        if (owner == null) return false;
+        boolean changed = false;
+
+        if (newAddress != null && !newAddress.equals(owner.getAddress())) {
+            owner.setAddress(newAddress);
+            changed = true;
+        }
+        if (newLocation != null && (owner.getLocation() == null || !newLocation.equals(owner.getLocation()))) {
+            owner.setLocation(newLocation);
+            changed = true;
+        }
+
+        if (changed) {
+            ownerDao.update(owner);
+        }
+        return changed;
+    }
+
+    public boolean updateDeliveryLocation(Deliveryman dm, Location newLocation) {
+        if (dm == null) return false;
+        boolean changed = false;
+
+        if (newLocation != null && (dm.getLocation() == null || !newLocation.equals(dm.getLocation()))) {
+            dm.setLocation(newLocation); // Make sure Deliveryman class has setLocation(Location)
+            changed = true;
+        }
+
+        if (changed) {
+            deliverymanDao.update(dm);
+        }
+        return changed;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> allUsers = new ArrayList<>();
+        allUsers.addAll(customerDao.getAll());
+        allUsers.addAll(ownerDao.getAll());
+        allUsers.addAll(deliverymanDao.getAll());
+        return allUsers;
     }
 }

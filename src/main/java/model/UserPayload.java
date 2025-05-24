@@ -1,4 +1,4 @@
-package model;   // or simply `model`
+package model;
 
 import enums.Role;
 import lombok.Getter;
