@@ -26,7 +26,10 @@ public abstract class User {
     private String publicId = UUID.randomUUID().toString(); // UUID for external reference
 
     private String firstName;
+
     private String lastName;
+
+    private BankInfo bankInfo;
 
     @Column(unique = true)
     private String phoneNumber;
@@ -50,13 +53,14 @@ public abstract class User {
     // Constructors
     public User() {}
 
-    public User(String firstName, String lastName, String phoneNumber, String email, String password, Role role) {
+    public User(String firstName, String lastName, String phoneNumber, String email, String password, Role role, BankInfo bankInfo) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.bankInfo = bankInfo;
     }
 
 }

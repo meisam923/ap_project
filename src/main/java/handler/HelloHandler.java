@@ -1,4 +1,4 @@
-package handler;
+package Handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;

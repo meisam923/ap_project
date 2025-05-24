@@ -15,6 +15,8 @@ import java.util.List;
 public class UserController {
     private static UserController instance;
 
+
+
     private final CustomerDao customerDao = new CustomerDao();
     private final OwnerDao ownerDao = new OwnerDao();
     private final DeliverymanDao deliverymanDao = new DeliverymanDao();

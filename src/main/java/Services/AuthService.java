@@ -14,6 +14,8 @@ import util.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static Services.UserFactory.createUser;
+
 
 public class AuthService {
     private static AuthService instance;
@@ -78,7 +80,7 @@ public class AuthService {
 
         User user;
         try {
-            user = UserFactory.createUser(role, firstName, lastName, phone, email, password, location, address, restaurant);
+            user = createUser(role, firstName, lastName, phone, email, password, location, address, restaurant);
         } catch (IllegalArgumentException e) {
             System.out.println("Registration failed: " + e.getMessage());
             return null;
@@ -221,3 +223,5 @@ class UserFactory {
         };
     }
 }
+
+
