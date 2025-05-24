@@ -1,13 +1,20 @@
 package Controller;
 
 import Services.RestaurantRegisterService;
+import com.google.gson.Gson;
 import dao.RestaurantDao;
+
+import dao.UserDao;
+import exception.InvalidInputException;
+
 import exception.NotAcceptableException;
 import model.*;
 import observers.RestaurantObserver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 //user dao is now not used anymore, instead we use dedicated daos for different user types
 
@@ -20,18 +27,19 @@ public class RestaurantController {
         restaurantRegisterService =  RestaurantRegisterService.getInstance();
     }
 
-    public boolean createRestaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
-
-        Restaurant new_restaurant = new Restaurant(address, location, phone_number, title, owner, category);
-        /*if (!userdao.findbyid()){
-            return false;
-        }*/
-        if (restaurantDao.findByOwnerId(owner.getId()) == null) {
-            restaurantDao.save(new_restaurant);
-            restaurantRegisterService.requestConfirmation(new_restaurant);
-            return true;
+    public String createRestaurant(Restaurant restaurant) throws  InvalidInputException {
+        if (restaurant.getTitle() == null) {
+            throw new InvalidInputException(400, "name");
         }
-        return false;
+        if (restaurant.getAddress().getAddressDetails() == null) {
+            throw new InvalidInputException(400, "address");
+        }
+        if (restaurant.getPhone_number()== null || restaurant.getPhone_number().length()!=10) {
+            throw new InvalidInputException(400, "phone");
+        }
+        restaurant.setOwner(new Owner());
+        restaurantDao.save(restaurant);
+        return new Gson().toJson(restaurant);
 
     }
     public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant, @NotNull String type) throws NotAcceptableException {

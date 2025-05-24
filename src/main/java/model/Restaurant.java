@@ -50,7 +50,7 @@ public class Restaurant {
     private RestaurantStatus status;
 
     public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
-        validateField(address, location, phone_number, title, owner, category);
+        //validateField(address, location, phone_number, title, owner, category);
         this.address = address;
         this.location = location;
         this.phone_number = phone_number;
@@ -77,21 +77,11 @@ public class Restaurant {
     }
 
 
-    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
-        if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
-                (!phone_number.matches("0\\d{10}")) ||
-                (!title.matches("(?i)^[a-z]{1,20}$") ||
-                        (RestaurantCategory.buildCategory(category) == null)))
-            throw new NotAcceptableException("invalid field");
-    }
-
-    public List<Period> getWorking_periods() {
-        return periods;
-    }
-
-    public void setPeriods(ArrayList<Period> working_periods) {
-        this.periods = working_periods;
-    }
-
+//    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
+//        if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
+//                (!phone_number.matches("0\\d{10}")) ||
+//                (!title.matches("(?i)^[a-z]{1,20}$") ||
+//                        (RestaurantCategory.buildCategory(category) == null)))
+//            throw new NotAcceptableException("invalid field");
+//    }
 }
-
