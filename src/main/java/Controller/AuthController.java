@@ -103,7 +103,7 @@ public class AuthController {
                 break;}
             userController.addUser(user);
             userdto.setUser_id(user.getId());
-            userdto.setToken(generateRefreshToken(user, 0));
+            userdto.setToken(generateRefreshToken(user,13));
             for (SignUpObserver obs : signUpObservers) {
                 obs.onUserRegistered(user);
             }

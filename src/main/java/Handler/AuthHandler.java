@@ -27,7 +27,7 @@ public class AuthHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String contentType = exchange.getRequestHeaders().getFirst("Content-Type");
         if (contentType == null || !contentType.equals("application/json")) {
-            sendErrorResponse(exchange, 415, "Unsupported Media Type");
+            sendErrorResponse(exchange, 415, "Unsupported Media Type"); return;
         }
         if (method.equals("POST") && path.equals("/auth/register")) {
             createUser(exchange);
@@ -41,6 +41,7 @@ public class AuthHandler implements HttpHandler {
 
         } else {
             sendErrorResponse(exchange, 404, "Resource not found");
+            return;
         }
     }
 
@@ -60,6 +61,7 @@ public class AuthHandler implements HttpHandler {
         System.out.println("Received JSON: " + body);
         try{
         UserDto userdto = new Gson().fromJson(body, UserDto.class);
+        System.out.println("hello");
             userdto = authcontroller.register(userdto);
         Map<String, Object> responsebody = new HashMap<>();
         responsebody.put("message", "User registered successfully");
@@ -67,12 +69,14 @@ public class AuthHandler implements HttpHandler {
         responsebody.put("token", userdto.getToken());
         String json = new Gson().toJson(responsebody);
         sendResponse(exchange, 200, json, "application/json");
+        return;
         } catch (InvalidInputException e) {
-            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage()); return;
         } catch (AlreadyExistValueException e) {
-            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage()); return;
         } catch (Exception e) {
-            sendErrorResponse(exchange, 500, "Internal Server Error");
+            System.out.println(e);
+            sendErrorResponse(exchange, 500, "Internal Server Error"); return;
         }
     }
 

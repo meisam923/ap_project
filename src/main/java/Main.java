@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-
+    try {
         int port = 8080;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
@@ -16,7 +16,10 @@ public class Main {
         server.createContext("/auth", new AuthHandler());
         server.setExecutor(null); // uses default executor
         server.start();
-        System.out.println("Server is running at http://localhost:" + port + "/hello");
+        System.out.println("Server is running at http://localhost:" + port);
+    }catch (Exception e){
+        e.toString();
+    }
     }
 }
 

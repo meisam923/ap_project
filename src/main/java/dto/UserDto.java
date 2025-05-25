@@ -44,7 +44,7 @@ public class UserDto {
             return "password";
         }
         String tmp = this.role.trim();
-        if (tmp == null || (!tmp.equals("buyer") && !tmp.equals("vendor") && !tmp.equals("admin") && !tmp.equals("courier"))) {
+        if (tmp == null || (!tmp.equals("buyer") && !tmp.equals("vendor") && !tmp.equals("courier"))) {
             return "role";
         }
         if (this.address == null || this.full_name.trim().equals("")) {
