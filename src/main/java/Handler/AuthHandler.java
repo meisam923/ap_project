@@ -58,15 +58,15 @@ public class AuthHandler implements HttpHandler {
         }
         String body = jsonBody.toString();
         System.out.println("Received JSON: " + body);
+        try{
         UserDto userdto = new Gson().fromJson(body, UserDto.class);
+            userdto = authcontroller.register(userdto);
         Map<String, Object> responsebody = new HashMap<>();
         responsebody.put("message", "User registered successfully");
         responsebody.put("user_id", userdto.getUser_id());
         responsebody.put("token", userdto.getToken());
         String json = new Gson().toJson(responsebody);
         sendResponse(exchange, 200, json, "application/json");
-        try {
-            userdto = authcontroller.register(userdto);
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (AlreadyExistValueException e) {

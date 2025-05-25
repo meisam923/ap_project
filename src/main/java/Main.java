@@ -1,3 +1,4 @@
+import Handler.AuthHandler;
 import com.sun.net.httpserver.HttpServer;
 import Handler.RestaurantHandler;
 
@@ -12,7 +13,7 @@ public class Main {
 
         // Register handler at /hello
         server.createContext("/restaurants", new RestaurantHandler());
-
+        server.createContext("/auth", new AuthHandler());
         server.setExecutor(null); // uses default executor
         server.start();
         System.out.println("Server is running at http://localhost:" + port + "/hello");

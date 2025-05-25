@@ -62,7 +62,7 @@ public class RestaurantHandler implements HttpHandler {
             e.printStackTrace(); // THIS IS IMPORTANT: Print the stack trace!
             sendErrorResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
         }catch (InvalidInputException e) {
-            sendErrorResponse(exchange,e.getStatusCode(), e.getMessage());
+            sendErrorResponse(exchange,e.getStatus_code(), e.getMessage());
             System.out.println("Restaurant " + restaurant.getTitle() + " is invalid");
         }
         catch (Exception e) {
