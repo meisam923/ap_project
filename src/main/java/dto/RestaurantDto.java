@@ -9,7 +9,7 @@ public class RestaurantDto {
             @JsonProperty("phone") String phone,
             @JsonProperty("logoBase64") String logaBase64,
             @JsonProperty("tax_fee") int tax_fee,
-            @JsonProperty("additional") int additional_fee
+            @JsonProperty("additional_fee") int additional_fee
     ){}
     public record RegisterReponseRestaurantDto(
             @JsonProperty("id") int id,
@@ -18,7 +18,7 @@ public class RestaurantDto {
             @JsonProperty("phone") String phone,
             @JsonProperty("logoBase64") String logaBase64,
             @JsonProperty("tax_fee") int tax_fee,
-            @JsonProperty("additional") int additional_fee
+            @JsonProperty("additional_fee") int additional_fee
     ){}
 
 }

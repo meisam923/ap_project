@@ -1,6 +1,7 @@
 package dao;
 
 import jakarta.persistence.*;
+import model.Customer;
 import model.Restaurant;
 import util.JpaUtil;
 
@@ -82,5 +83,18 @@ public class RestaurantDao {
             em.close();
         }
         return restaurant;
+    }
+
+    public Restaurant findByPhone(String phone) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try{
+            TypedQuery<Restaurant> query = em.createQuery("SELECT c FROM Restaurant c WHERE c.phone_number = :phone", Restaurant.class);
+            query.setParameter("phone", phone);
+            return query.getSingleResult();
+        }  catch (NoResultException e) {
+            return null;
+        }finally {
+            em.close();
+        }
     }
 }
