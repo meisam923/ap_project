@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import model.Deliveryman;
 import model.Owner;
 import util.JpaUtil;
 
@@ -141,7 +142,21 @@ public class OwnerDao implements IDao<Owner, Long>{
             TypedQuery<Owner> query = em.createQuery("SELECT u FROM Owner u WHERE u.publicId = :publicId", Owner.class);
             query.setParameter("publicId", publicId);
             return query.getSingleResult();
-        } finally {
+        } catch (NoResultException e) {
+            return null;
+        }finally {
+            em.close();
+        }
+    }
+    public Owner findByPhone(String phone) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try{
+            TypedQuery<Owner> query = em.createQuery("SELECT c FROM Owner c WHERE c.phoneNumber = :phone", Owner.class);
+            query.setParameter("phone", phone);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }finally {
             em.close();
         }
     }

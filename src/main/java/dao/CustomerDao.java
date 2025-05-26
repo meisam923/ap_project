@@ -144,7 +144,21 @@ public class CustomerDao implements IDao<Customer, Long> {
             TypedQuery<Customer> query = em.createQuery("SELECT u FROM Customer u WHERE u.publicId = :publicId", Customer.class);
             query.setParameter("publicId", publicId);
             return query.getSingleResult();
-        } finally {
+        } catch (NoResultException e) {
+            return null;
+        }finally {
+            em.close();
+        }
+    }
+    public Customer findByPhone(String phone) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try{
+            TypedQuery<Customer> query = em.createQuery("SELECT c FROM Customer c WHERE c.phoneNumber = :phone", Customer.class);
+            query.setParameter("phone", phone);
+            return query.getSingleResult();
+        }  catch (NoResultException e) {
+            return null;
+        }finally {
             em.close();
         }
     }

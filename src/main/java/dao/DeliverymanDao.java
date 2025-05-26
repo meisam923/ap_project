@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import model.Customer;
 import model.Deliveryman;
 import util.JpaUtil;
 
@@ -143,7 +144,21 @@ public class DeliverymanDao implements IDao<Deliveryman, Long>{
             TypedQuery<Deliveryman> query = em.createQuery("SELECT u FROM Deliveryman u WHERE u.publicId = :publicId", Deliveryman.class);
             query.setParameter("publicId", publicId);
             return query.getSingleResult();
-        } finally {
+        } catch (NoResultException e) {
+            return null;
+        }finally {
+            em.close();
+        }
+    }
+    public Deliveryman findByPhone(String phone) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try{
+            TypedQuery<Deliveryman> query = em.createQuery("SELECT c FROM Deliveryman c WHERE c.phoneNumber = :phone", Deliveryman.class);
+            query.setParameter("phone", phone);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }finally {
             em.close();
         }
     }
