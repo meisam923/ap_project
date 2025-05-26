@@ -1,3 +1,4 @@
+import Handler.RestaurantHandler;
 import com.sun.net.httpserver.HttpServer;
 import Handler.AuthHandler;
 import util.JpaUtil;
@@ -33,6 +34,7 @@ public class Main {
 
         try {
             server.createContext("/auth", new AuthHandler());
+            server.createContext("/restaurants", new RestaurantHandler());
         } catch ( Exception e) {
             System.err.println("Main: Error creating AuthHandler: " + e.getMessage());
             e.printStackTrace();

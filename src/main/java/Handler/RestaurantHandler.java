@@ -1,13 +1,20 @@
 package Handler;
 
+import Controller.AuthController;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import Controller.RestaurantController;
+import dto.RestaurantDto;
+import dto.UserDto;
+import enums.Role;
 import exception.InvalidInputException;
+import model.Owner;
 import model.Restaurant;
+import model.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,11 +23,13 @@ import java.io.OutputStream;
 
 
 public class RestaurantHandler implements HttpHandler {
-    private final RestaurantController restaurantController=new RestaurantController();
-    private final Gson gson=new Gson();
+    private final AuthController authController = AuthController.getInstance();
+    private final RestaurantController restaurantController = new RestaurantController();
+    private final Gson gson = new Gson();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public void handle (HttpExchange exchange ) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
         String contentType = exchange.getRequestHeaders().getFirst("Content-Type");
@@ -33,7 +42,38 @@ public class RestaurantHandler implements HttpHandler {
         }
 
     }
+
     private void createRestaurant(HttpExchange exchange) throws IOException {
+        String token_header = exchange.getRequestHeaders().getFirst("Authorization");
+        if (token_header == null || !token_header.startsWith("Bearer ")) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        }
+        try{
+        String token = token_header.substring(7);
+        User user = authController.requireLogin(token);
+        if (!user.getRole().equals(Role.SELLER)) {
+            sendErrorResponse(exchange, 403, "Forbidden request");
+        }
+        String jsonBody = readRequestBody(exchange);
+        RestaurantDto.RegisterRestaurantDto restaurant = objectMapper.readValue(jsonBody, RestaurantDto.RegisterRestaurantDto.class);
+        String json = jsonBody.toString();
+        System.out.println("Received JSON: " + json);
+            RestaurantDto.RegisterReponseRestaurantDto response = restaurantController.createRestaurant(restaurant, (Owner) user);
+            System.out.println("Created restaurant " + restaurant.name());
+            sendResponse(exchange, 201, gson.toJson(response), "application/json");
+        } catch (JsonSyntaxException e) {
+            System.err.println("JSON Parsing Error: " + e.getMessage());
+            e.printStackTrace(); // THIS IS IMPORTANT: Print the stack trace!
+            sendErrorResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, e.getMessage());
+        }
+    }
+
+    private String readRequestBody(HttpExchange exchange) throws IOException {
         StringBuilder jsonBody = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))) {
             String line;
@@ -42,33 +82,11 @@ public class RestaurantHandler implements HttpHandler {
             }
         } catch (IOException e) {
             sendErrorResponse(exchange, 500, "Error reading request body: " + e.getMessage());
-            return;
+            return null;
         }
-        String json = jsonBody.toString();
-        System.out.println("Received JSON: " + json);
-        String response = "";
-        Restaurant restaurant = null;
-        try{
-            restaurant= gson.fromJson(json, Restaurant.class);
-            response=restaurantController.createRestaurant(restaurant);
-            System.out.println("Created restaurant " + restaurant.getTitle());
-            sendResponse(exchange,201,response,"application/json");
-
-        }
-        catch (JsonSyntaxException e)
-        {
-            System.err.println("JSON Parsing Error: " + e.getMessage());
-            e.printStackTrace(); // THIS IS IMPORTANT: Print the stack trace!
-            sendErrorResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
-        }catch (InvalidInputException e) {
-            sendErrorResponse(exchange,e.getStatus_code(), e.getMessage());
-            System.out.println("Restaurant " + restaurant.getTitle() + " is invalid");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            sendErrorResponse(exchange, 500, e.getMessage());
-        }
+        return jsonBody.toString();
     }
+
     private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", contentType);
         exchange.sendResponseHeaders(statusCode, responseBody.getBytes().length);

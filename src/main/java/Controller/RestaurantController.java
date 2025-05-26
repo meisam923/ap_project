@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import dao.RestaurantDao;
 
 import dao.UserDao;
+import dto.RestaurantDto;
 import exception.InvalidInputException;
 
 import exception.NotAcceptableException;
@@ -28,18 +29,20 @@ public class RestaurantController {
         restaurantRegisterService =  RestaurantRegisterService.getInstance();
     }
 
-    public String createRestaurant(Restaurant restaurant) throws  InvalidInputException {
-        if (restaurant.getTitle() == null) {
+    public RestaurantDto.RegisterReponseRestaurantDto createRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws  InvalidInputException {
+        if (restaurant.name()== null) {
             throw new InvalidInputException(400, "name");
         }
-        if (restaurant.getAddress()== null) {
+        if (restaurant.address()== null) {
             throw new InvalidInputException(400, "address");
         }
-        if (restaurant.getPhone_number()== null || restaurant.getPhone_number().length()!=11) {
+        if (restaurant.phone()== null || restaurant.phone().length()!=11) {
             throw new InvalidInputException(400, "phone");
         }
-        restaurantDao.save(restaurant);
-        return new Gson().toJson(restaurant);
+        Restaurant newRestaurant = new Restaurant(restaurant.address(),restaurant.phone(),restaurant.name(),owner);
+        owner.setRestaurant(newRestaurant);
+        restaurantDao.save(newRestaurant);
+        return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
     }
     public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant, @NotNull String type) throws NotAcceptableException {
         /*Item new_item;

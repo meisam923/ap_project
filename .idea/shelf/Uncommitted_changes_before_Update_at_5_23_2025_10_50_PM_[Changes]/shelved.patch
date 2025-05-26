@@ -1,0 +1,2378 @@
+Index: src/main/java/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import com.sun.net.httpserver.HttpServer;\r\nimport dao.RestaurantDao;\r\nimport dao.UserDao;\r\nimport enums.RestaurantCategory;\r\nimport exception.NotAcceptableException;\r\nimport handler.HelloHandler;\r\nimport jakarta.persistence.*;\r\nimport model.*;\r\n\r\nimport java.io.IOException;\r\nimport java.net.InetSocketAddress;\r\nimport java.time.LocalTime;\r\n\r\npublic class Main {\r\n    public static void main(String[] args) throws IOException {\r\n\r\n        int port = 8000;\r\n        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);\r\n\r\n        // Register handler at /hello\r\n        server.createContext(\"/hello\", new HelloHandler());\r\n\r\n        server.setExecutor(null); // uses default executor\r\n        server.start();\r\n        System.out.println(\"Server is running at http://localhost:\" + port + \"/hello\");\r\n\r\n\r\n        /*EntityManagerFactory emf = Persistence.createEntityManagerFactory(\"MyPU\");\r\n        EntityManager em = emf.createEntityManager();\r\n        try {\r\n            em.getTransaction().begin();\r\n\r\n            Customer customer = new Customer(\r\n                    \"Ali\", \"Rezai\",\r\n                    \"09121234561117\",\r\n                    \"alaaaa@gmail.com\",\r\n                    \"my_password\",\r\n                    new Address(\"1231\", \"131\"),\r\n                    new Location(123, 123)\r\n            );\r\n            customer.setLocation(new Location(35.7, 51.4));\r\n            customer.setAddress(new Address(\"Tehran12345\", \"Home\"));\r\n            em.merge(customer);\r\n\r\n\r\n            UserDao userDao = new UserDao();\r\n            User us=userDao.findUserByEmail(\"seyedmohammadrezahamidi@gmail.com\");\r\n            RestaurantDao restaurantDao = new RestaurantDao();\r\n            Restaurant rs=restaurantDao.findByOwnerId(((Owner)us).getId());\r\n            rs.setPhone_number(\"09998765432\");\r\n            LocalTime start = LocalTime.of(12,15);\r\n            LocalTime end = LocalTime.of(14,15);\r\n            if (rs.setPeriod(start, end))\r\n                System.out.println(\"set\");\r\n            restaurantDao.update(rs);\r\n\r\n            Restaurant sampleRestaurant = new Restaurant (new Address(\"tst\",\"tst\"),new Location(90,90),\"09903099157\",\"kababi\",owner, \"Cafe\");\r\n\r\n           restaurantDao.save(sampleRestaurant);\r\n            owner.setRestaurant(sampleRestaurant);\r\n            em.merge(owner);\r\n\r\n            em.getTransaction().commit();\r\n            System.out.println(\"\\nAll Users in DB:\");\r\n            TypedQuery<User> q = em.createQuery(\"SELECT u FROM User u\", User.class);\r\n            for (User u : q.getResultList()) {\r\n                System.out.printf(\"- %s: %s %s (%s)%n\",\r\n                        u.getRole(), u.getFirstName(), u.getLastName(), u.getEmail());\r\n            }\r\n        } catch (NotAcceptableException e) {\r\n            System.err.println(e.getMessage());\r\n        } finally {\r\n            if (em.getTransaction().isActive()) {\r\n                em.getTransaction().rollback();\r\n            }\r\n            em.close();\r\n            emf.close();\r\n        }*/\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/Main.java b/src/main/java/Main.java
+--- a/src/main/java/Main.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/Main.java	(date 1748027985961)
+@@ -1,3 +1,4 @@
++
+ import com.sun.net.httpserver.HttpServer;
+ import dao.RestaurantDao;
+ import dao.UserDao;
+@@ -12,70 +13,6 @@
+ import java.time.LocalTime;
+ 
+ public class Main {
+-    public static void main(String[] args) throws IOException {
+-
+-        int port = 8000;
+-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+-
+-        // Register handler at /hello
+-        server.createContext("/hello", new HelloHandler());
+-
+-        server.setExecutor(null); // uses default executor
+-        server.start();
+-        System.out.println("Server is running at http://localhost:" + port + "/hello");
+-
+-
+-        /*EntityManagerFactory emf = Persistence.createEntityManagerFactory("MyPU");
+-        EntityManager em = emf.createEntityManager();
+-        try {
+-            em.getTransaction().begin();
+-
+-            Customer customer = new Customer(
+-                    "Ali", "Rezai",
+-                    "09121234561117",
+-                    "alaaaa@gmail.com",
+-                    "my_password",
+-                    new Address("1231", "131"),
+-                    new Location(123, 123)
+-            );
+-            customer.setLocation(new Location(35.7, 51.4));
+-            customer.setAddress(new Address("Tehran12345", "Home"));
+-            em.merge(customer);
+-
+-
+-            UserDao userDao = new UserDao();
+-            User us=userDao.findUserByEmail("seyedmohammadrezahamidi@gmail.com");
+-            RestaurantDao restaurantDao = new RestaurantDao();
+-            Restaurant rs=restaurantDao.findByOwnerId(((Owner)us).getId());
+-            rs.setPhone_number("09998765432");
+-            LocalTime start = LocalTime.of(12,15);
+-            LocalTime end = LocalTime.of(14,15);
+-            if (rs.setPeriod(start, end))
+-                System.out.println("set");
+-            restaurantDao.update(rs);
+-
+-            Restaurant sampleRestaurant = new Restaurant (new Address("tst","tst"),new Location(90,90),"09903099157","kababi",owner, "Cafe");
+-
+-           restaurantDao.save(sampleRestaurant);
+-            owner.setRestaurant(sampleRestaurant);
+-            em.merge(owner);
+-
+-            em.getTransaction().commit();
+-            System.out.println("\nAll Users in DB:");
+-            TypedQuery<User> q = em.createQuery("SELECT u FROM User u", User.class);
+-            for (User u : q.getResultList()) {
+-                System.out.printf("- %s: %s %s (%s)%n",
+-                        u.getRole(), u.getFirstName(), u.getLastName(), u.getEmail());
+-            }
+-        } catch (NotAcceptableException e) {
+-            System.err.println(e.getMessage());
+-        } finally {
+-            if (em.getTransaction().isActive()) {
+-                em.getTransaction().rollback();
+-            }
+-            em.close();
+-            emf.close();
+-        }*/
+-    }
++    public static void main(String[] args){}
++   
+ }
+-
+Index: src/main/java/model/Period.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport java.time.LocalTime;\r\nimport jakarta.persistence.*;\r\n// maybe needs some modification\r\n\r\n@Entity (name=\"periods\")\r\npublic class Period {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    private LocalTime startTime;\r\n    private LocalTime endTime;\r\n\r\n    @ManyToOne(fetch = FetchType.LAZY)\r\n    @JoinColumn(name = \"restaurant_id\")\r\n    private Restaurant restaurant;\r\n\r\n    public Period() {\r\n    }\r\n\r\n    public Period(LocalTime startTime, LocalTime endTime, Restaurant restaurant) {\r\n        this.startTime = startTime;\r\n        this.endTime = endTime;\r\n        this.restaurant = restaurant;\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public LocalTime getStartTime() {\r\n        return startTime;\r\n    }\r\n\r\n    public void setStartTime(LocalTime startTime) {\r\n        this.startTime = startTime;\r\n    }\r\n\r\n    public LocalTime getEndTime() {\r\n        return endTime;\r\n    }\r\n\r\n    public void setEndTime(LocalTime endTime) {\r\n        this.endTime = endTime;\r\n    }\r\n\r\n    public Restaurant getRestaurant() {\r\n        return restaurant;\r\n    }\r\n\r\n    public void setRestaurant(Restaurant restaurant) {\r\n        this.restaurant = restaurant;\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Period.java b/src/main/java/model/Period.java
+--- a/src/main/java/model/Period.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Period.java	(date 1748027985971)
+@@ -2,8 +2,12 @@
+ 
+ import java.time.LocalTime;
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ // maybe needs some modification
+ 
++@Getter
++@Setter
+ @Entity (name="periods")
+ public class Period {
+ 
+@@ -27,32 +31,5 @@
+         this.restaurant = restaurant;
+     }
+ 
+-    public Long getId() {
+-        return id;
+-    }
+-
+-    public LocalTime getStartTime() {
+-        return startTime;
+-    }
+-
+-    public void setStartTime(LocalTime startTime) {
+-        this.startTime = startTime;
+-    }
+-
+-    public LocalTime getEndTime() {
+-        return endTime;
+-    }
+-
+-    public void setEndTime(LocalTime endTime) {
+-        this.endTime = endTime;
+-    }
+-
+-    public Restaurant getRestaurant() {
+-        return restaurant;
+-    }
+-
+-    public void setRestaurant(Restaurant restaurant) {
+-        this.restaurant = restaurant;
+-    }
+ }
+ 
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n    <modelVersion>4.0.0</modelVersion>\r\n\r\n    <groupId>org.example</groupId>\r\n    <artifactId>approject</artifactId>\r\n    <version>1.0-SNAPSHOT</version>\r\n\r\n    <properties>\r\n        <maven.compiler.source>21</maven.compiler.source> \r\n        <maven.compiler.target>21</maven.compiler.target>\r\n        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\r\n    </properties>\r\n\r\n    <dependencies>\r\n        <dependency>\r\n            <groupId>org.postgresql</groupId>\r\n            <artifactId>postgresql</artifactId>\r\n            <version>42.7.3</version>\r\n        </dependency>\r\n\r\n        <dependency>\r\n            <groupId>com.sun.mail</groupId>\r\n            <artifactId>jakarta.mail</artifactId>\r\n            <version>2.0.1</version>\r\n        </dependency>\r\n\r\n        <dependency>\r\n            <groupId>org.jetbrains</groupId>\r\n            <artifactId>annotations</artifactId>\r\n            <version>24.0.0</version>\r\n        </dependency>\r\n\r\n        <dependency>\r\n            <groupId>jakarta.persistence</groupId>\r\n            <artifactId>jakarta.persistence-api</artifactId>\r\n            <version>3.1.0</version>\r\n        </dependency>\r\n\r\n        <dependency>\r\n            <groupId>org.hibernate.orm</groupId>\r\n            <artifactId>hibernate-core</artifactId>\r\n            <version>6.4.4.Final</version>\r\n        </dependency>\r\n\r\n        <dependency>\r\n            <groupId>org.jboss.logging</groupId>\r\n            <artifactId>jboss-logging</artifactId>\r\n            <version>3.5.3.Final</version>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>io.jsonwebtoken</groupId>\r\n            <artifactId>jjwt-api</artifactId>\r\n            <version>0.11.5</version>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>io.jsonwebtoken</groupId>\r\n            <artifactId>jjwt-impl</artifactId>\r\n            <version>0.11.5</version>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>io.jsonwebtoken</groupId>\r\n            <artifactId>jjwt-jackson</artifactId>\r\n            <version>0.11.5</version>\r\n        </dependency>\r\n\r\n    </dependencies>\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/pom.xml	(date 1748027985961)
+@@ -21,6 +21,15 @@
+             <version>42.7.3</version>
+         </dependency>
+ 
++
++        <dependency>
++            <groupId>org.projectlombok</groupId>
++            <artifactId>lombok</artifactId>
++            <version>1.18.30</version> <!-- use latest stable version -->
++            <scope>provided</scope>
++        </dependency>
++
++
+         <dependency>
+             <groupId>com.sun.mail</groupId>
+             <artifactId>jakarta.mail</artifactId>
+Index: src/main/java/model/Restaurant.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport enums.RestaurantCategory;\r\nimport enums.RestaurantStatus;\r\nimport exception.NotAcceptableException;\r\n\r\nimport java.time.LocalTime;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\nimport jakarta.persistence.*;\r\n\r\n@Entity\r\n@Table(name = \"restaurants\")\r\npublic class Restaurant {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Embedded\r\n    private final Address address;// human-readable address (not used for distance)\r\n\r\n    @Embedded\r\n    private final Location location;// a coordinate system\r\n\r\n    @Column (unique = true)\r\n    private String phone_number;\r\n\r\n    private String title;\r\n\r\n    @OneToOne\r\n    @JoinColumn(name = \"owner_id\")\r\n    private Owner owner;\r\n\r\n    @OneToMany(mappedBy = \"restaurant\", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)\r\n    private List<Period> periods;\r\n\r\n    @OneToOne\r\n    private Menu menu;\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    private RestaurantCategory category;\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    private RestaurantStatus status;\r\n\r\n    public Restaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {\r\n        validateField(address, location, phone_number, title, owner, category);\r\n        this.address = address;\r\n        this.location = location;\r\n        this.phone_number = phone_number;\r\n        this.title = title;\r\n        this.owner = owner;\r\n        this.periods = new ArrayList<>();\r\n        this.category = RestaurantCategory.buildCategory(category);\r\n        this.status = RestaurantStatus.WAITING;\r\n\r\n    }\r\n\r\n    public Restaurant() { // used for testing\r\n        address = null;\r\n        location = new Location(0,0);\r\n    }\r\n\r\n    public boolean setPeriod(LocalTime start, LocalTime end) {\r\n        if (this.periods.size() == 2) {\r\n            return false;\r\n        }\r\n        Period period = new Period(start, end,this);\r\n        this.periods.add(period);\r\n        return true;\r\n    }\r\n\r\n\r\n    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {\r\n        if ((address == null || location == null || phone_number == null || title == null || owner == null) ||\r\n                (!phone_number.matches(\"0\\\\d{10}\")) ||\r\n                (!title.matches(\"(?i)^[a-z]{1,20}$\") ||\r\n                        (RestaurantCategory.buildCategory(category) == null)))\r\n            throw new NotAcceptableException(\"invalid field\");\r\n    }\r\n\r\n    public Owner getOwner() {\r\n        return owner;\r\n    }\r\n\r\n    public String getTitle() {\r\n        return title;\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public Address getAddress() {\r\n        return address;\r\n    }\r\n\r\n    public Location getLocation() {\r\n        return location;\r\n    }\r\n\r\n    public String getPhone_number() {\r\n        return phone_number;\r\n    }\r\n\r\n    public void setPhone_number(String phone_number) {\r\n        this.phone_number = phone_number;\r\n    }\r\n\r\n    public void setTitle(String title) {\r\n        this.title = title;\r\n    }\r\n\r\n    public void setOwner(Owner owner) {\r\n        this.owner = owner;\r\n    }\r\n\r\n    public List<Period> getWorking_periods() {\r\n        return periods;\r\n    }\r\n\r\n    public void setPeriods(ArrayList<Period> working_periods) {\r\n        this.periods = working_periods;\r\n    }\r\n\r\n    public RestaurantCategory getCategory() {\r\n        return category;\r\n    }\r\n\r\n    public void setCategory(RestaurantCategory category) {\r\n        this.category = category;\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Restaurant.java b/src/main/java/model/Restaurant.java
+--- a/src/main/java/model/Restaurant.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Restaurant.java	(date 1748027985972)
+@@ -9,7 +9,11 @@
+ import java.util.List;
+ 
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ 
++@Getter
++@Setter
+ @Entity
+ @Table(name = "restaurants")
+ public class Restaurant {
+@@ -81,46 +85,6 @@
+             throw new NotAcceptableException("invalid field");
+     }
+ 
+-    public Owner getOwner() {
+-        return owner;
+-    }
+-
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public Long getId() {
+-        return id;
+-    }
+-
+-    public void setId(Long id) {
+-        this.id = id;
+-    }
+-
+-    public Address getAddress() {
+-        return address;
+-    }
+-
+-    public Location getLocation() {
+-        return location;
+-    }
+-
+-    public String getPhone_number() {
+-        return phone_number;
+-    }
+-
+-    public void setPhone_number(String phone_number) {
+-        this.phone_number = phone_number;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public void setOwner(Owner owner) {
+-        this.owner = owner;
+-    }
+-
+     public List<Period> getWorking_periods() {
+         return periods;
+     }
+@@ -129,12 +93,5 @@
+         this.periods = working_periods;
+     }
+ 
+-    public RestaurantCategory getCategory() {
+-        return category;
+-    }
+-
+-    public void setCategory(RestaurantCategory category) {
+-        this.category = category;
+-    }
+ }
+ 
+Index: src/main/java/Services/NotificationService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package Services;\r\n\r\nimport jakarta.mail.MessagingException;\r\nimport model.Restaurant;\r\nimport model.User;\r\nimport observers.ForgetPasswordObserver;\r\nimport observers.LoginObserver;\r\nimport observers.RestaurantObserver;\r\nimport observers.SignUpObserver;\r\nimport org.jetbrains.annotations.NotNull;\r\n\r\n\r\npublic class NotificationService implements SignUpObserver, LoginObserver, ForgetPasswordObserver, RestaurantObserver {\r\n    private final AuthService authService = AuthService.getInstance();\r\n\r\n    @Override\r\n    public void onUserRegistered(@NotNull User user) {\r\n        System.out.println(\"Welcome \" + user.getFirstName() + \"! Sending welcome email...\");\r\n        String subject = \"Welcome to PolyEats, \" + user.getFirstName() + \"!\";\r\n        String body = \"Hi \" + user.getFirstName() + \",\\n\\n\"\r\n                + \"Thank you for registering with PolyEats. We're thrilled to have you!\"\r\n                + \"\\n\\nBest regards,\\nThe PolyEats Team\";\r\n        try {\r\n            EmailService.sendEmail(user.getEmail(), subject, body);\r\n        } catch (MessagingException e) {\r\n            System.err.println(\"Failed to send welcome email.\");\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void onUserLoggedIn(@NotNull User user) {\r\n        System.out.println(\"Welcome back \" + user.getFirstName() + \"! Sending login notification...\");\r\n        String subject = \"Welcome Back, \" + user.getFirstName() + \"!\";\r\n        String body = \"Hi \" + user.getFirstName() + \",\\n\\n\"\r\n                + \"We're glad to see you again. Enjoy using PolyEats!\"\r\n                + \"\\n\\nBest regards,\\nThe PolyEats Team\";\r\n        try {\r\n            EmailService.sendEmail(user.getEmail(), subject, body);\r\n        } catch (MessagingException e) {\r\n            System.err.println(\"Failed to send login notification email.\");\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void onForgetPassword(@NotNull User user, int resetCode) {\r\n        System.out.println(\"Password reset requested for \" + user.getFirstName() + \". Sending reset code...\");\r\n        String subject = \"PolyEats Password Reset Code\";\r\n        String body = \"Hello \" + user.getFirstName() + \",\\n\\n\"\r\n                + \"Your password reset code is: \" + resetCode + \"\\n\"\r\n                + \"This code will expire in 1 minute.\\n\\n\"\r\n                + \"If you did not request a password reset, please ignore this email.\"\r\n                + \"\\n\\nBest regards,\\nThe PolyEats Team\";\r\n        try {\r\n            EmailService.sendEmail(user.getEmail(), subject, body);\r\n        } catch (MessagingException e) {\r\n            System.err.println(\"Failed to send password reset email.\");\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void registerRestaurant(@NotNull Restaurant restaurant) {\r\n        System.out.println(\"Welcome \" + restaurant.getOwner().getFirstName() + \"!restaurant request has been sent\");\r\n        String subject = \"Congratulation ! your restaurant \" + restaurant.getTitle() + \" will be registered ASAP\"  + restaurant.getOwner().getFirstName() + \"!\";\r\n        String body = \"Welcome to your new journey\" + restaurant.getOwner().getFirstName() + \",\\n\\n\"\r\n                + \"We're glad to have you in PolyEats. Enjoy using PolyEats!\"\r\n                + \"\\n\\nBest regards,\\nThe PolyEats Team\";\r\n        try {\r\n            EmailService.sendEmail(restaurant.getOwner().getEmail(), subject, body);\r\n        } catch (MessagingException e) {\r\n            System.err.println(\"Failed to send login notification email.\");\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/Services/NotificationService.java b/src/main/java/Services/NotificationService.java
+--- a/src/main/java/Services/NotificationService.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/Services/NotificationService.java	(date 1748027985962)
+@@ -1,5 +1,6 @@
+ package Services;
+ 
++import dao.RefreshTokenDao;
+ import jakarta.mail.MessagingException;
+ import model.Restaurant;
+ import model.User;
+@@ -11,7 +12,6 @@
+ 
+ 
+ public class NotificationService implements SignUpObserver, LoginObserver, ForgetPasswordObserver, RestaurantObserver {
+-    private final AuthService authService = AuthService.getInstance();
+ 
+     @Override
+     public void onUserRegistered(@NotNull User user) {
+@@ -73,6 +73,7 @@
+             System.err.println("Failed to send login notification email.");
+             e.printStackTrace();
+         }
++
+     }
+ }
+ 
+Index: src/main/java/controller/RestaurantController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\nimport Services.RestaurantRegisterService;\r\nimport dao.RestaurantDao;\r\nimport dao.UserDao;\r\nimport exception.NotAcceptableException;\r\nimport model.*;\r\nimport observers.RestaurantObserver;\r\nimport org.jetbrains.annotations.NotNull;\r\n\r\nimport java.util.ArrayList;\r\n\r\npublic class RestaurantController {\r\n    private static RestaurantRegisterService restaurantRegisterService;\r\n    private static RestaurantDao restaurantDao;\r\n    private static UserDao userDao;\r\n\r\n    public RestaurantController() {\r\n        userDao = new UserDao();\r\n        restaurantDao = new RestaurantDao();\r\n        restaurantRegisterService =  RestaurantRegisterService.getInstance();\r\n    }\r\n\r\n    public boolean createRestaurant(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {\r\n\r\n        Restaurant new_restaurant = new Restaurant(address, location, phone_number, title, owner, category);\r\n        /*if (!userdao.findbyid()){\r\n            return false;\r\n        }*/\r\n        if (restaurantDao.findByOwnerId(owner.getId()) == null) {\r\n            restaurantDao.save(new_restaurant);\r\n            restaurantRegisterService.requestConfirmation(new_restaurant);\r\n            return true;\r\n        }\r\n        return false;\r\n\r\n    }\r\n    public void addItem (String  title, String description, int price, int count, ArrayList<String> hashtags, Restaurant restaurant, @NotNull String type) throws NotAcceptableException {\r\n        /*Item new_item;\r\n        if (type.equals(\"Drink\")) {\r\n            new_item=new Item(title,description,price,count,hashtags,ItemCategory.DRINK) ;\r\n            menu.addItem(new_item);\r\n            return;\r\n        }\r\n        else {\r\n            if (ItemCategory.buildCategory(type)==null) {\r\n                System.out.println(\"Invalid Category\");\r\n                return ;\r\n            }\r\n            new_item=new Item(title,description,price,count,hashtags,ItemCategory.buildCategory(type)) ;\r\n            menu.addItem(new_item);\r\n            return;\r\n\r\n        }*/\r\n    }\r\n\r\n    public void addRestaurantObserver(RestaurantObserver o) {\r\n        restaurantRegisterService.registerObserver(o);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/RestaurantController.java b/src/main/java/controller/RestaurantController.java
+--- a/src/main/java/controller/RestaurantController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/RestaurantController.java	(date 1748027985964)
+@@ -1,8 +1,7 @@
+-package controller;
++package Controller;
+ 
+ import Services.RestaurantRegisterService;
+ import dao.RestaurantDao;
+-import dao.UserDao;
+ import exception.NotAcceptableException;
+ import model.*;
+ import observers.RestaurantObserver;
+@@ -10,13 +9,13 @@
+ 
+ import java.util.ArrayList;
+ 
++//user dao is now not used anymore, instead we use dedicated daos for different user types
++
+ public class RestaurantController {
+     private static RestaurantRegisterService restaurantRegisterService;
+     private static RestaurantDao restaurantDao;
+-    private static UserDao userDao;
+ 
+     public RestaurantController() {
+-        userDao = new UserDao();
+         restaurantDao = new RestaurantDao();
+         restaurantRegisterService =  RestaurantRegisterService.getInstance();
+     }
+Index: src/main/java/dao/DeliverymanDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dao;\r\n\r\nimport jakarta.persistence.EntityManager;\r\nimport jakarta.persistence.EntityTransaction;\r\nimport jakarta.persistence.TypedQuery;\r\nimport model.Deliveryman;\r\nimport util.JpaUtil;\r\n\r\nimport java.util.List;\r\n\r\npublic class DeliverymanDao implements IDao<Deliveryman, Long>{\r\n\r\n    @Override\r\n    public void save(Deliveryman entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            em.persist(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public Deliveryman findById(Long l) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        Deliveryman dm = null;\r\n        try {\r\n            dm = em.find(Deliveryman.class, l);\r\n        } catch (Exception e){\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n        return dm;\r\n    }\r\n\r\n    @Override\r\n    public List<Deliveryman> getAll() {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        List<Deliveryman> dms = List.of();\r\n        try {\r\n            TypedQuery<Deliveryman> query =\r\n                    em.createQuery(\"SELECT dm FROM Deliveryman dm\", Deliveryman.class);\r\n            dms = query.getResultList();\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n        return dms;\r\n    }\r\n\r\n    @Override\r\n    public void update(Deliveryman entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            em.merge(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void deleteById(Long l) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            Deliveryman dm = em.find(Deliveryman.class, l);\r\n            if (dm != null) em.remove(dm);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n\r\n    @Override\r\n    public void delete(Deliveryman entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            if (!em.contains(entity)) {\r\n                entity = em.merge(entity);\r\n            }\r\n            em.remove(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public boolean existsById(Long id) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        try {\r\n            return em.find(Deliveryman.class, id) != null;\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n            return false;\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/dao/DeliverymanDao.java b/src/main/java/dao/DeliverymanDao.java
+--- a/src/main/java/dao/DeliverymanDao.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/dao/DeliverymanDao.java	(date 1748027985966)
+@@ -2,6 +2,7 @@
+ 
+ import jakarta.persistence.EntityManager;
+ import jakarta.persistence.EntityTransaction;
++import jakarta.persistence.NoResultException;
+ import jakarta.persistence.TypedQuery;
+ import model.Deliveryman;
+ import util.JpaUtil;
+@@ -121,4 +122,29 @@
+             em.close();
+         }
+     }
++
++    public Deliveryman findByEmail(String email) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            TypedQuery<Deliveryman> query = em.createQuery(
++                    "SELECT c FROM Deliveryman c WHERE c.email = :email", Deliveryman.class);
++            query.setParameter("email", email);
++            return query.getSingleResult();
++        } catch (NoResultException e) {
++            return null;
++        } finally {
++            em.close();
++        }
++    }
++
++    public Deliveryman findByPublicId(String publicId) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            TypedQuery<Deliveryman> query = em.createQuery("SELECT u FROM Deliveryman u WHERE u.publicId = :publicId", Deliveryman.class);
++            query.setParameter("publicId", publicId);
++            return query.getSingleResult();
++        } finally {
++            em.close();
++        }
++    }
+ }
+Index: src/main/java/dao/OwnerDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dao;\r\n\r\nimport jakarta.persistence.EntityManager;\r\nimport jakarta.persistence.EntityTransaction;\r\nimport jakarta.persistence.TypedQuery;\r\nimport model.Owner;\r\nimport util.JpaUtil;\r\n\r\nimport java.util.List;\r\n\r\npublic class OwnerDao implements IDao<Owner, Long>{\r\n    @Override\r\n    public void save(Owner entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            em.persist(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public Owner findById(Long l) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        Owner o = null;\r\n        try {\r\n            o = em.find(Owner.class, l);\r\n        } catch (Exception e){\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n        return o;\r\n    }\r\n\r\n    @Override\r\n    public List<Owner> getAll() {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        List<Owner> os = List.of();\r\n        try {\r\n            TypedQuery<Owner> query =\r\n                    em.createQuery(\"SELECT os FROM Owner os\", Owner.class);\r\n            os = query.getResultList();\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n        return os;\r\n    }\r\n\r\n    @Override\r\n    public void update(Owner entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            em.merge(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void deleteById(Long l) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            Owner o = em.find(Owner.class, l);\r\n            if (o != null) em.remove(o);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void delete(Owner entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            if (!em.contains(entity)) {\r\n                entity = em.merge(entity);\r\n            }\r\n            em.remove(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public boolean existsById(Long id) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        try {\r\n            return em.find(Owner.class, id) != null;\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n            return false;\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/dao/OwnerDao.java b/src/main/java/dao/OwnerDao.java
+--- a/src/main/java/dao/OwnerDao.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/dao/OwnerDao.java	(date 1748027985967)
+@@ -2,6 +2,7 @@
+ 
+ import jakarta.persistence.EntityManager;
+ import jakarta.persistence.EntityTransaction;
++import jakarta.persistence.NoResultException;
+ import jakarta.persistence.TypedQuery;
+ import model.Owner;
+ import util.JpaUtil;
+@@ -119,4 +120,29 @@
+             em.close();
+         }
+     }
++
++    public Owner findByEmail(String email) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            TypedQuery<Owner> query = em.createQuery(
++                    "SELECT c FROM Owner c WHERE c.email = :email", Owner.class);
++            query.setParameter("email", email);
++            return query.getSingleResult();
++        } catch (NoResultException e) {
++            return null;
++        } finally {
++            em.close();
++        }
++    }
++
++    public Owner findByPublicId(String publicId) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            TypedQuery<Owner> query = em.createQuery("SELECT u FROM Owner u WHERE u.publicId = :publicId", Owner.class);
++            query.setParameter("publicId", publicId);
++            return query.getSingleResult();
++        } finally {
++            em.close();
++        }
++    }
+ }
+Index: src/main/java/dao/CustomerDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dao;\r\n\r\nimport jakarta.persistence.EntityManager;\r\nimport jakarta.persistence.EntityTransaction;\r\nimport jakarta.persistence.TypedQuery;\r\nimport model.Customer;\r\nimport util.JpaUtil;\r\n\r\nimport java.util.List;\r\n\r\npublic class CustomerDao implements IDao<Customer, Long> {\r\n\r\n    @Override\r\n    public void save(Customer entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            em.persist(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public Customer findById(Long l) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        Customer customer = null;\r\n        try {\r\n            customer = em.find(Customer.class, l);\r\n        } catch (Exception e){\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n        return customer;\r\n    }\r\n\r\n    @Override\r\n    public List<Customer> getAll() {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        List<Customer> customers = List.of();\r\n        try {\r\n            TypedQuery<Customer> query =\r\n                    em.createQuery(\"SELECT c FROM Customer c\", Customer.class);\r\n            customers = query.getResultList();\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n        return customers;\r\n    }\r\n\r\n\r\n\r\n    @Override\r\n    public void update(Customer entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            em.merge(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void deleteById(Long l) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            Customer customer = em.find(Customer.class, l);\r\n            if (customer != null) em.remove(customer);\r\n        tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void delete(Customer entity) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try {\r\n            tx.begin();\r\n            if (!em.contains(entity)) {\r\n                entity = em.merge(entity);\r\n            }\r\n            em.remove(entity);\r\n            tx.commit();\r\n        } catch (Exception e) {\r\n            if (tx.isActive()) tx.rollback();\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public boolean existsById(Long id) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        try {\r\n            return em.find(Customer.class, id) != null;\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n            return false;\r\n        } finally {\r\n            em.close();\r\n        }\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/dao/CustomerDao.java b/src/main/java/dao/CustomerDao.java
+--- a/src/main/java/dao/CustomerDao.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/dao/CustomerDao.java	(date 1748027985966)
+@@ -2,6 +2,7 @@
+ 
+ import jakarta.persistence.EntityManager;
+ import jakarta.persistence.EntityTransaction;
++import jakarta.persistence.NoResultException;
+ import jakarta.persistence.TypedQuery;
+ import model.Customer;
+ import util.JpaUtil;
+@@ -123,4 +124,30 @@
+         }
+     }
+ 
++    public Customer findByEmail(String email) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            TypedQuery<Customer> query = em.createQuery(
++                    "SELECT c FROM Customer c WHERE c.email = :email", Customer.class);
++            query.setParameter("email", email);
++            return query.getSingleResult();
++        } catch (NoResultException e) {
++            return null;
++        } finally {
++            em.close();
++        }
++    }
++
++    public Customer findByPublicId(String publicId) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            TypedQuery<Customer> query = em.createQuery("SELECT u FROM Customer u WHERE u.publicId = :publicId", Customer.class);
++            query.setParameter("publicId", publicId);
++            return query.getSingleResult();
++        } finally {
++            em.close();
++        }
++    }
++
++
+ }
+Index: src/main/java/Services/UserService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package Services;\r\n\r\nimport controller.UserController;\r\nimport model.*;\r\n\r\npublic class UserService {\r\n    private final UserController userController = UserController.getInstance();\r\n\r\n    public void editProfile(\r\n            String sessionToken,\r\n            String firstName,\r\n            String lastName,\r\n            String phone,\r\n            String email,\r\n            String password,\r\n            Address address,     // may be null\r\n            Location location    // may be null\r\n    ) {\r\n        User user = AuthService.getInstance().requireLogin(sessionToken);\r\n\r\n        userController.updateBasicProfile(\r\n                user, firstName, lastName, phone, email, password);\r\n\r\n        switch (user.getRole()) {\r\n            case CUSTOMER -> userController.updateCustomerDetails(\r\n                    (Customer) user, address, location);\r\n            case OWNER -> userController.updateOwnerDetails(\r\n                    (Owner) user, address, location);\r\n            case DELIVERY_MAN -> userController.updateDeliveryLocation(\r\n                    (Deliveryman) user, location);\r\n        }\r\n\r\n        System.out.println(\"Profile updated for \" + user.getFirstName());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/Services/UserService.java b/src/main/java/Services/UserService.java
+--- a/src/main/java/Services/UserService.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/Services/UserService.java	(date 1748027985962)
+@@ -1,6 +1,6 @@
+ package Services;
+ 
+-import controller.UserController;
++import Controller.UserController;
+ import model.*;
+ 
+ public class UserService {
+@@ -13,21 +13,32 @@
+             String phone,
+             String email,
+             String password,
+-            Address address,     // may be null
+-            Location location    // may be null
++            Address address,     // nullable
++            Location location    // nullable
+     ) {
+         User user = AuthService.getInstance().requireLogin(sessionToken);
+ 
+-        userController.updateBasicProfile(
+-                user, firstName, lastName, phone, email, password);
++        userController.updateBasicProfile(user, firstName, lastName, phone, email, password);
+ 
+         switch (user.getRole()) {
+-            case CUSTOMER -> userController.updateCustomerDetails(
+-                    (Customer) user, address, location);
+-            case OWNER -> userController.updateOwnerDetails(
+-                    (Owner) user, address, location);
+-            case DELIVERY_MAN -> userController.updateDeliveryLocation(
+-                    (Deliveryman) user, location);
++            case CUSTOMER -> {
++                if (address == null || location == null) {
++                    throw new IllegalArgumentException("Address and location must be provided for customer profile update.");
++                }
++                userController.updateCustomerDetails((Customer) user, address, location);
++            }
++            case OWNER -> {
++                if (address == null || location == null) {
++                    throw new IllegalArgumentException("Address and location must be provided for owner profile update.");
++                }
++                userController.updateOwnerDetails((Owner) user, address, location);
++            }
++            case DELIVERY_MAN -> {
++                if (location == null) {
++                    throw new IllegalArgumentException("Location must be provided for deliveryman profile update.");
++                }
++                userController.updateDeliveryLocation((Deliveryman) user, location);
++            }
+         }
+ 
+         System.out.println("Profile updated for " + user.getFirstName());
+Index: .idea/dataSources.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"DataSourceManagerImpl\" format=\"xml\" multifile-model=\"true\">\r\n    <data-source source=\"LOCAL\" name=\"postgres@localhost\" uuid=\"23713323-141d-4844-912d-121832470684\">\r\n      <driver-ref>postgresql</driver-ref>\r\n      <synchronize>true</synchronize>\r\n      <jdbc-driver>org.postgresql.Driver</jdbc-driver>\r\n      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>\r\n      <jdbc-additional-properties>\r\n        <property name=\"com.intellij.clouds.kubernetes.db.host.port\" />\r\n        <property name=\"com.intellij.clouds.kubernetes.db.enabled\" value=\"false\" />\r\n        <property name=\"com.intellij.clouds.kubernetes.db.container.port\" />\r\n      </jdbc-additional-properties>\r\n      <working-dir>$ProjectFileDir$</working-dir>\r\n    </data-source>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/dataSources.xml b/.idea/dataSources.xml
+--- a/.idea/dataSources.xml	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/.idea/dataSources.xml	(date 1748027985960)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+-    <data-source source="LOCAL" name="postgres@localhost" uuid="23713323-141d-4844-912d-121832470684">
++    <data-source source="LOCAL" name="PolyEats" uuid="17701641-1fec-44c6-8bb4-a5ce58bc3b22">
+       <driver-ref>postgresql</driver-ref>
+       <synchronize>true</synchronize>
+       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+Index: src/main/java/model/Cart.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport exception.NotAcceptableException;\r\nimport jakarta.persistence.*;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\n@Entity\r\n@Table(name = \"carts\")\r\npublic class Cart {\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @OneToMany\r\n    private List<Item> items = new ArrayList<>();\r\n\r\n    @JoinColumn\r\n    @OneToOne\r\n    private Customer customer;\r\n\r\n    @JoinColumn\r\n    @OneToOne\r\n    private Menu menu;\r\n\r\n    @Column(name = \"coupon_code\")\r\n    private String couponCode;\r\n\r\n    @Column(name = \"coupon_percentage\")\r\n    private Integer couponPercentage;\r\n\r\n    public Cart() {\r\n    }\r\n\r\n    public void addItem(Item item) {\r\n        items.add(item);\r\n    }\r\n\r\n    public void removeItem(Item item) {\r\n        items.remove(item);\r\n    }\r\n\r\n    public void applyCoupon(String code, int percentage) throws NotAcceptableException {\r\n        if (code == null || code.isBlank() || percentage <= 0 || percentage > 100) {\r\n            throw new NotAcceptableException(\"Invalid coupon\");\r\n        }\r\n        this.couponCode = code;\r\n        this.couponPercentage = percentage;\r\n    }\r\n\r\n    public void clearCoupon() {\r\n        this.couponCode = null;\r\n        this.couponPercentage = null;\r\n    }\r\n\r\n    public long getSubtotal() {\r\n        long sum = 0;\r\n        for (Item item : items) {\r\n            sum += item.getPrice().getPriceWithoutDiscount();\r\n        }\r\n        return sum;\r\n    }\r\n\r\n    public long getAfterItemDiscounts() {\r\n        LocalDateTime now = LocalDateTime.now();\r\n        long sum = 0;\r\n        for (Item item : items) {\r\n            sum += item.getPrice().getPriceWithDiscount(now);\r\n        }\r\n        return sum;\r\n    }\r\n\r\n\r\n    public long getItemDiscountSavings() {\r\n        return getSubtotal() - getAfterItemDiscounts();\r\n    }\r\n\r\n    public long getCouponDiscountAmount() {\r\n        if (couponPercentage == null || couponPercentage <= 0) {\r\n            return 0;\r\n        }\r\n        long base = getAfterItemDiscounts();\r\n        return (base * couponPercentage) / 100;\r\n    }\r\n\r\n    public long getTotal() {\r\n        return getAfterItemDiscounts() - getCouponDiscountAmount();\r\n    }\r\n\r\n    public List<Item> getItems() {\r\n        return List.copyOf(items);\r\n    }\r\n\r\n    public String getCouponCode() {\r\n        return couponCode;\r\n    }\r\n\r\n    public Integer getCouponPercentage() {\r\n        return couponPercentage;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Cart.java b/src/main/java/model/Cart.java
+--- a/src/main/java/model/Cart.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Cart.java	(date 1748027985968)
+@@ -2,11 +2,15 @@
+ 
+ import exception.NotAcceptableException;
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ 
+ import java.time.LocalDateTime;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++@Setter
++@Getter
+ @Entity
+ @Table(name = "carts")
+ public class Cart {
+@@ -93,11 +97,4 @@
+         return List.copyOf(items);
+     }
+ 
+-    public String getCouponCode() {
+-        return couponCode;
+-    }
+-
+-    public Integer getCouponPercentage() {
+-        return couponPercentage;
+-    }
+ }
+Index: src/main/java/model/Address.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport jakarta.persistence.Embeddable;\r\n\r\n@Embeddable\r\npublic final class Address {\r\n    private String addressDetails;\r\n    private String addressTitle;\r\n\r\n    public Address(String addressDetails, String addressTitle) {\r\n        this.addressDetails = addressDetails;\r\n        this.addressTitle = addressTitle;\r\n    }\r\n\r\n    protected Address() {\r\n    }\r\n\r\n    public String getAddressDetails() {\r\n        return addressDetails;\r\n    }\r\n\r\n    public String getAddressTitle() {\r\n        return addressTitle;\r\n    }\r\n\r\n    @Override\r\n    public String toString() {\r\n        return String.format(\"%s (%s)\", addressTitle, addressDetails);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Address.java b/src/main/java/model/Address.java
+--- a/src/main/java/model/Address.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Address.java	(date 1748027985968)
+@@ -1,7 +1,11 @@
+ package model;
+ 
+ import jakarta.persistence.Embeddable;
++import lombok.Getter;
++import lombok.Setter;
+ 
++@Setter
++@Getter
+ @Embeddable
+ public final class Address {
+     private String addressDetails;
+@@ -12,15 +16,7 @@
+         this.addressTitle = addressTitle;
+     }
+ 
+-    protected Address() {
+-    }
+-
+-    public String getAddressDetails() {
+-        return addressDetails;
+-    }
+-
+-    public String getAddressTitle() {
+-        return addressTitle;
++    public Address() {
+     }
+ 
+     @Override
+Index: src/main/java/dao/IRefreshTokenDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/dao/IRefreshTokenDao.java b/src/main/java/dao/IRefreshTokenDao.java
+new file mode 100644
+--- /dev/null	(date 1748027985966)
++++ b/src/main/java/dao/IRefreshTokenDao.java	(date 1748027985966)
+@@ -0,0 +1,8 @@
++package dao;
++import model.RefreshToken;
++import model.User;
++
++public interface IRefreshTokenDao extends IDao<RefreshToken , Long> {
++    RefreshToken findByToken(String token);
++    void deleteByUser(User user);
++}
+Index: src/main/java/model/Order.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport jakarta.persistence.*;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\n@Entity\r\n@Table(name = \"orders\")\r\npublic class Order {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @ManyToOne(optional = false)\r\n    @JoinColumn(name = \"customer_id\")\r\n    private Customer customer;\r\n\r\n    @ManyToOne(optional = false)\r\n    @JoinColumn(name = \"restaurant_id\")\r\n    private Restaurant restaurant;\r\n\r\n    @OneToOne\r\n    private Cart cart;\r\n\r\n\r\n\r\n    @ManyToOne\r\n    @JoinColumn(name = \"deliveryman_id\")\r\n    private Deliveryman deliveryman;\r\n\r\n    public Order() {}\r\n\r\n    public Order(Customer customer,\r\n                 Restaurant restaurant) {\r\n        this.customer = customer;\r\n        this.restaurant = restaurant;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Order.java b/src/main/java/model/Order.java
+--- a/src/main/java/model/Order.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Order.java	(date 1748027985970)
+@@ -1,9 +1,14 @@
+ package model;
+ 
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
++
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++@Getter
++@Setter
+ @Entity
+ @Table(name = "orders")
+ public class Order {
+Index: src/main/java/dao/RefreshTokenDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/dao/RefreshTokenDao.java b/src/main/java/dao/RefreshTokenDao.java
+new file mode 100644
+--- /dev/null	(date 1748027985967)
++++ b/src/main/java/dao/RefreshTokenDao.java	(date 1748027985967)
+@@ -0,0 +1,79 @@
++package dao;
++
++import jakarta.persistence.EntityManager;
++import jakarta.persistence.PersistenceContext;
++import jakarta.persistence.TypedQuery;
++import model.RefreshToken;
++import model.User;
++
++import java.util.List;
++
++public class RefreshTokenDao implements IRefreshTokenDao {
++
++    @PersistenceContext
++    private EntityManager em;
++
++    @Override
++    public void save(RefreshToken token) {
++        em.persist(token);
++    }
++
++    @Override
++    public RefreshToken findById(Long id) {
++        return em.find(RefreshToken.class, id);
++    }
++
++    @Override
++    public List<RefreshToken> getAll() {
++        TypedQuery<RefreshToken> query = em.createQuery("SELECT r FROM RefreshToken r", RefreshToken.class);
++        return query.getResultList();
++    }
++
++    @Override
++    public void update(RefreshToken token) {
++        em.merge(token);
++    }
++
++    @Override
++    public void deleteById(Long id) {
++        RefreshToken token = findById(id);
++        if (token != null) {
++            delete(token);
++        }
++    }
++
++    @Override
++    public void delete(RefreshToken token) {
++        if (!em.contains(token)) {
++            token = em.merge(token);
++        }
++        em.remove(token);
++    }
++
++    @Override
++    public boolean existsById(Long id) {
++        return findById(id) != null;
++    }
++
++    @Override
++    public RefreshToken findByToken(String token) {
++        TypedQuery<RefreshToken> query = em.createQuery(
++                "SELECT r FROM RefreshToken r WHERE r.token = :token", RefreshToken.class);
++        query.setParameter("token", token);
++
++        List<RefreshToken> results = query.getResultList();
++        return results.isEmpty() ? null : results.get(0);
++    }
++
++    @Override
++    public void deleteByUser(User user) {
++        TypedQuery<RefreshToken> query = em.createQuery(
++                "SELECT r FROM RefreshToken r WHERE r.user = :user", RefreshToken.class);
++        query.setParameter("user", user);
++
++        List<RefreshToken> tokens = query.getResultList();
++        for (RefreshToken token : tokens) {
++            delete(token);
++        }
++    }
++}
+Index: src/main/java/model/RefreshToken.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/RefreshToken.java b/src/main/java/model/RefreshToken.java
+new file mode 100644
+--- /dev/null	(date 1748027985971)
++++ b/src/main/java/model/RefreshToken.java	(date 1748027985971)
+@@ -0,0 +1,40 @@
++package model;
++
++import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
++
++import java.time.LocalDateTime;
++
++@Setter
++@Getter
++@Entity
++public class RefreshToken {
++
++    // Getters & Setters
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    @Column(nullable = false, unique = true)
++    private String token;
++
++    @ManyToOne
++    @JoinColumn(name = "user_id")
++    private User user;
++
++    @Column(nullable = false)
++    private LocalDateTime expiresAt;
++
++    private LocalDateTime createdAt = LocalDateTime.now();
++
++    // Constructors
++    public RefreshToken() {}
++
++    public RefreshToken(String token, User user, LocalDateTime expiresAt) {
++        this.token = token;
++        this.user = user;
++        this.expiresAt = expiresAt;
++    }
++
++}
+Index: src/main/java/model/Admin.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport enums.Role;\r\nimport jakarta.persistence.*;\r\nimport observers.RestaurantObserver;\r\nimport org.jetbrains.annotations.NotNull;\r\n\r\nimport java.util.ArrayList;\r\n\r\n@Entity\r\npublic class Admin {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n    @Enumerated(EnumType.STRING)\r\n    private Role role = Role.ADMIN;\r\n\r\n    //private ArrayList<Long> notRegisteredRestaurantIds =new ArrayList<>();\r\n\r\n//    public void registerRestaurant(long id) {\r\n//\r\n//        notRegisteredRestaurantIds.add(id);\r\n//    }\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n//    public ArrayList<Long> getNotRegisteredRestaurantIds() {\r\n//        return notRegisteredRestaurantIds;\r\n//    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Admin.java b/src/main/java/model/Admin.java
+--- a/src/main/java/model/Admin.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Admin.java	(date 1748027985968)
+@@ -2,11 +2,13 @@
+ 
+ import enums.Role;
+ import jakarta.persistence.*;
+-import observers.RestaurantObserver;
+-import org.jetbrains.annotations.NotNull;
++import lombok.Getter;
++import lombok.Setter;
+ 
+ import java.util.ArrayList;
+ 
++@Getter
++@Setter
+ @Entity
+ public class Admin {
+ 
+@@ -16,21 +18,12 @@
+     @Enumerated(EnumType.STRING)
+     private Role role = Role.ADMIN;
+ 
+-    //private ArrayList<Long> notRegisteredRestaurantIds =new ArrayList<>();
++    private ArrayList<Long> notRegisteredRestaurantIds =new ArrayList<>();
+ 
+-//    public void registerRestaurant(long id) {
+-//
+-//        notRegisteredRestaurantIds.add(id);
+-//    }
+-    public void setId(Long id) {
+-        this.id = id;
++    public void registerRestaurant(long id) {
++        notRegisteredRestaurantIds.add(id);
+     }
+-
+-    public Long getId() {
+-        return id;
++    public void removeRestaurant(long id) {
++        notRegisteredRestaurantIds.remove(id);
+     }
+-
+-//    public ArrayList<Long> getNotRegisteredRestaurantIds() {
+-//        return notRegisteredRestaurantIds;
+-//    }
+ }
+Index: src/main/java/model/Deliveryman.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport enums.Role;\r\nimport jakarta.persistence.*;\r\nimport java.util.ArrayList;\r\n\r\n@Entity\r\n@Table(name = \"deliverymen\")\r\n@PrimaryKeyJoinColumn(name = \"id\")\r\npublic class Deliveryman extends User {\r\n\r\n    @Embedded\r\n    private Location location; // a coordinate system\r\n\r\n    @OneToMany(mappedBy = \"deliveryman\", cascade = CascadeType.ALL, orphanRemoval = true)\r\n    private ArrayList<Order> ordersAssigned = new ArrayList<>();\r\n\r\n    public Deliveryman() {\r\n        super();\r\n        setRole(Role.DELIVERY_MAN);\r\n    }\r\n\r\n    public Deliveryman(String firstName,\r\n                       String lastName,\r\n                       String phoneNumber,\r\n                       String email,\r\n                       String password,\r\n                       Location location) {\r\n        super(firstName, lastName, phoneNumber, email, password, Role.DELIVERY_MAN);\r\n        this.location = location;\r\n    }\r\n\r\n    public Location getLocation() {\r\n        return location;\r\n    }\r\n\r\n    public void setLocation(Location location) {\r\n        this.location = location;\r\n    }\r\n\r\n    public ArrayList<Order> getOrdersAssigned() {\r\n        return ordersAssigned;\r\n    }\r\n\r\n    public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {\r\n        this.ordersAssigned = ordersAssigned;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Deliveryman.java b/src/main/java/model/Deliveryman.java
+--- a/src/main/java/model/Deliveryman.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Deliveryman.java	(date 1748027985969)
+@@ -2,8 +2,13 @@
+ 
+ import enums.Role;
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
++
+ import java.util.ArrayList;
+ 
++@Getter
++@Setter
+ @Entity
+ @Table(name = "deliverymen")
+ @PrimaryKeyJoinColumn(name = "id")
+@@ -30,19 +35,4 @@
+         this.location = location;
+     }
+ 
+-    public Location getLocation() {
+-        return location;
+-    }
+-
+-    public void setLocation(Location location) {
+-        this.location = location;
+-    }
+-
+-    public ArrayList<Order> getOrdersAssigned() {
+-        return ordersAssigned;
+-    }
+-
+-    public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {
+-        this.ordersAssigned = ordersAssigned;
+-    }
+ }
+Index: src/main/java/dao/UserDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dao;\r\n\r\nimport jakarta.persistence.EntityManager;\r\nimport jakarta.persistence.EntityTransaction;\r\nimport jakarta.persistence.NoResultException;\r\nimport jakarta.persistence.TypedQuery;\r\nimport model.Restaurant;\r\nimport model.User;\r\nimport util.JpaUtil;\r\n\r\npublic class UserDao {\r\n    public User findUserByEmail(String email) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        User user = null;\r\n        try {\r\n            TypedQuery<User> query = em.createQuery(\r\n                    \"SELECT r FROM User r WHERE r.email = :email\", User.class);\r\n            query.setParameter(\"email\", email);\r\n            user= query.getSingleResult();\r\n        } catch (NoResultException e) {\r\n            System.out.println(\"No user found for email : \" + email);\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n        } finally {\r\n            em.close();\r\n        }\r\n        return user;\r\n    }\r\n\r\n    public void save(User user) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try{\r\n            tx.begin();\r\n            em.persist(user);\r\n            tx.commit();\r\n        }\r\n        catch(Exception e){\r\n            e.printStackTrace();\r\n        }\r\n        finally{\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    public void delete(User user) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try{\r\n            tx.begin();\r\n            em.remove(user);\r\n            tx.commit();\r\n        }\r\n        catch(Exception e){\r\n            e.printStackTrace();\r\n        }\r\n        finally{\r\n            em.close();\r\n        }\r\n    }\r\n\r\n    public void update(User user) {\r\n        EntityManager em = JpaUtil.getEntityManager();\r\n        EntityTransaction tx = em.getTransaction();\r\n        try{\r\n            tx.begin();\r\n            em.merge(user);\r\n            tx.commit();\r\n        }\r\n        catch(Exception e){\r\n            e.printStackTrace();\r\n        }\r\n        finally{\r\n            em.close();\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/dao/UserDao.java b/src/main/java/dao/UserDao.java
+--- a/src/main/java/dao/UserDao.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/dao/UserDao.java	(date 1748027985967)
+@@ -2,77 +2,147 @@
+ 
+ import jakarta.persistence.EntityManager;
+ import jakarta.persistence.EntityTransaction;
+-import jakarta.persistence.NoResultException;
+ import jakarta.persistence.TypedQuery;
+-import model.Restaurant;
+ import model.User;
+ import util.JpaUtil;
+ 
+-public class UserDao {
+-    public User findUserByEmail(String email) {
++import java.util.List;
++
++@Deprecated
++public class UserDao implements IDao<User, Long>{
++    @Override
++    public void save(User entity) {
++        EntityManager em = JpaUtil.getEntityManager();
++        EntityTransaction tx = em.getTransaction();
++        try {
++            tx.begin();
++            em.persist(entity);
++            tx.commit();
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++    }
++
++    @Override
++    public User findById(Long l) {
+         EntityManager em = JpaUtil.getEntityManager();
+-        User user = null;
++        User User = null;
+         try {
+-            TypedQuery<User> query = em.createQuery(
+-                    "SELECT r FROM User r WHERE r.email = :email", User.class);
+-            query.setParameter("email", email);
+-            user= query.getSingleResult();
+-        } catch (NoResultException e) {
+-            System.out.println("No user found for email : " + email);
++            User = em.find(User.class, l);
++        } catch (Exception e){
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++        return User;
++    }
++
++    @Override
++    public List<User> getAll() {
++        EntityManager em = JpaUtil.getEntityManager();
++        List<User> Users = List.of();
++        try {
++            TypedQuery<User> query =
++                    em.createQuery("SELECT c FROM User c", User.class);
++            Users = query.getResultList();
+         } catch (Exception e) {
+             e.printStackTrace();
+         } finally {
+             em.close();
+         }
+-        return user;
++        return Users;
+     }
+ 
+-    public void save(User user) {
++
++
++    @Override
++    public void update(User entity) {
+         EntityManager em = JpaUtil.getEntityManager();
+         EntityTransaction tx = em.getTransaction();
+-        try{
++        try {
+             tx.begin();
+-            em.persist(user);
++            em.merge(entity);
+             tx.commit();
+-        }
+-        catch(Exception e){
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
+             e.printStackTrace();
+-        }
+-        finally{
++        } finally {
+             em.close();
+         }
+     }
+ 
+-    public void delete(User user) {
++    @Override
++    public void deleteById(Long l) {
+         EntityManager em = JpaUtil.getEntityManager();
+         EntityTransaction tx = em.getTransaction();
+-        try{
++        try {
+             tx.begin();
+-            em.remove(user);
++            User User = em.find(User.class, l);
++            if (User != null) em.remove(User);
+             tx.commit();
+-        }
+-        catch(Exception e){
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
+             e.printStackTrace();
+-        }
+-        finally{
++        } finally {
+             em.close();
+         }
+     }
+ 
+-    public void update(User user) {
++    @Override
++    public void delete(User entity) {
+         EntityManager em = JpaUtil.getEntityManager();
+         EntityTransaction tx = em.getTransaction();
+-        try{
++        try {
+             tx.begin();
+-            em.merge(user);
++            if (!em.contains(entity)) {
++                entity = em.merge(entity);
++            }
++            em.remove(entity);
+             tx.commit();
+-        }
+-        catch(Exception e){
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
+             e.printStackTrace();
++        } finally {
++            em.close();
+         }
+-        finally{
++    }
++
++    @Override
++    public boolean existsById(Long id) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            return em.find(User.class, id) != null;
++        } catch (Exception e) {
++            e.printStackTrace();
++            return false;
++        } finally {
++            em.close();
++        }
++    }
++
++    public User findByPublicId(String publicId) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try {
++            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.publicId = :publicId", User.class);
++            query.setParameter("publicId", publicId);
++            return query.getSingleResult();
++        } finally {
++            em.close();
++        }
++    }
++
++    public User findByEmail(String email) {
++        EntityManager em = JpaUtil.getEntityManager();
++        try{
++            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
++            query.setParameter("email", email);
++            return query.getSingleResult();
++        }  finally {
+             em.close();
+         }
+     }
+-}
+ 
++}
+Index: src/main/java/model/Owner.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport enums.Role;\r\nimport jakarta.persistence.*;\r\n\r\n@Entity\r\n@Table(name = \"owners\")\r\n@PrimaryKeyJoinColumn(name = \"id\")\r\npublic class Owner extends User {\r\n\r\n    @Embedded\r\n    private Address address;   // human-readable address\r\n\r\n    @Embedded\r\n    private Location location; // a coordinate system\r\n\r\n    @OneToOne(mappedBy = \"owner\", cascade = CascadeType.ALL, orphanRemoval = true)\r\n    private Restaurant restaurant;\r\n\r\n    public Owner() {\r\n        super();\r\n        setRole(Role.OWNER);\r\n    }\r\n\r\n    public Owner(String firstName,\r\n                 String lastName,\r\n                 String phoneNumber,\r\n                 String email,\r\n                 String password,\r\n                 Address address,\r\n                 Location location) {\r\n        super(firstName, lastName, phoneNumber, email, password, Role.OWNER);\r\n        this.address = address;\r\n        this.location = location;\r\n    }\r\n\r\n\r\n    public Address getAddress() {\r\n        return address;\r\n    }\r\n\r\n    public void setAddress(Address address) {\r\n        this.address = address;\r\n    }\r\n\r\n    public Location getLocation() {\r\n        return location;\r\n    }\r\n\r\n    public void setLocation(Location location) {\r\n        this.location = location;\r\n    }\r\n\r\n    public Restaurant getRestaurant() {\r\n        return restaurant;\r\n    }\r\n    public void setRestaurant(Restaurant restaurant) {\r\n        this.restaurant = restaurant;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Owner.java b/src/main/java/model/Owner.java
+--- a/src/main/java/model/Owner.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Owner.java	(date 1748027985971)
+@@ -2,7 +2,11 @@
+ 
+ import enums.Role;
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ 
++@Getter
++@Setter
+ @Entity
+ @Table(name = "owners")
+ @PrimaryKeyJoinColumn(name = "id")
+@@ -35,26 +39,4 @@
+     }
+ 
+ 
+-    public Address getAddress() {
+-        return address;
+-    }
+-
+-    public void setAddress(Address address) {
+-        this.address = address;
+-    }
+-
+-    public Location getLocation() {
+-        return location;
+-    }
+-
+-    public void setLocation(Location location) {
+-        this.location = location;
+-    }
+-
+-    public Restaurant getRestaurant() {
+-        return restaurant;
+-    }
+-    public void setRestaurant(Restaurant restaurant) {
+-        this.restaurant = restaurant;
+-    }
+ }
+Index: src/main/java/model/Item.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport enums.ItemCategory;\r\nimport exception.NotAcceptableException;\r\nimport jakarta.persistence.*;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\n@Entity\r\n@Inheritance(strategy = InheritanceType.JOINED)\r\n@Table(name = \"items\")\r\npublic class Item {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    private String title;\r\n    @Column (columnDefinition = \"TEXT\")\r\n    private String description;\r\n    private int count;\r\n\r\n    @ElementCollection\r\n    @CollectionTable(name = \"item_hashtags\", joinColumns = @JoinColumn(name = \"item_id\"))\r\n    @Column(name = \"hashtag\")\r\n    private List<String> hashtags = new ArrayList<>();\r\n\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    private ItemCategory category;\r\n\r\n    @Embedded\r\n    private Price price;\r\n\r\n    @OneToOne\r\n    @JoinColumn(name = \"menu_id\")\r\n    private Menu menu;\r\n    @Lob\r\n    private byte[] image;\r\n\r\n    public Menu getMenu() {\r\n        return menu;\r\n    }\r\n\r\n    public void setMenu(Menu menu) {\r\n        this.menu = menu;\r\n    }\r\n\r\n    public Item() {\r\n    }\r\n\r\n    public Item(String title,\r\n                String description,\r\n                int priceValue,\r\n                int count,\r\n                ArrayList<String> hashtags,\r\n                ItemCategory category) throws NotAcceptableException {\r\n        validateField(title, description, priceValue, count, hashtags);\r\n        this.title = title;\r\n        this.description = description;\r\n        this.count = count;\r\n        this.hashtags = hashtags;\r\n        this.category = category;\r\n        this.price = new Price(priceValue);\r\n    }\r\n\r\n    public Price getPrice() {\r\n        return price;\r\n    }\r\n\r\n    public static void validateField(String title, String description, int price, int count, ArrayList<String> hashtags) throws NotAcceptableException {\r\n        if (title == null || price <= 0 || count < 0 || hashtags == null ||\r\n                (!title.matches(\"(?i)^[a-z]{1,20}$\") ||\r\n                        (!description.matches(\"(?i)^[a-z]{0,50}$\"))))\r\n            throw new NotAcceptableException(\"invalid field\");\r\n    }\r\n\r\n    public void setTitle(String title) {\r\n        this.title = title;\r\n    }\r\n\r\n    public void setDescription(String description) {\r\n        this.description = description;\r\n    }\r\n\r\n    public void setCount(int count) {\r\n        this.count = count;\r\n    }\r\n\r\n    public void setHashtags(ArrayList<String> hashtags) {\r\n        this.hashtags = hashtags;\r\n    }\r\n\r\n\r\n    public void setCategory(ItemCategory category) {\r\n        this.category = category;\r\n    }\r\n\r\n    public void setPrice(int price) throws NotAcceptableException {\r\n        if (price >= 0)\r\n            this.price.setPrice(price);\r\n        else\r\n            throw new NotAcceptableException(\"invalid argument\");\r\n    }\r\n\r\n    public void setImage(byte[] image) {\r\n        this.image = image;\r\n    }\r\n\r\n    public void setDiscount(int percentage, LocalDateTime expiration) {\r\n        price.setDiscount(percentage, expiration);\r\n    }\r\n\r\n    public void decreaseCount(int quantity) {\r\n        this.count -= quantity;\r\n    }\r\n    public void increaseCount(int quantity) {\r\n        this.count += quantity;\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public String getTitle() {\r\n        return title;\r\n    }\r\n\r\n    public String getDescription() {\r\n        return description;\r\n    }\r\n\r\n    public int getCount() {\r\n        return count;\r\n    }\r\n\r\n    public List<String> getHashtags() {\r\n        return hashtags;\r\n    }\r\n\r\n    public void setHashtags(List<String> hashtags) {\r\n        this.hashtags = hashtags;\r\n    }\r\n\r\n\r\n    public ItemCategory getCategory() {\r\n        return category;\r\n    }\r\n\r\n    public void setPrice(Price price) {\r\n        this.price = price;\r\n    }\r\n\r\n    public byte[] getImage() {\r\n        return image;\r\n    }\r\n}\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Item.java b/src/main/java/model/Item.java
+--- a/src/main/java/model/Item.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Item.java	(date 1748027985969)
+@@ -3,11 +3,15 @@
+ import enums.ItemCategory;
+ import exception.NotAcceptableException;
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ 
+ import java.time.LocalDateTime;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++@Setter
++@Getter
+ @Entity
+ @Inheritance(strategy = InheritanceType.JOINED)
+ @Table(name = "items")
+@@ -40,14 +44,6 @@
+     @Lob
+     private byte[] image;
+ 
+-    public Menu getMenu() {
+-        return menu;
+-    }
+-
+-    public void setMenu(Menu menu) {
+-        this.menu = menu;
+-    }
+-
+     public Item() {
+     }
+ 
+@@ -66,10 +62,6 @@
+         this.price = new Price(priceValue);
+     }
+ 
+-    public Price getPrice() {
+-        return price;
+-    }
+-
+     public static void validateField(String title, String description, int price, int count, ArrayList<String> hashtags) throws NotAcceptableException {
+         if (title == null || price <= 0 || count < 0 || hashtags == null ||
+                 (!title.matches("(?i)^[a-z]{1,20}$") ||
+@@ -77,27 +69,11 @@
+             throw new NotAcceptableException("invalid field");
+     }
+ 
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public void setDescription(String description) {
+-        this.description = description;
+-    }
+-
+-    public void setCount(int count) {
+-        this.count = count;
+-    }
+-
+     public void setHashtags(ArrayList<String> hashtags) {
+         this.hashtags = hashtags;
+     }
+ 
+ 
+-    public void setCategory(ItemCategory category) {
+-        this.category = category;
+-    }
+-
+     public void setPrice(int price) throws NotAcceptableException {
+         if (price >= 0)
+             this.price.setPrice(price);
+@@ -105,10 +81,6 @@
+             throw new NotAcceptableException("invalid argument");
+     }
+ 
+-    public void setImage(byte[] image) {
+-        this.image = image;
+-    }
+-
+     public void setDiscount(int percentage, LocalDateTime expiration) {
+         price.setDiscount(percentage, expiration);
+     }
+@@ -120,46 +92,15 @@
+         this.count += quantity;
+     }
+ 
+-    public Long getId() {
+-        return id;
+-    }
+-
+-    public void setId(Long id) {
+-        this.id = id;
+-    }
+-
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public String getDescription() {
+-        return description;
+-    }
+-
+-    public int getCount() {
+-        return count;
+-    }
+-
+-    public List<String> getHashtags() {
+-        return hashtags;
+-    }
+-
+     public void setHashtags(List<String> hashtags) {
+         this.hashtags = hashtags;
+     }
+ 
+ 
+-    public ItemCategory getCategory() {
+-        return category;
+-    }
+-
+     public void setPrice(Price price) {
+         this.price = price;
+     }
+ 
+-    public byte[] getImage() {
+-        return image;
+-    }
+ }
+ 
+ 
+Index: src/main/java/model/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport enums.Role;\r\nimport jakarta.persistence.*;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.util.UUID;\r\n\r\n@Entity\r\n@Table(name = \"users\")\r\n@Inheritance(strategy = InheritanceType.SINGLE_TABLE)\r\n@DiscriminatorColumn(name = \"dtype\")\r\npublic abstract class User {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.AUTO)\r\n    private Long id;\r\n\r\n    @Column(unique = true, nullable = false, updatable = false)\r\n    private String publicId = UUID.randomUUID().toString(); // UUID for external reference\r\n\r\n    private String firstName;\r\n    private String lastName;\r\n\r\n    @Column(unique = true)\r\n    private String phoneNumber;\r\n\r\n    @Column(unique = true)\r\n    private String email;\r\n\r\n    private String password;\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    private Role role;\r\n\r\n    @Lob\r\n    private byte[] image; // Profile picture\r\n\r\n    private boolean isVerified = false;\r\n\r\n    private LocalDateTime createdAt = LocalDateTime.now();\r\n    private LocalDateTime updatedAt = LocalDateTime.now();\r\n\r\n    // Constructors\r\n    public User() {}\r\n\r\n    public User(String firstName, String lastName, String phoneNumber, String email, String password, Role role) {\r\n        this.firstName = firstName;\r\n        this.lastName = lastName;\r\n        this.phoneNumber = phoneNumber;\r\n        this.email = email;\r\n        this.password = password;\r\n        this.role = role;\r\n    }\r\n\r\n    // Getters & setters\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public String getPublicId() {\r\n        return publicId;\r\n    }\r\n\r\n    public String getFirstName() {\r\n        return firstName;\r\n    }\r\n\r\n    public void setFirstName(String firstName) {\r\n        this.firstName = firstName;\r\n    }\r\n\r\n    public String getLastName() {\r\n        return lastName;\r\n    }\r\n\r\n    public void setLastName(String lastName) {\r\n        this.lastName = lastName;\r\n    }\r\n\r\n    public String getPhoneNumber() {\r\n        return phoneNumber;\r\n    }\r\n\r\n    public void setPhoneNumber(String phoneNumber) {\r\n        this.phoneNumber = phoneNumber;\r\n    }\r\n\r\n    public String getEmail() {\r\n        return email;\r\n    }\r\n\r\n    public void setEmail(String email) {\r\n        this.email = email;\r\n    }\r\n\r\n    public String getPassword() {\r\n        return password;\r\n    }\r\n\r\n    public void setPassword(String password) {\r\n        this.password = password;\r\n    }\r\n\r\n    public Role getRole() {\r\n        return role;\r\n    }\r\n\r\n    public void setRole(Role role) {\r\n        this.role = role;\r\n    }\r\n\r\n    public byte[] getImage() {\r\n        return image;\r\n    }\r\n\r\n    public void setImage(byte[] image) {\r\n        this.image = image;\r\n    }\r\n\r\n    public boolean isVerified() {\r\n        return isVerified;\r\n    }\r\n\r\n    public void setVerified(boolean verified) {\r\n        isVerified = verified;\r\n    }\r\n\r\n    public LocalDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setUpdatedAt(LocalDateTime updatedAt) {\r\n        this.updatedAt = updatedAt;\r\n    }\r\n\r\n    public LocalDateTime getUpdatedAt() {\r\n        return updatedAt;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/User.java b/src/main/java/model/User.java
+--- a/src/main/java/model/User.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/User.java	(date 1748027985972)
+@@ -2,16 +2,22 @@
+ 
+ import enums.Role;
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ 
+ import java.time.LocalDateTime;
+ import java.util.UUID;
+ 
++
++@Setter
++@Getter
+ @Entity
+ @Table(name = "users")
+ @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+ @DiscriminatorColumn(name = "dtype")
+ public abstract class User {
+ 
++    // Getters & setters
+     @Id
+     @GeneratedValue(strategy = GenerationType.AUTO)
+     private Long id;
+@@ -53,88 +59,4 @@
+         this.role = role;
+     }
+ 
+-    // Getters & setters
+-    public Long getId() {
+-        return id;
+-    }
+-
+-    public String getPublicId() {
+-        return publicId;
+-    }
+-
+-    public String getFirstName() {
+-        return firstName;
+-    }
+-
+-    public void setFirstName(String firstName) {
+-        this.firstName = firstName;
+-    }
+-
+-    public String getLastName() {
+-        return lastName;
+-    }
+-
+-    public void setLastName(String lastName) {
+-        this.lastName = lastName;
+-    }
+-
+-    public String getPhoneNumber() {
+-        return phoneNumber;
+-    }
+-
+-    public void setPhoneNumber(String phoneNumber) {
+-        this.phoneNumber = phoneNumber;
+-    }
+-
+-    public String getEmail() {
+-        return email;
+-    }
+-
+-    public void setEmail(String email) {
+-        this.email = email;
+-    }
+-
+-    public String getPassword() {
+-        return password;
+-    }
+-
+-    public void setPassword(String password) {
+-        this.password = password;
+-    }
+-
+-    public Role getRole() {
+-        return role;
+-    }
+-
+-    public void setRole(Role role) {
+-        this.role = role;
+-    }
+-
+-    public byte[] getImage() {
+-        return image;
+-    }
+-
+-    public void setImage(byte[] image) {
+-        this.image = image;
+-    }
+-
+-    public boolean isVerified() {
+-        return isVerified;
+-    }
+-
+-    public void setVerified(boolean verified) {
+-        isVerified = verified;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+ }
+Index: src/main/java/model/Menu.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\nimport jakarta.persistence.*;\r\n\r\n@Entity\r\npublic class Menu {\r\n\r\n    @OneToMany\r\n    private List<Item> items = new ArrayList<>();\r\n\r\n    @OneToOne(optional = false)\r\n    @JoinColumn(name = \"restaurant_id\", updatable = false)\r\n    private Restaurant restaurant;\r\n    @Id\r\n    @GeneratedValue (strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    public void addItem(Item item) {\r\n        items.add(item);\r\n    }\r\n\r\n    public void removeItem(Item item) {\r\n        items.remove(item);\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Menu.java b/src/main/java/model/Menu.java
+--- a/src/main/java/model/Menu.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Menu.java	(date 1748027985970)
+@@ -4,10 +4,15 @@
+ import java.util.List;
+ 
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ 
++@Getter
++@Setter
+ @Entity
+ public class Menu {
+ 
++
+     @OneToMany
+     private List<Item> items = new ArrayList<>();
+ 
+@@ -26,12 +31,5 @@
+         items.remove(item);
+     }
+ 
+-    public void setId(Long id) {
+-        this.id = id;
+-    }
+-
+-    public Long getId() {
+-        return id;
+-    }
+ }
+ 
+Index: src/main/java/model/UserPayload.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;   // or simply `model`\r\n\r\nimport enums.Role;\r\n\r\npublic class UserPayload {\r\n    private final String publicId;\r\n    private final String email;\r\n    private final Role role;\r\n\r\n    public UserPayload(String publicId, String email, Role role) {\r\n        this.publicId = publicId;\r\n        this.email    = email;\r\n        this.role     = role;\r\n    }\r\n\r\n    public String getPublicId() {\r\n        return publicId;\r\n    }\r\n\r\n    public String getEmail() {\r\n        return email;\r\n    }\r\n\r\n    public Role getRole() {\r\n        return role;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/UserPayload.java b/src/main/java/model/UserPayload.java
+--- a/src/main/java/model/UserPayload.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/UserPayload.java	(date 1748027985972)
+@@ -1,7 +1,9 @@
+ package model;   // or simply `model`
+ 
+ import enums.Role;
++import lombok.Getter;
+ 
++@Getter
+ public class UserPayload {
+     private final String publicId;
+     private final String email;
+@@ -13,15 +15,4 @@
+         this.role     = role;
+     }
+ 
+-    public String getPublicId() {
+-        return publicId;
+-    }
+-
+-    public String getEmail() {
+-        return email;
+-    }
+-
+-    public Role getRole() {
+-        return role;
+-    }
+ }
+Index: src/main/java/model/Price.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport jakarta.persistence.Column;\r\nimport jakarta.persistence.Embeddable;\r\nimport jakarta.persistence.Embedded;\r\n\r\nimport java.time.LocalDateTime;\r\n\r\n//toman price class\r\n@Embeddable\r\npublic class Price {\r\n    private long price;\r\n\r\n    @Embedded\r\n    private Discount discount;\r\n\r\n    public Price() {\r\n    }\r\n\r\n    public Price(long price) {\r\n        this.price = price;\r\n    }\r\n\r\n    public static long sumPrice(Price p1, Price p2) {\r\n        return p1.price + p2.price;\r\n    }\r\n\r\n    public void setPrice(long price) {\r\n        this.price = price;\r\n    }\r\n\r\n    public void setDiscount(int percentage, LocalDateTime expiration) {\r\n        this.discount = new Discount(percentage, expiration);\r\n    }\r\n\r\n    public boolean isDiscountActive(LocalDateTime now) {\r\n        return discount != null && discount.isActive(now);\r\n    }\r\n\r\n    public long getPriceWithoutDiscount() {\r\n        return price;\r\n    }\r\n\r\n    public long getPriceWithDiscount(LocalDateTime now) {\r\n        if (isDiscountActive(now)) {\r\n            return (price * (100 - discount.getPercentage())) / 100;\r\n        }\r\n        return price;\r\n    }\r\n    public boolean hasDiscount() {\r\n        return discount != null;\r\n    }\r\n    public void removeDiscount() {\r\n        this.discount = null;\r\n    }\r\n    public long getDiscountedAmount(LocalDateTime now) {  //added this to show how much the customer is actually saving money\r\n        if (isDiscountActive(now)) {\r\n            return (price * discount.getPercentage()) / 100;\r\n        }\r\n        return 0;\r\n    }\r\n\r\n}\r\n\r\n@Embeddable\r\nclass Discount {\r\n\r\n    @Column(name = \"discount_percentage\")\r\n    private int percentage;\r\n\r\n    @Column(name = \"discount_expiration\")\r\n    private LocalDateTime expiration;\r\n\r\n    public Discount() {\r\n        // Required by JPA\r\n    }\r\n\r\n    public Discount(int percentage, LocalDateTime expiration) {\r\n        this.percentage = percentage;\r\n        this.expiration = expiration;\r\n    }\r\n\r\n    public boolean isActive(LocalDateTime now) {\r\n        return expiration != null && now.isBefore(expiration);\r\n    }\r\n\r\n    public int getPercentage() {\r\n        return percentage;\r\n    }\r\n\r\n    public LocalDateTime getExpiration() {\r\n        return expiration;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Price.java b/src/main/java/model/Price.java
+--- a/src/main/java/model/Price.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Price.java	(date 1748027985971)
+@@ -3,11 +3,15 @@
+ import jakarta.persistence.Column;
+ import jakarta.persistence.Embeddable;
+ import jakarta.persistence.Embedded;
++import lombok.Getter;
++import lombok.Setter;
+ 
+ import java.time.LocalDateTime;
+ 
+ //toman price class
+ @Embeddable
++@Getter
++@Setter
+ public class Price {
+     private long price;
+ 
+@@ -25,10 +29,6 @@
+         return p1.price + p2.price;
+     }
+ 
+-    public void setPrice(long price) {
+-        this.price = price;
+-    }
+-
+     public void setDiscount(int percentage, LocalDateTime expiration) {
+         this.discount = new Discount(percentage, expiration);
+     }
+@@ -61,7 +61,8 @@
+     }
+ 
+ }
+-
++@Getter
++@Setter
+ @Embeddable
+ class Discount {
+ 
+@@ -72,7 +73,6 @@
+     private LocalDateTime expiration;
+ 
+     public Discount() {
+-        // Required by JPA
+     }
+ 
+     public Discount(int percentage, LocalDateTime expiration) {
+@@ -84,11 +84,4 @@
+         return expiration != null && now.isBefore(expiration);
+     }
+ 
+-    public int getPercentage() {
+-        return percentage;
+-    }
+-
+-    public LocalDateTime getExpiration() {
+-        return expiration;
+-    }
+ }
+Index: src/main/java/model/Location.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport jakarta.persistence.Embeddable;\r\nimport org.jetbrains.annotations.NotNull;\r\n\r\n@Embeddable\r\npublic final class Location {\r\n    private double latitude;\r\n    private double longitude;\r\n\r\n    public Location(double latitude, double longitude) {\r\n        this.latitude = latitude;\r\n        this.longitude = longitude;\r\n    }\r\n\r\n    protected Location() {\r\n    }\r\n\r\n    public double getLatitude() {\r\n        return latitude;\r\n    }\r\n\r\n    public double getLongitude() {\r\n        return longitude;\r\n    }\r\n\r\n\r\n    public double distanceTo(@NotNull Location other) {\r\n        final int EARTH_RADIUS_KM = 6371;\r\n\r\n        double latDistance = Math.toRadians(other.latitude - this.latitude);\r\n        double lonDistance = Math.toRadians(other.longitude - this.longitude);\r\n\r\n        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +\r\n                Math.cos(Math.toRadians(this.latitude)) * Math.cos(Math.toRadians(other.latitude)) *\r\n                        Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);\r\n\r\n        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));\r\n        return EARTH_RADIUS_KM * c;\r\n    }\r\n\r\n    @Override\r\n    public String toString() {\r\n        return String.format(\"Location[lat=%.6f, lon=%.6f]\", latitude, longitude);\r\n    }\r\n} 
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Location.java b/src/main/java/model/Location.java
+--- a/src/main/java/model/Location.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Location.java	(date 1748027985970)
+@@ -1,8 +1,11 @@
+ package model;
+ 
+ import jakarta.persistence.Embeddable;
++import lombok.Getter;
++import lombok.Setter;
+ import org.jetbrains.annotations.NotNull;
+-
++@Setter
++@Getter
+ @Embeddable
+ public final class Location {
+     private double latitude;
+@@ -13,15 +16,7 @@
+         this.longitude = longitude;
+     }
+ 
+-    protected Location() {
+-    }
+-
+-    public double getLatitude() {
+-        return latitude;
+-    }
+-
+-    public double getLongitude() {
+-        return longitude;
++    public Location() {
+     }
+ 
+ 
+Index: src/main/java/model/Customer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport enums.Role;\r\nimport jakarta.persistence.*;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\n@Entity\r\n@Table(name = \"customers\")\r\n@DiscriminatorValue(\"CUSTOMER\")\r\n@PrimaryKeyJoinColumn(name = \"id\")\r\npublic class Customer extends User {\r\n\r\n    @Embedded\r\n    private Address address;   // human-readable address\r\n\r\n    @Embedded\r\n    private Location location; // a coordinate system\r\n\r\n    @OneToMany(mappedBy = \"customer\", cascade = CascadeType.ALL, orphanRemoval = true)\r\n    private List<Order> ordersAssigned = new ArrayList<>();\r\n\r\n    public Customer() {\r\n        super();\r\n        setRole(Role.CUSTOMER);\r\n    }\r\n\r\n    public Customer(String firstName,\r\n                    String lastName,\r\n                    String phoneNumber,\r\n                    String email,\r\n                    String password,\r\n                    Address address,\r\n                    Location location) {\r\n        super(firstName, lastName, phoneNumber, email, password, Role.CUSTOMER);\r\n        this.address = address;\r\n        this.location = location;\r\n    }\r\n\r\n    public Address getAddress() {\r\n        return address;\r\n    }\r\n\r\n    public void setAddress(Address address) {\r\n        this.address = address;\r\n    }\r\n\r\n    public Location getLocation() {\r\n        return location;\r\n    }\r\n\r\n    public void setLocation(Location location) {\r\n        this.location = location;\r\n    }\r\n\r\n    public List<Order> getOrdersAssigned() {\r\n        return ordersAssigned;\r\n    }\r\n\r\n    public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {\r\n        this.ordersAssigned = ordersAssigned;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/model/Customer.java b/src/main/java/model/Customer.java
+--- a/src/main/java/model/Customer.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/model/Customer.java	(date 1748027985969)
+@@ -2,10 +2,14 @@
+ 
+ import enums.Role;
+ import jakarta.persistence.*;
++import lombok.Getter;
++import lombok.Setter;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++@Getter
++@Setter
+ @Entity
+ @Table(name = "customers")
+ @DiscriminatorValue("CUSTOMER")
+@@ -38,26 +42,6 @@
+         this.location = location;
+     }
+ 
+-    public Address getAddress() {
+-        return address;
+-    }
+-
+-    public void setAddress(Address address) {
+-        this.address = address;
+-    }
+-
+-    public Location getLocation() {
+-        return location;
+-    }
+-
+-    public void setLocation(Location location) {
+-        this.location = location;
+-    }
+-
+-    public List<Order> getOrdersAssigned() {
+-        return ordersAssigned;
+-    }
+-
+     public void setOrdersAssigned(ArrayList<Order> ordersAssigned) {
+         this.ordersAssigned = ordersAssigned;
+     }
+Index: src/main/java/Services/AuthService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package Services;\r\n\r\nimport controller.UserController;\r\nimport enums.Role;\r\nimport model.*;\r\nimport observers.ForgetPasswordObserver;\r\nimport observers.LoginObserver;\r\nimport observers.SignUpObserver;\r\nimport org.jetbrains.annotations.Contract;\r\nimport org.jetbrains.annotations.NotNull;\r\nimport util.JwtUtil;\r\n\r\n\r\nimport java.util.*;\r\n\r\npublic class AuthService {\r\n    private static AuthService instance;\r\n\r\n    private final UserController userController = UserController.getInstance();\r\n    private final List<LoginObserver> loginObservers = new ArrayList<>();\r\n    private final List<SignUpObserver> signUpObservers = new ArrayList<>();\r\n    private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();\r\n\r\n    private final Map<String, Long> resetTimestamps = new HashMap<>();\r\n    private final Map<String, Integer> resetCode = new HashMap<>();\r\n\r\n    private AuthService() {}\r\n\r\n    public static AuthService getInstance() {\r\n        if (instance == null) {\r\n            instance = new AuthService();\r\n        }\r\n        return instance;\r\n    }\r\n\r\n    public String login(String email, String password) {\r\n        User user = userController.findByEmail(email);\r\n        if (user == null) {\r\n            System.out.println(\"User not found.\");\r\n            return null;\r\n        }\r\n        if (!user.getPassword().equals(password)) {\r\n            System.out.println(\"Wrong password.\");\r\n            return null;\r\n        }\r\n\r\n        String jwt = JwtUtil.generateToken(user);\r\n        for (LoginObserver obs : loginObservers) {\r\n            obs.onUserLoggedIn(user);\r\n        }\r\n        return jwt;\r\n    }\r\n\r\n    public String generateRefreshToken(@NotNull User user, long refreshTokenValidityMs) {\r\n        return JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);\r\n    }\r\n\r\n    public boolean isTokenExpired(String token) {\r\n        return JwtUtil.isTokenExpired(token);\r\n    }\r\n\r\n\r\n    public User register(\r\n            Role role,\r\n            String firstName,\r\n            String lastName,\r\n            String phone,\r\n            String email,\r\n            String password,\r\n            Location location,\r\n            Address address,\r\n            Restaurant restaurant\r\n    ) {\r\n        if (userController.findByEmail(email) != null) {\r\n            System.out.println(\"Email already exists.\");\r\n            return null;\r\n        }\r\n        User user;\r\n        try {\r\n            user = UserFactory.createUser(\r\n                    role, firstName, lastName,\r\n                    phone, email, password,\r\n                    location, address, restaurant\r\n            );\r\n        } catch (IllegalArgumentException e) {\r\n            System.out.println(\"Registration failed: \" + e.getMessage());\r\n            return null;\r\n        }\r\n\r\n        userController.addUser(user);\r\n        for (SignUpObserver obs : signUpObservers) {\r\n            obs.onUserRegistered(user);\r\n        }\r\n        return user;\r\n    }\r\n\r\n    public void requestPasswordReset(String email) {\r\n        User user = userController.findByEmail(email);\r\n        if (user == null) {\r\n            System.out.println(\"Email not found.\");\r\n            return;\r\n        }\r\n\r\n        int code = createResetCode();\r\n        resetCode.put(email, code);\r\n        resetTimestamps.put(email, System.currentTimeMillis());\r\n\r\n        for (ForgetPasswordObserver obs : forgetPasswordObservers) {\r\n            obs.onForgetPassword(user, code);\r\n        }\r\n\r\n        Scanner scanner = new Scanner(System.in);\r\n        while (true) {\r\n            if (isCodeExpired(email)) {\r\n                System.out.println(\"Reset code expired. Please request a new one.\");\r\n                cleanupReset(email);\r\n                return;\r\n            }\r\n\r\n            System.out.print(\"Enter the reset code (you have 1 minute): \");\r\n            String input = scanner.nextLine().trim();\r\n            int entered;\r\n            try {\r\n                entered = Integer.parseInt(input);\r\n            } catch (NumberFormatException ex) {\r\n                System.out.println(\"Invalid format. Please enter digits only.\");\r\n                continue;\r\n            }\r\n\r\n            if (entered == code) {\r\n                System.out.print(\"Enter new password: \");\r\n                String newPass = scanner.nextLine();\r\n                userController.resetPassword(user, newPass);\r\n                System.out.println(\"Password reset successful.\");\r\n                break;\r\n            } else {\r\n                System.out.println(\"Incorrect code. Try again.\");\r\n            }\r\n        }\r\n        cleanupReset(email);\r\n    }\r\n\r\n    public void deleteAccount(String token) {\r\n        try {\r\n            User user = requireLogin(token);\r\n            boolean removed = userController.removeUser(user);\r\n            if (removed) {\r\n                System.out.println(\"Account for \" + user.getFirstName() + \" has been deleted.\");\r\n            } else {\r\n                System.out.println(\"Error: Failed to delete account for \" + user.getFirstName() + \".\");\r\n            }\r\n        } catch (IllegalStateException e) {\r\n            System.out.println(e.getMessage());\r\n        }\r\n    }\r\n\r\n    public void editProfile(\r\n            String token,\r\n            String firstName,\r\n            String lastName,\r\n            String phone,\r\n            String email,\r\n            String password,\r\n            Address address,\r\n            Location location\r\n    ) {\r\n        User user = requireLogin(token);\r\n        userController.updateBasicProfile(user, firstName, lastName, phone, email, password);\r\n        switch (user.getRole()) {\r\n            case CUSTOMER -> userController.updateCustomerDetails(\r\n                    (Customer) user, address, location);\r\n            case OWNER -> userController.updateOwnerDetails(\r\n                    (Owner) user, address, location);\r\n            case DELIVERY_MAN -> userController.updateDeliveryLocation(\r\n                    (Deliveryman) user, location);\r\n        }\r\n        System.out.println(\"Profile updated for \" + user.getFirstName());\r\n    }\r\n\r\n    @Contract(\"null -> fail\")\r\n    public @NotNull User requireLogin(String token) {\r\n        if (token == null || token.isBlank()) {\r\n            throw new IllegalStateException(\"No token provided.\");\r\n        }\r\n        UserPayload payload = JwtUtil.verifyToken(token);\r\n        User user = userController.findByPublicId(payload.getPublicId());\r\n        if (user == null) {\r\n            throw new IllegalStateException(\"Invalid or expired token.\");\r\n        }\r\n        return user;\r\n    }\r\n\r\n    private boolean isCodeExpired(String email) {\r\n        Long sent = resetTimestamps.get(email);\r\n        return sent == null || (System.currentTimeMillis() - sent) > 60_000;\r\n    }\r\n\r\n    private void cleanupReset(String email) {\r\n        resetCode.remove(email);\r\n        resetTimestamps.remove(email);\r\n    }\r\n\r\n    private int createResetCode() {\r\n        return new Random().nextInt(10000, 99999);\r\n    }\r\n\r\n    public void registerLoginObserver(LoginObserver obs) {\r\n        loginObservers.add(obs);\r\n    }\r\n\r\n    public void registerSignUpObserver(SignUpObserver obs) {\r\n        signUpObservers.add(obs);\r\n    }\r\n\r\n    public void registerForgetPasswordObserver(ForgetPasswordObserver obs) {\r\n        forgetPasswordObservers.add(obs);\r\n    }\r\n\r\n    public UserController getUserManager() {\r\n        return userController;\r\n    }\r\n\r\n    public List<LoginObserver> getLoginObservers() {\r\n        return List.copyOf(loginObservers);\r\n    }\r\n\r\n    public List<SignUpObserver> getSignUpObservers() {\r\n        return List.copyOf(signUpObservers);\r\n    }\r\n\r\n    public Map<String, Integer> getResetCode() {\r\n        return Collections.unmodifiableMap(resetCode);\r\n    }\r\n}\r\n\r\n\r\nclass UserFactory {\r\n    public static @NotNull User createUser(\r\n            @NotNull Role role,\r\n            String firstName,\r\n            String lastName,\r\n            String phone,\r\n            String email,\r\n            String password,\r\n            Location location,\r\n            Address address,\r\n            Restaurant restaurant\r\n    ) {\r\n        return switch (role) {\r\n            case CUSTOMER -> new Customer(firstName, lastName, phone, email, password, address, location);\r\n            case OWNER -> {\r\n                if (restaurant == null) throw new IllegalArgumentException(\"Restaurant required for Owner\");\r\n                yield new Owner(firstName, lastName, phone, email, password, address, location);\r\n            }\r\n            case DELIVERY_MAN -> new Deliveryman(firstName, lastName, phone, email, password, location);\r\n            default -> throw new IllegalArgumentException(\"Invalid role\");\r\n        };\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/Services/AuthService.java b/src/main/java/Services/AuthService.java
+--- a/src/main/java/Services/AuthService.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/Services/AuthService.java	(date 1748027985962)
+@@ -1,6 +1,7 @@
+ package Services;
+ 
+-import controller.UserController;
++import Controller.UserController;
++import dao.RefreshTokenDao;
+ import enums.Role;
+ import model.*;
+ import observers.ForgetPasswordObserver;
+@@ -10,9 +11,10 @@
+ import org.jetbrains.annotations.NotNull;
+ import util.JwtUtil;
+ 
+-
++import java.time.LocalDateTime;
+ import java.util.*;
+ 
++
+ public class AuthService {
+     private static AuthService instance;
+ 
+@@ -22,9 +24,11 @@
+     private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
+ 
+     private final Map<String, Long> resetTimestamps = new HashMap<>();
+-    private final Map<String, Integer> resetCode = new HashMap<>();
+ 
+-    private AuthService() {}
++    private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
++
++    private AuthService() {
++    }
+ 
+     public static AuthService getInstance() {
+         if (instance == null) {
+@@ -35,53 +39,46 @@
+ 
+     public String login(String email, String password) {
+         User user = userController.findByEmail(email);
+-        if (user == null) {
+-            System.out.println("User not found.");
++        if (user == null || !user.getPassword().equals(password)) {
++            System.out.println("Invalid credentials.");
+             return null;
+         }
+-        if (!user.getPassword().equals(password)) {
+-            System.out.println("Wrong password.");
+-            return null;
+-        }
++
++        String accessToken = JwtUtil.generateToken(user);
++        String refreshTokenStr = JwtUtil.generateRefreshToken(user, 7 * 24 * 60 * 60 * 1000);
+ 
+-        String jwt = JwtUtil.generateToken(user);
++        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now());
++        refreshTokenDao.deleteByUser(user);
++        refreshTokenDao.save(refreshToken);
++
+         for (LoginObserver obs : loginObservers) {
+             obs.onUserLoggedIn(user);
+         }
+-        return jwt;
++
++        return accessToken;
+     }
+ 
+     public String generateRefreshToken(@NotNull User user, long refreshTokenValidityMs) {
+-        return JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);
++        String refreshTokenStr = JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);
++        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now());
++        refreshTokenDao.deleteByUser(user);
++        refreshTokenDao.save(refreshToken);
++        return refreshTokenStr;
+     }
+ 
+     public boolean isTokenExpired(String token) {
+         return JwtUtil.isTokenExpired(token);
+     }
+ 
+-
+-    public User register(
+-            Role role,
+-            String firstName,
+-            String lastName,
+-            String phone,
+-            String email,
+-            String password,
+-            Location location,
+-            Address address,
+-            Restaurant restaurant
+-    ) {
++    public User register(Role role, String firstName, String lastName, String phone, String email, String password, Location location, Address address, Restaurant restaurant) {
+         if (userController.findByEmail(email) != null) {
+             System.out.println("Email already exists.");
+             return null;
+         }
++
+         User user;
+         try {
+-            user = UserFactory.createUser(
+-                    role, firstName, lastName,
+-                    phone, email, password,
+-                    location, address, restaurant
+-            );
++            user = UserFactory.createUser(role, firstName, lastName, phone, email, password, location, address, restaurant);
+         } catch (IllegalArgumentException e) {
+             System.out.println("Registration failed: " + e.getMessage());
+             return null;
+@@ -102,7 +99,6 @@
+         }
+ 
+         int code = createResetCode();
+-        resetCode.put(email, code);
+         resetTimestamps.put(email, System.currentTimeMillis());
+ 
+         for (ForgetPasswordObserver obs : forgetPasswordObservers) {
+@@ -143,36 +139,21 @@
+     public void deleteAccount(String token) {
+         try {
+             User user = requireLogin(token);
++            refreshTokenDao.deleteByUser(user);
+             boolean removed = userController.removeUser(user);
+-            if (removed) {
+-                System.out.println("Account for " + user.getFirstName() + " has been deleted.");
+-            } else {
+-                System.out.println("Error: Failed to delete account for " + user.getFirstName() + ".");
+-            }
++            System.out.println(removed ? "Account deleted." : "Failed to delete account.");
+         } catch (IllegalStateException e) {
+             System.out.println(e.getMessage());
+         }
+     }
+ 
+-    public void editProfile(
+-            String token,
+-            String firstName,
+-            String lastName,
+-            String phone,
+-            String email,
+-            String password,
+-            Address address,
+-            Location location
+-    ) {
++    public void editProfile(String token, String firstName, String lastName, String phone, String email, String password, Address address, Location location) {
+         User user = requireLogin(token);
+         userController.updateBasicProfile(user, firstName, lastName, phone, email, password);
+         switch (user.getRole()) {
+-            case CUSTOMER -> userController.updateCustomerDetails(
+-                    (Customer) user, address, location);
+-            case OWNER -> userController.updateOwnerDetails(
+-                    (Owner) user, address, location);
+-            case DELIVERY_MAN -> userController.updateDeliveryLocation(
+-                    (Deliveryman) user, location);
++            case CUSTOMER -> userController.updateCustomerDetails((Customer) user, address, location);
++            case OWNER -> userController.updateOwnerDetails((Owner) user, address, location);
++            case DELIVERY_MAN -> userController.updateDeliveryLocation((Deliveryman) user, location);
+         }
+         System.out.println("Profile updated for " + user.getFirstName());
+     }
+@@ -196,7 +177,6 @@
+     }
+ 
+     private void cleanupReset(String email) {
+-        resetCode.remove(email);
+         resetTimestamps.remove(email);
+     }
+ 
+@@ -215,22 +195,6 @@
+     public void registerForgetPasswordObserver(ForgetPasswordObserver obs) {
+         forgetPasswordObservers.add(obs);
+     }
+-
+-    public UserController getUserManager() {
+-        return userController;
+-    }
+-
+-    public List<LoginObserver> getLoginObservers() {
+-        return List.copyOf(loginObservers);
+-    }
+-
+-    public List<SignUpObserver> getSignUpObservers() {
+-        return List.copyOf(signUpObservers);
+-    }
+-
+-    public Map<String, Integer> getResetCode() {
+-        return Collections.unmodifiableMap(resetCode);
+-    }
+ }
+ 
+ 
+Index: src/main/java/controller/CartController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\npublic class CartController {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/CartController.java b/src/main/java/controller/CartController.java
+--- a/src/main/java/controller/CartController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/CartController.java	(date 1748027985963)
+@@ -1,4 +1,33 @@
+-package controller;
++package Controller;
++
+ 
++import dao.CartDao;
++import lombok.Getter;
++import lombok.Setter;
++import model.Cart;
++import model.Item;
++
++@Getter
++@Setter
+ public class CartController {
++    private static CartController instance;
++
++    private final CartDao cartDao = new CartDao();
++
++    private CartController() {
++    }
++    public static CartController getInstance() {
++        if (instance == null) {
++            instance = new CartController();
++        }
++        return instance;
++    }
++
++    public void addCart(Cart cart) {
++        if (cart == null) {return;}
++        cartDao.save(cart);
++    }
++
++    
++
+ }
+Index: src/main/java/controller/CustomerController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\npublic class CustomerController {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/CustomerController.java b/src/main/java/controller/CustomerController.java
+--- a/src/main/java/controller/CustomerController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/CustomerController.java	(date 1748027985963)
+@@ -1,4 +1,4 @@
+-package controller;
++package Controller;
+ 
+ public class CustomerController {
+ }
+Index: src/main/java/controller/AdminController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\nimport dao.RestaurantDao;\r\nimport model.Admin;\r\nimport model.Restaurant;\r\n\r\nimport java.util.ArrayList;\r\n\r\npublic class AdminController {\r\n    RestaurantDao restaurantdao ;\r\n    Admin admin=new Admin();\r\n    public AdminController() {\r\n        this.restaurantdao = new RestaurantDao();\r\n    }\r\n\r\n    public void getNotRegisteredRestaurant(){\r\n        ArrayList<Restaurant> restaurants=new ArrayList<>();\r\n        }\r\n        //give this to http handler for client\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/AdminController.java b/src/main/java/controller/AdminController.java
+--- a/src/main/java/controller/AdminController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/AdminController.java	(date 1748027985963)
+@@ -1,4 +1,4 @@
+-package controller;
++package Controller;
+ 
+ import dao.RestaurantDao;
+ import model.Admin;
+Index: src/main/java/controller/OwnerController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\npublic class OwnerController {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/OwnerController.java b/src/main/java/controller/OwnerController.java
+--- a/src/main/java/controller/OwnerController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/OwnerController.java	(date 1748027985964)
+@@ -1,4 +1,4 @@
+-package controller;
++package Controller;
+ 
+ public class OwnerController {
+ }
+Index: src/main/java/controller/DeliverymanController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\npublic class DeliverymanController {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/DeliverymanController.java b/src/main/java/controller/DeliverymanController.java
+--- a/src/main/java/controller/DeliverymanController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/DeliverymanController.java	(date 1748027985964)
+@@ -1,4 +1,4 @@
+-package controller;
++package Controller;
+ 
+ public class DeliverymanController {
+ }
+Index: src/main/java/controller/OrderController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\npublic class OrderController {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/OrderController.java b/src/main/java/controller/OrderController.java
+--- a/src/main/java/controller/OrderController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/OrderController.java	(date 1748027985964)
+@@ -1,4 +1,4 @@
+-package controller;
++package Controller;
+ 
+ public class OrderController {
+ }
+Index: src/main/java/controller/UserController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\nimport model.*;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.HashMap;\r\nimport java.util.List;\r\nimport java.util.Map;\r\n\r\n//singleton class :)\r\npublic class UserController {\r\n    private static UserController instance;\r\n\r\n    private final List<User> users = new ArrayList<>();\r\n    private final Map<String, User> userByPublicId = new HashMap<>();\r\n\r\n    // these lists might be useful later\r\n    private final List<Customer> customers = new ArrayList<>();\r\n    private final Map<String, Customer> customerByPublicId = new HashMap<>();\r\n    private final List<Owner> owners = new ArrayList<>();\r\n    private final Map<String, Owner> ownerByPublicId = new HashMap<>();\r\n    private final List<Deliveryman> deliverymen = new ArrayList<>();\r\n    private final Map<String, Deliveryman> deliverymenByPublicId = new HashMap<>();\r\n\r\n    private UserController() {\r\n    }\r\n\r\n    public static UserController getInstance() {\r\n        if (instance == null) {\r\n            instance = new UserController();\r\n        }\r\n        return instance;\r\n    }\r\n\r\n    public void addUser(User user) {\r\n        if (user == null) return;\r\n\r\n        // Add to general user list and map\r\n        users.add(user);\r\n        userByPublicId.put(user.getPublicId(), user);\r\n\r\n        // Categorize and store based on role\r\n        if (user instanceof Customer customer) {\r\n            customers.add(customer);\r\n            customerByPublicId.put(customer.getPublicId(), customer);\r\n        } else if (user instanceof Owner owner) {\r\n            owners.add(owner);\r\n            ownerByPublicId.put(owner.getPublicId(), owner);\r\n        } else if (user instanceof Deliveryman deliveryman) {\r\n            deliverymen.add(deliveryman);\r\n            deliverymenByPublicId.put(deliveryman.getPublicId(), deliveryman);\r\n        }\r\n    }\r\n\r\n    //u can find a user by publicId and Email\r\n    public User findByPublicId(String publicId) {\r\n        return userByPublicId.get(publicId);\r\n    }\r\n\r\n    public User findByEmail(String email) {\r\n        for (User user : users) {\r\n            if (user.getEmail().equalsIgnoreCase(email)) {\r\n                return user;\r\n            }\r\n        }\r\n        return null;\r\n    }\r\n\r\n    //reset password\r\n    public void resetPassword(User user, String password) {\r\n        if (user == null) return;\r\n        user.setPassword(password);\r\n    }\r\n\r\n    //remove user\r\n    public boolean removeUser(User user) {\r\n        boolean removedMaster = users.remove(user);\r\n\r\n        if (user instanceof Customer) {\r\n            customers.remove(user);\r\n        } else if (user instanceof Owner) {\r\n            owners.remove(user);\r\n        } else if (user instanceof Deliveryman) {\r\n            deliverymen.remove(user);\r\n        }\r\n\r\n        return removedMaster;\r\n    }\r\n\r\n    public boolean updateBasicProfile(\r\n            User user,\r\n            String firstName,\r\n            String lastName,\r\n            String phone,\r\n            String email,\r\n            String password\r\n    ) {\r\n        if (user == null || !users.contains(user)) return false;\r\n        if (firstName != null) user.setFirstName(firstName);\r\n        if (lastName != null) user.setLastName(lastName);\r\n        if (phone != null) user.setPhoneNumber(phone);\r\n        if (email != null) user.setEmail(email);\r\n        if (password != null) user.setPassword(password);\r\n        return true;\r\n    }\r\n\r\n    public boolean updateCustomerDetails(\r\n            Customer customer,\r\n            Address newAddress,\r\n            Location newLocation\r\n    ) {\r\n        if (customer == null || !customers.contains(customer)) return false;\r\n        if (newAddress != null) customer.setAddress(newAddress);\r\n        if (newLocation != null) customer.setLocation(newLocation);\r\n        return true;\r\n    }\r\n\r\n    public boolean updateOwnerDetails(\r\n            Owner owner,\r\n            Address newAddress,\r\n            Location newLocation\r\n    ) {\r\n        if (owner == null || !owners.contains(owner)) return false;\r\n        if (newAddress != null) owner.setAddress(newAddress);\r\n        if (newLocation != null) owner.setLocation(newLocation);\r\n        return true;\r\n    }\r\n\r\n    // For Deliveryman maybe only location changes idk yet\r\n    public boolean updateDeliveryLocation(\r\n            Deliveryman dm,\r\n            Location newLocation\r\n    ) {\r\n        if (dm == null || !deliverymen.contains(dm)) return false;\r\n        if (newLocation != null) dm.setLocation(newLocation);\r\n        return true;\r\n    }\r\n\r\n\r\n    //getters & setters\r\n    //getter for allUsers\r\n    public List<User> getAllUsers() {\r\n        return new ArrayList<>(users);\r\n    }  //returns a copy instead of the user list itself (list can not be modified)\r\n\r\n    public List<User> getUsers() {\r\n        return users;\r\n    }\r\n\r\n    public Map<String, User> getUserByPublicId() {\r\n        return userByPublicId;\r\n    }\r\n\r\n    public List<Customer> getCustomers() {\r\n        return customers;\r\n    }\r\n\r\n    public Map<String, Customer> getCustomerByPublicId() {\r\n        return customerByPublicId;\r\n    }\r\n\r\n    public List<Owner> getOwners() {\r\n        return owners;\r\n    }\r\n\r\n    public Map<String, Owner> getOwnerByPublicId() {\r\n        return ownerByPublicId;\r\n    }\r\n\r\n    public List<Deliveryman> getDeliverymen() {\r\n        return deliverymen;\r\n    }\r\n\r\n    public Map<String, Deliveryman> getDeliverymenByPublicId() {\r\n        return deliverymenByPublicId;\r\n    }\r\n\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/UserController.java b/src/main/java/controller/UserController.java
+--- a/src/main/java/controller/UserController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/UserController.java	(date 1748027985965)
+@@ -1,26 +1,23 @@
+-package controller;
++package Controller;
+ 
++import dao.CustomerDao;
++import dao.DeliverymanDao;
++import dao.OwnerDao;
++import lombok.Getter;
++import lombok.Setter;
+ import model.*;
+ 
+ import java.util.ArrayList;
+-import java.util.HashMap;
+ import java.util.List;
+-import java.util.Map;
+ 
+-//singleton class :)
++@Getter
++@Setter
+ public class UserController {
+     private static UserController instance;
+ 
+-    private final List<User> users = new ArrayList<>();
+-    private final Map<String, User> userByPublicId = new HashMap<>();
+-
+-    // these lists might be useful later
+-    private final List<Customer> customers = new ArrayList<>();
+-    private final Map<String, Customer> customerByPublicId = new HashMap<>();
+-    private final List<Owner> owners = new ArrayList<>();
+-    private final Map<String, Owner> ownerByPublicId = new HashMap<>();
+-    private final List<Deliveryman> deliverymen = new ArrayList<>();
+-    private final Map<String, Deliveryman> deliverymenByPublicId = new HashMap<>();
++    private final CustomerDao customerDao = new CustomerDao();
++    private final OwnerDao ownerDao = new OwnerDao();
++    private final DeliverymanDao deliverymanDao = new DeliverymanDao();
+ 
+     private UserController() {
+     }
+@@ -35,145 +32,110 @@
+     public void addUser(User user) {
+         if (user == null) return;
+ 
+-        // Add to general user list and map
+-        users.add(user);
+-        userByPublicId.put(user.getPublicId(), user);
+-
+-        // Categorize and store based on role
+-        if (user instanceof Customer customer) {
+-            customers.add(customer);
+-            customerByPublicId.put(customer.getPublicId(), customer);
+-        } else if (user instanceof Owner owner) {
+-            owners.add(owner);
+-            ownerByPublicId.put(owner.getPublicId(), owner);
+-        } else if (user instanceof Deliveryman deliveryman) {
+-            deliverymen.add(deliveryman);
+-            deliverymenByPublicId.put(deliveryman.getPublicId(), deliveryman);
++        switch (user) {
++            case Customer customer -> customerDao.save(customer);
++            case Owner owner -> ownerDao.save(owner);
++            case Deliveryman deliveryman -> deliverymanDao.save(deliveryman);
++            default -> System.out.println("Unknown user type");
+         }
+     }
+ 
+-    //u can find a user by publicId and Email
+     public User findByPublicId(String publicId) {
+-        return userByPublicId.get(publicId);
++        User user;
++        user = customerDao.findByPublicId(publicId);
++        if (user != null) return user;
++        user = ownerDao.findByPublicId(publicId);
++        if (user != null) return user;
++        return deliverymanDao.findByPublicId(publicId);
+     }
+ 
+     public User findByEmail(String email) {
+-        for (User user : users) {
+-            if (user.getEmail().equalsIgnoreCase(email)) {
+-                return user;
+-            }
+-        }
+-        return null;
++        User user;
++        user = customerDao.findByEmail(email);
++        if (user != null) return user;
++        user = ownerDao.findByEmail(email);
++        if (user != null) return user;
++        return deliverymanDao.findByEmail(email);
+     }
+ 
+-    //reset password
+     public void resetPassword(User user, String password) {
+-        if (user == null) return;
++        if (user == null || password == null) return;
+         user.setPassword(password);
++
++        switch (user) {
++            case Customer customer -> customerDao.update(customer);
++            case Owner owner -> ownerDao.update(owner);
++            case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
++            default -> System.out.println("Unknown user type");
++        }
+     }
+ 
+-    //remove user
+     public boolean removeUser(User user) {
+-        boolean removedMaster = users.remove(user);
++        if (user == null) return false;
+ 
+-        if (user instanceof Customer) {
+-            customers.remove(user);
+-        } else if (user instanceof Owner) {
+-            owners.remove(user);
+-        } else if (user instanceof Deliveryman) {
+-            deliverymen.remove(user);
++        switch (user) {
++            case Customer customer -> customerDao.delete(customer);
++            case Owner owner -> ownerDao.delete(owner);
++            case Deliveryman deliveryman -> deliverymanDao.delete(deliveryman);
++            default -> {
++                System.out.println("Unknown user type");
++                return false;
++            }
+         }
+ 
+-        return removedMaster;
++        return true;
+     }
+ 
+-    public boolean updateBasicProfile(
+-            User user,
+-            String firstName,
+-            String lastName,
+-            String phone,
+-            String email,
+-            String password
+-    ) {
+-        if (user == null || !users.contains(user)) return false;
++    public boolean updateBasicProfile(User user, String firstName, String lastName, String phone, String email, String password) {
++        if (user == null) return false;
++
+         if (firstName != null) user.setFirstName(firstName);
+         if (lastName != null) user.setLastName(lastName);
+         if (phone != null) user.setPhoneNumber(phone);
+         if (email != null) user.setEmail(email);
+         if (password != null) user.setPassword(password);
++
++        switch (user) {
++            case Customer customer -> customerDao.update(customer);
++            case Owner owner -> ownerDao.update(owner);
++            case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
++            default -> {
++                System.out.println("Unknown user type");
++                return false;
++            }
++        }
++
+         return true;
+     }
+ 
+-    public boolean updateCustomerDetails(
+-            Customer customer,
+-            Address newAddress,
+-            Location newLocation
+-    ) {
+-        if (customer == null || !customers.contains(customer)) return false;
++    public boolean updateCustomerDetails(Customer customer, Address newAddress, Location newLocation) {
++        if (customer == null) return false;
+         if (newAddress != null) customer.setAddress(newAddress);
+         if (newLocation != null) customer.setLocation(newLocation);
++        customerDao.update(customer);
+         return true;
+     }
+ 
+-    public boolean updateOwnerDetails(
+-            Owner owner,
+-            Address newAddress,
+-            Location newLocation
+-    ) {
+-        if (owner == null || !owners.contains(owner)) return false;
++    public boolean updateOwnerDetails(Owner owner, Address newAddress, Location newLocation) {
++        if (owner == null) return false;
+         if (newAddress != null) owner.setAddress(newAddress);
+         if (newLocation != null) owner.setLocation(newLocation);
++        ownerDao.update(owner);
+         return true;
+     }
+ 
+-    // For Deliveryman maybe only location changes idk yet
+-    public boolean updateDeliveryLocation(
+-            Deliveryman dm,
+-            Location newLocation
+-    ) {
+-        if (dm == null || !deliverymen.contains(dm)) return false;
+-        if (newLocation != null) dm.setLocation(newLocation);
++    public boolean updateDeliveryLocation(Deliveryman dm, Location newLocation) {
++        if (dm == null || newLocation == null) return false;
++        dm.setLocation(newLocation);
++        deliverymanDao.update(dm);
+         return true;
+     }
+ 
+-
+-    //getters & setters
+-    //getter for allUsers
+     public List<User> getAllUsers() {
+-        return new ArrayList<>(users);
+-    }  //returns a copy instead of the user list itself (list can not be modified)
+-
+-    public List<User> getUsers() {
+-        return users;
+-    }
+-
+-    public Map<String, User> getUserByPublicId() {
+-        return userByPublicId;
+-    }
+-
+-    public List<Customer> getCustomers() {
+-        return customers;
+-    }
+-
+-    public Map<String, Customer> getCustomerByPublicId() {
+-        return customerByPublicId;
++        List<User> allUsers = new ArrayList<>();
++        allUsers.addAll(customerDao.getAll());
++        allUsers.addAll(ownerDao.getAll());
++        allUsers.addAll(deliverymanDao.getAll());
++        return allUsers;
+     }
+-
+-    public List<Owner> getOwners() {
+-        return owners;
+-    }
+-
+-    public Map<String, Owner> getOwnerByPublicId() {
+-        return ownerByPublicId;
+-    }
+-
+-    public List<Deliveryman> getDeliverymen() {
+-        return deliverymen;
+-    }
+-
+-    public Map<String, Deliveryman> getDeliverymenByPublicId() {
+-        return deliverymenByPublicId;
+-    }
+-
+ }
+-
+Index: src/main/java/controller/ReviewController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\npublic class ReviewController {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/ReviewController.java b/src/main/java/controller/ReviewController.java
+--- a/src/main/java/controller/ReviewController.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/ReviewController.java	(date 1748027985965)
+@@ -1,4 +1,4 @@
+-package controller;
++package Controller;
+ 
+ public class ReviewController {
+ }
+Index: src/main/java/controller/SessionManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controller;\r\n\r\nimport model.User;\r\n\r\nimport java.util.Map;\r\nimport java.util.UUID;\r\nimport java.util.concurrent.ConcurrentHashMap;\r\n@Deprecated\r\npublic class SessionManager {\r\n    private static final Map<String, User> activeSessions = new ConcurrentHashMap<>();\r\n\r\n    public static String login(User user) {\r\n        String token = UUID.randomUUID().toString();\r\n        activeSessions.put(token, user);\r\n\r\n        return token;\r\n    }\r\n\r\n    public static User getUserByToken(String token) {\r\n        return activeSessions.get(token);\r\n    }\r\n\r\n    public static void logout(String token) {\r\n        activeSessions.remove(token);\r\n    }\r\n    public static boolean isLoggedIn(User user) {\r\n        return activeSessions.containsValue(user);\r\n    }\r\n    public static boolean isLoggedInById(String userId) { //IDK if we ll need this\r\n        return activeSessions.values().stream()\r\n                .anyMatch(u -> u.getPublicId().equals(userId));\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controller/SessionManager.java b/src/main/java/controller/SessionManager.java
+--- a/src/main/java/controller/SessionManager.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/controller/SessionManager.java	(date 1748027985965)
+@@ -1,4 +1,4 @@
+-package controller;
++package Controller;
+ 
+ import model.User;
+ 
+Index: src/main/java/dao/CartDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dao;\r\n\r\npublic class CartDao {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/dao/CartDao.java b/src/main/java/dao/CartDao.java
+--- a/src/main/java/dao/CartDao.java	(revision 2ebecea3745d1bf99be2a353ad04f2a19d9e03cc)
++++ b/src/main/java/dao/CartDao.java	(date 1748027985966)
+@@ -1,4 +1,115 @@
+ package dao;
+ 
+-public class CartDao {
++import jakarta.persistence.EntityManager;
++import jakarta.persistence.EntityTransaction;
++import jakarta.persistence.TypedQuery;
++import model.Cart;
++import util.JpaUtil;
++
++import java.util.List;
++
++public class CartDao implements IDao<Cart, Long> {
++
++    EntityManager em = JpaUtil.getEntityManager();
++    EntityTransaction tx = em.getTransaction();
++    
++    @Override
++    public void save(Cart entity) {
++        try {
++            tx.begin();
++            em.persist(entity);
++            tx.commit();
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++    }
++
++    @Override
++    public Cart findById(Long l) {
++        Cart cart  = null;
++        try {
++            cart = em.find(Cart.class, l);
++        } catch (Exception e){
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++        return cart;
++    }
++
++    @Override
++    public List<Cart> getAll() {
++        List<Cart> Carts = List.of();
++        try {
++            TypedQuery<Cart> query =
++                    em.createQuery("SELECT c FROM Cart c", Cart.class);
++            Carts = query.getResultList();
++        } catch (Exception e) {
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++        return Carts;
++    }
++
++    @Override
++    public void update(Cart entity) {
++        try {
++            tx.begin();
++            em.merge(entity);
++            tx.commit();
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++    }
++
++    @Override
++    public void deleteById(Long l) {
++        try {
++            tx.begin();
++            Cart Cart = em.find(Cart.class, l);
++            if (Cart != null) em.remove(Cart);
++            tx.commit();
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++    }
++
++    @Override
++    public void delete(Cart entity) {
++        try {
++            tx.begin();
++            if (!em.contains(entity)) {
++                entity = em.merge(entity);
++            }
++            em.remove(entity);
++            tx.commit();
++        } catch (Exception e) {
++            if (tx.isActive()) tx.rollback();
++            e.printStackTrace();
++        } finally {
++            em.close();
++        }
++    }
++
++    @Override
++    public boolean existsById(Long id) {
++        try {
++            return em.find(Cart.class, id) != null;
++        } catch (Exception e) {
++            e.printStackTrace();
++            return false;
++        } finally {
++            em.close();
++        }
++    }
+ }
