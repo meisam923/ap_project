@@ -1,12 +1,16 @@
 package dao;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import model.RefreshToken;
 import model.User;
+import util.JpaUtil;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class RefreshTokenDao implements IRefreshTokenDao {
 
@@ -76,4 +80,21 @@ public class RefreshTokenDao implements IRefreshTokenDao {
             delete(token);
         }
     }
+
+    public Optional<RefreshToken> findByTokenString(String tokenString) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            // Ensure your RefreshToken entity has a field named 'token' mapped to the token string
+            TypedQuery<RefreshToken> query = em.createQuery(
+                    "SELECT r FROM RefreshToken r WHERE r.token = :tokenStringValue", RefreshToken.class);
+            query.setParameter("tokenStringValue", tokenString);
+            List<RefreshToken> results = query.getResultList();
+            return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        } catch (NoResultException e) {
+            return Optional.empty();
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
 }

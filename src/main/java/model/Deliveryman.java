@@ -6,26 +6,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "deliverymen")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("COURIER")
 public class Deliveryman extends User {
 
     @Embedded
-    private Location location; // a coordinate system
+    private Location location;
 
     @OneToMany(mappedBy = "deliveryman", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ArrayList<Order> ordersAssigned = new ArrayList<>();
+    private List<Order> ordersAssigned = new ArrayList<>();
 
     public Deliveryman() {
         super();
-        setRole(Role.DELIVERY_MAN);
+        setRole(Role.COURIER);
     }
 
     public Deliveryman(String fullName, String address, String phoneNumber, String email, String password, String profileImageBase64, String bankName, String accountNumber) {
-        super(fullName, address, phoneNumber, email, password, Role.DELIVERY_MAN, profileImageBase64, bankName, accountNumber);
+        super(fullName, address, phoneNumber, email, password, Role.COURIER, profileImageBase64, bankName, accountNumber);
     }
 }
