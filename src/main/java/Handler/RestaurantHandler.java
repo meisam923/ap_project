@@ -16,7 +16,7 @@ import java.io.OutputStream;
 
 
 public class RestaurantHandler implements HttpHandler {
-    private RestaurantController restaurantController=new RestaurantController();
+    private final RestaurantController restaurantController=new RestaurantController();
     private final Gson gson=new Gson();
 
     @Override
@@ -57,7 +57,6 @@ public class RestaurantHandler implements HttpHandler {
         }
         catch (JsonSyntaxException e)
         {
-            // Specific catch for GSON parsing errors
             System.err.println("JSON Parsing Error: " + e.getMessage());
             e.printStackTrace(); // THIS IS IMPORTANT: Print the stack trace!
             sendErrorResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());

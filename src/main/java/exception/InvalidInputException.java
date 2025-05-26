@@ -10,5 +10,8 @@ public class InvalidInputException extends Exception {
         this.status_code= statusCode;
     }
 
+    public int getStatusCode() {
+        return status_code;
+    }
 }
 

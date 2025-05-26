@@ -2,263 +2,246 @@ package Controller;
 
 import Services.UserService;
 import dao.RefreshTokenDao;
-import dao.UserDao;
-import dto.UserDto;
 import enums.Role;
-import exception.AlreadyExistValueException;
-import exception.InvalidInputException;
 import model.*;
 import observers.ForgetPasswordObserver;
 import observers.LoginObserver;
 import observers.SignUpObserver;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import util.JwtUtil;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static Controller.UserFactory.createUser;
 
 
 public class AuthController {
 
     private static AuthController instance;
 
-    private final UserService userController = UserService.getInstance();
+    private final UserService userService = UserService.getInstance();
+    private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
+
     private final List<LoginObserver> loginObservers = new ArrayList<>();
     private final List<SignUpObserver> signUpObservers = new ArrayList<>();
     private final List<ForgetPasswordObserver> forgetPasswordObservers = new ArrayList<>();
-    private final Map<String, Long> resetTimestamps = new HashMap<>();
 
-    private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
+    private final Map<String, PasswordResetTokenInfo> passwordResetTokens = new ConcurrentHashMap<>();
+    private static final long RESET_CODE_VALIDITY_MS = 5 * 60 * 1000;
 
-    private final UserDao userDao = new UserDao();
     private AuthController() {
     }
 
-    public static AuthController getInstance() {
+    public static synchronized AuthController getInstance() {
         if (instance == null) {
             instance = new AuthController();
         }
         return instance;
     }
 
-    public String login(String email, String password) {
-        User user = userController.findByEmail(email);
-        if (user == null || !user.getPassword().equals(password)) {
-            System.out.println("Invalid credentials.");
-            return null;
+    public Optional<LoginResponsePayload> login(String identifier, String password, boolean isEmail) {
+        Optional<User> userOpt;
+        if (isEmail) {
+            userOpt = userService.findByEmail(identifier);
+        } else {
+            userOpt = userService.findByPhone(identifier);
+        }
+
+        if (userOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = userOpt.get();
+        if (!user.getPassword().equals(password)) {
+            return Optional.empty();
         }
 
         String accessToken = JwtUtil.generateToken(user);
-        String refreshTokenStr = JwtUtil.generateRefreshToken(user, 7 * 24 * 60 * 60 * 1000);
-
-        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now().plusDays(7));
-        refreshTokenDao.deleteByUser(user);
-        refreshTokenDao.save(refreshToken);
+        String refreshTokenStr = generateAndStoreRefreshToken(user);
 
         for (LoginObserver obs : loginObservers) {
             obs.onUserLoggedIn(user);
         }
-
-        return accessToken;
+        return Optional.of(new LoginResponsePayload(accessToken, refreshTokenStr, user));
     }
 
-    public String generateRefreshToken(@NotNull User user, long refreshTokenValidityMs) {
+    private String generateAndStoreRefreshToken(@NotNull User user) {
+        long refreshTokenValidityMs = 7 * 24 * 60 * 60 * 1000L;
         String refreshTokenStr = JwtUtil.generateRefreshToken(user, refreshTokenValidityMs);
-        RefreshToken refreshToken = new RefreshToken(refreshTokenStr, user, LocalDateTime.now().plusNanos(refreshTokenValidityMs * 1_000_000L));
+
+        RefreshToken refreshToken = new RefreshToken(
+                refreshTokenStr,
+                user,
+                LocalDateTime.now().plusNanos(refreshTokenValidityMs * 1_000_000L)
+        );
         refreshTokenDao.deleteByUser(user);
         refreshTokenDao.save(refreshToken);
         return refreshTokenStr;
+    }
+
+    public Optional<LoginResponsePayload> refreshAccessToken(String providedRefreshToken) {
+        if (providedRefreshToken == null || providedRefreshToken.isBlank()) {
+            throw new AuthenticationException("Refresh token is missing.");
+        }
+
+        Optional<RefreshToken> tokenOpt = refreshTokenDao.findByTokenString(providedRefreshToken);
+        if (tokenOpt.isEmpty()) {
+            throw new AuthenticationException("Refresh token not found or invalid.");
+        }
+
+        RefreshToken refreshToken = tokenOpt.get();
+        if (refreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            refreshTokenDao.delete(refreshToken);
+            throw new AuthenticationException("Refresh token expired.");
+        }
+
+        User user = refreshToken.getUser();
+        if (user == null) {
+            refreshTokenDao.delete(refreshToken);
+            throw new AuthenticationException("User associated with refresh token not found.");
+        }
+
+        String newAccessToken = JwtUtil.generateToken(user);
+        return Optional.of(new LoginResponsePayload(newAccessToken, providedRefreshToken, user));
     }
 
     public boolean isTokenExpired(String token) {
         return JwtUtil.isTokenExpired(token);
     }
 
-    public UserDto register(UserDto userdto) throws InvalidInputException, AlreadyExistValueException {
-        if (userdto.validateFields()!=null) {
-            throw new InvalidInputException(400, userdto.validateFields());
+    public Optional<User> register(Role role, String fullName, String phoneNumber, String email, String password,
+                                   String address, Restaurant restaurant, String profileImageBase64,
+                                   String bankName, String accountNumber) {
+        if (email != null && !email.isBlank() && userService.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email already exists: " + email);
         }
-        if (userDao.findByPhoneNumber(userdto.getPhone())!=null) {
-            throw new AlreadyExistValueException(409,"Phone number");
-        }
-        if (userDao.findByEmail(userdto.getEmail())!=null) {
-            throw new AlreadyExistValueException(409,"Email");
-        }
-        User user = null;
-        switch(userdto.getRole()) {
-            case "buyer":
-                user = new Customer(userdto.getFull_name(), userdto.getAddress(),
-                        userdto.getPhone(), userdto.getEmail(), userdto.getPassword(), userdto.getProfileImageBase64(), userdto.getBank_info().getBank_name(), userdto.getBank_info().getAccount_number());
-                break;
-            case "vendor":
-                user = new Owner(userdto.getFull_name(), userdto.getAddress(),
-                        userdto.getPhone(), userdto.getEmail(), userdto.getPassword(), userdto.getProfileImageBase64(), userdto.getBank_info().getBank_name(), userdto.getBank_info().getAccount_number());
-                break;
-            case "courier":
-                user = new Deliveryman(userdto.getFull_name(), userdto.getAddress(),
-                        userdto.getPhone(), userdto.getEmail(), userdto.getPassword(), userdto.getProfileImageBase64(), userdto.getBank_info().getBank_name(), userdto.getBank_info().getAccount_number());
-                break;}
-            userController.addUser(user);
-            userdto.setUser_id(user.getId());
-            userdto.setToken(generateRefreshToken(user,13));
-            for (SignUpObserver obs : signUpObservers) {
-                obs.onUserRegistered(user);
-            }
-            return userdto;
+        if (phoneNumber != null && !phoneNumber.isBlank() && userService.findByPhone(phoneNumber).isPresent()) {
+            throw new IllegalArgumentException("Phone number already exists: " + phoneNumber);
         }
 
-    public void requestPasswordReset(String email) {
-        User user = userController.findByEmail(email);
-        if (user == null) {
-            System.out.println("Email not found.");
-            return;
+        User user;
+        try {
+            user = UserService.UserFactory.createUser(role, fullName, phoneNumber, email, password,
+                    bankName, accountNumber, address, restaurant, profileImageBase64);
+        } catch (IllegalArgumentException e) {
+            throw e;
         }
 
-        int code = createResetCode();
-        resetTimestamps.put(email, System.currentTimeMillis());
+        Optional<User> savedUserOpt = userService.addUser(user);
+        if (savedUserOpt.isEmpty()) {
+            throw new RuntimeException("User registration failed during save operation for email: " + email);
+        }
+
+        User savedUser = savedUserOpt.get();
+        for (SignUpObserver obs : signUpObservers) {
+            obs.onUserRegistered(savedUser);
+        }
+        return Optional.of(savedUser);
+    }
+
+    public String initiatePasswordReset(String email) throws UserNotFoundException {
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Email not found: " + email));
+
+        String code = String.valueOf(new Random().nextInt(100000, 999999));
+        LocalDateTime expiryTime = LocalDateTime.now().plusNanos(RESET_CODE_VALIDITY_MS * 1_000_000L);
+        passwordResetTokens.put(email, new PasswordResetTokenInfo(code, expiryTime, user.getPublicId()));
 
         for (ForgetPasswordObserver obs : forgetPasswordObservers) {
-            obs.onForgetPassword(user, code);
+            obs.onForgetPassword(user, Integer.parseInt(code));
         }
-
-        Scanner scanner = new Scanner(System.in);
-        try {
-            while (true) {
-                if (isCodeExpired(email)) {
-                    System.out.println("Reset code expired. Please request a new one.");
-                    return;
-                }
-
-                System.out.print("Enter the reset code (you have 1 minute): ");
-                String input = scanner.nextLine().trim();
-                int entered;
-                try {
-                    entered = Integer.parseInt(input);
-                } catch (NumberFormatException ex) {
-                    System.out.println("Invalid format. Please enter digits only.");
-                    continue;
-                }
-
-                if (entered == code) {
-                    System.out.print("Enter new password: ");
-                    String newPass = scanner.nextLine();
-                    userController.resetPassword(user, newPass);
-                    System.out.println("Password reset successful.");
-                    break;
-                } else {
-                    System.out.println("Incorrect code. Try again.");
-                }
-            }
-        } finally {
-            cleanupReset(email);
-            scanner.close();
-        }
+        return code;
     }
 
-    public void deleteAccount(String token) {
-        try {
-            User user = requireLogin(token);
-            refreshTokenDao.deleteByUser(user);
-            boolean removed = userController.removeUser(user);
-            System.out.println(removed ? "Account deleted." : "Failed to delete account.");
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
+    public boolean completePasswordReset(String email, String code, String newPassword) throws AuthenticationException, UserNotFoundException {
+        PasswordResetTokenInfo tokenInfo = passwordResetTokens.get(email);
+
+        if (tokenInfo == null || !tokenInfo.code().equals(code)) {
+            throw new AuthenticationException("Invalid or non-existent password reset code.");
         }
+        if (LocalDateTime.now().isAfter(tokenInfo.expiryTime())) {
+            passwordResetTokens.remove(email);
+            throw new AuthenticationException("Password reset code has expired.");
+        }
+
+        User user = userService.findByPublicId(tokenInfo.userPublicId())
+                .orElseThrow(() -> {
+                    passwordResetTokens.remove(email);
+                    return new UserNotFoundException("User not found for password reset after code verification.");
+                });
+
+        boolean success = userService.resetPassword(user, newPassword);
+
+        if (success) {
+            passwordResetTokens.remove(email);
+        }
+        return success;
     }
 
-    public void editProfile(String token, String fullName, String phoneNumber, String email, String password,
-                            String address, Location location) {
-        User user = requireLogin(token);
+    public boolean deleteAccount(String accessToken) throws AuthenticationException {
+        User user = requireLogin(accessToken);
+        refreshTokenDao.deleteByUser(user);
+        return userService.removeUser(user);
+    }
 
-        userController.updateBasicProfile(user, fullName, phoneNumber, email, password);
+    public boolean editProfile(String accessToken, String fullName, String phoneNumber, String email, String password,
+                               String address, Location location) throws AuthenticationException {
+        User user = requireLogin(accessToken);
+
+        boolean basicUpdated = userService.updateBasicProfile(user, fullName, phoneNumber, email, password);
+        boolean specificUpdated = false;
 
         switch (user.getRole()) {
-            case CUSTOMER:
+            case BUYER:
                 if (user instanceof Customer customer) {
-                    userController.updateCustomerDetails(customer, address, location);
+                    specificUpdated = userService.updateCustomerDetails(customer, address, location);
                 }
                 break;
-            case OWNER:
+            case SELLER:
                 if (user instanceof Owner owner) {
-                    userController.updateOwnerDetails(owner, address, location);
+                    specificUpdated = userService.updateOwnerDetails(owner, address, location);
                 }
                 break;
-            case DELIVERY_MAN:
+            case COURIER:
                 if (user instanceof Deliveryman deliveryman) {
-                    userController.updateDeliveryLocation(deliveryman, location);
+                    specificUpdated = userService.updateDeliveryLocation(deliveryman, location);
                 }
                 break;
         }
-        System.out.println("Profile updated for " + (user.getFullName() != null ? user.getFullName() : "user with ID " + user.getPublicId()));
+        return basicUpdated || specificUpdated;
     }
 
-    @Contract("null -> fail")
-    public @NotNull User requireLogin(String token) {
+    public @NotNull User requireLogin(String token) throws AuthenticationException {
         if (token == null || token.isBlank()) {
-            throw new IllegalStateException("No token provided.");
+            throw new AuthenticationException("Authentication token not provided.");
         }
         UserPayload payload = JwtUtil.verifyToken(token);
         if (payload == null) {
-            throw new IllegalStateException("Invalid or expired token payload.");
+            throw new AuthenticationException("Invalid or expired token payload.");
         }
-        User user = userController.findByPublicId(payload.getPublicId());
-        if (user == null) {
-            throw new IllegalStateException("User not found for token or token expired.");
-        }
-        return user;
-    }
 
-    private boolean isCodeExpired(String email) {
-        Long sent = resetTimestamps.get(email);
-        return sent == null || (System.currentTimeMillis() - sent) > 60_000;
-    }
-
-    private void cleanupReset(String email) {
-        resetTimestamps.remove(email);
-    }
-
-    private int createResetCode() {
-        return new Random().nextInt(10000, 100000);
+        return userService.findByPublicId(payload.getPublicId())
+                .orElseThrow(() -> new AuthenticationException("User not found for token, or token has been invalidated."));
     }
 
     public void registerLoginObserver(LoginObserver obs) {
-        loginObservers.add(obs);
+        if (obs != null && !loginObservers.contains(obs)) loginObservers.add(obs);
     }
-
     public void registerSignUpObserver(SignUpObserver obs) {
-        signUpObservers.add(obs);
+        if (obs != null && !signUpObservers.contains(obs)) signUpObservers.add(obs);
     }
-
     public void registerForgetPasswordObserver(ForgetPasswordObserver obs) {
-        forgetPasswordObservers.add(obs);
+        if (obs != null && !forgetPasswordObservers.contains(obs)) forgetPasswordObservers.add(obs);
     }
-}
 
-class UserFactory {
-    public static @NotNull User createUser(
-            @NotNull Role role,
-            String fullName,
-            String phoneNumber,
-            String email,
-            String password,
-            String bankName,
-            String accountNumber,
-            String address,
-            Restaurant restaurant,
-            String profileImageBase64
-    ) {
-        return switch (role) {
-            case CUSTOMER -> new Customer(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-            case OWNER -> {
-                if (restaurant == null) throw new IllegalArgumentException("Restaurant required for Owner");
-                yield new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-            }
-            case DELIVERY_MAN ->
-                    new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-            default -> throw new IllegalArgumentException("Invalid role: " + role);
-        };
+    public record LoginResponsePayload(String accessToken, String refreshToken, User user) {}
+    private record PasswordResetTokenInfo(String code, LocalDateTime expiryTime, String userPublicId) {}
+
+    public static class AuthenticationException extends RuntimeException {
+        public AuthenticationException(String message) { super(message); }
+    }
+    public static class UserNotFoundException extends RuntimeException {
+        public UserNotFoundException(String message) { super(message); }
     }
 }
