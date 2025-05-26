@@ -130,6 +130,7 @@ public class OwnerDao implements IDao<Owner, Long>{
             query.setParameter("email", email);
             return query.getSingleResult();
         } catch (NoResultException e) {
+            System.out.println("no result");
             return null;
         } finally {
             em.close();
@@ -143,6 +144,7 @@ public class OwnerDao implements IDao<Owner, Long>{
             query.setParameter("publicId", publicId);
             return query.getSingleResult();
         } catch (NoResultException e) {
+            System.out.println("no result");
             return null;
         }finally {
             em.close();
@@ -155,6 +157,7 @@ public class OwnerDao implements IDao<Owner, Long>{
             query.setParameter("phone", phone);
             return query.getSingleResult();
         } catch (NoResultException e) {
+            System.out.println("no result");
             return null;
         }finally {
             em.close();

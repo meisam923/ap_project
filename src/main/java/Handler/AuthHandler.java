@@ -49,13 +49,13 @@ public class AuthHandler implements HttpHandler {
             } else if (method.equals("POST") && path.equals("/auth/login")) {
                 handleLogin(exchange);
             } else if (method.equals("GET") && path.equals("/auth/profile")) {
-                // TODO: Implement
+                handleGetProfile(exchange);
                 sendErrorResponse(exchange, 501, new UserDto.ErrorResponseDTO("Not Implemented: GET /auth/profile"));
             } else if (method.equals("PUT") && path.equals("/auth/profile")) {
-                // TODO: Implement
+
                 sendErrorResponse(exchange, 501, new UserDto.ErrorResponseDTO("Not Implemented: PUT /auth/profile"));
             } else if (method.equals("POST") && path.equals("/auth/logout")) {
-                // TODO: Implement
+
                 sendErrorResponse(exchange, 501, new UserDto.ErrorResponseDTO("Not Implemented: POST /auth/logout"));
             } else {
                 sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Resource not found"));
@@ -189,6 +189,46 @@ public class AuthHandler implements HttpHandler {
             System.err.println("Error during login: " + e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error during login."));
+        }
+    }
+
+    private void handleGetProfile(HttpExchange exchange) throws IOException {
+        try {
+            String tokenHeader = exchange.getRequestHeaders().getFirst("Authorization");
+            if (tokenHeader == null || !tokenHeader.toLowerCase().startsWith("bearer ")) {
+                sendErrorResponse(exchange, 401, new UserDto.ErrorResponseDTO("Unauthorized: request"));
+                return;
+            }
+            String token = tokenHeader.substring(7);
+
+            User user = authController.requireLogin(token);
+
+            UserDto.RegisterRequestDTO.BankInfoDTO bankInfoForSchema = null;
+            if (user.getBankName() != null && user.getAccountNumber() != null) {
+                bankInfoForSchema = new UserDto.RegisterRequestDTO.BankInfoDTO(
+                        user.getBankName(),
+                        user.getAccountNumber()
+                );
+            }
+
+            UserDto.UserSchemaDTO userSchema = new UserDto.UserSchemaDTO(
+                    user.getPublicId(),
+                    user.getFullName(),
+                    user.getPhoneNumber(),
+                    user.getEmail(),
+                    user.getRole().name().toLowerCase(),
+                    user.getAddress(),
+                    user.getProfileImageBase64(),
+                    bankInfoForSchema
+            );
+            sendResponse(exchange, 200, userSchema);
+
+        } catch (AuthController.AuthenticationException e) {
+            sendErrorResponse(exchange, 401, new UserDto.ErrorResponseDTO("Unauthorized: " + e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("Error during GET /auth/profile: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error while retrieving profile."));
         }
     }
 
