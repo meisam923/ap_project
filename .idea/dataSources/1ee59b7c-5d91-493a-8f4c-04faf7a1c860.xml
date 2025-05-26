@@ -805,53 +805,53 @@ false Zulu
       <ObjectId>5</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
-    <role id="3" parent="1" name="pg_checkpoint">
-      <ObjectId>4544</ObjectId>
-    </role>
-    <role id="4" parent="1" name="pg_create_subscription">
-      <ObjectId>6304</ObjectId>
-    </role>
-    <role id="5" parent="1" name="pg_database_owner">
+    <role id="3" parent="1" name="pg_database_owner">
       <ObjectId>6171</ObjectId>
     </role>
-    <role id="6" parent="1" name="pg_execute_server_program">
-      <ObjectId>4571</ObjectId>
+    <role id="4" parent="1" name="pg_read_all_data">
+      <ObjectId>6181</ObjectId>
     </role>
-    <role id="7" parent="1" name="pg_maintain">
-      <ObjectId>6337</ObjectId>
+    <role id="5" parent="1" name="pg_write_all_data">
+      <ObjectId>6182</ObjectId>
     </role>
-    <role id="8" parent="1" name="pg_monitor">
+    <role id="6" parent="1" name="pg_monitor">
       <ObjectId>3373</ObjectId>
       <RoleGrants>3374
 3375
 3377</RoleGrants>
     </role>
-    <role id="9" parent="1" name="pg_read_all_data">
-      <ObjectId>6181</ObjectId>
-    </role>
-    <role id="10" parent="1" name="pg_read_all_settings">
+    <role id="7" parent="1" name="pg_read_all_settings">
       <ObjectId>3374</ObjectId>
     </role>
-    <role id="11" parent="1" name="pg_read_all_stats">
+    <role id="8" parent="1" name="pg_read_all_stats">
       <ObjectId>3375</ObjectId>
     </role>
-    <role id="12" parent="1" name="pg_read_server_files">
+    <role id="9" parent="1" name="pg_stat_scan_tables">
+      <ObjectId>3377</ObjectId>
+    </role>
+    <role id="10" parent="1" name="pg_read_server_files">
       <ObjectId>4569</ObjectId>
+    </role>
+    <role id="11" parent="1" name="pg_write_server_files">
+      <ObjectId>4570</ObjectId>
+    </role>
+    <role id="12" parent="1" name="pg_execute_server_program">
+      <ObjectId>4571</ObjectId>
     </role>
     <role id="13" parent="1" name="pg_signal_backend">
       <ObjectId>4200</ObjectId>
     </role>
-    <role id="14" parent="1" name="pg_stat_scan_tables">
-      <ObjectId>3377</ObjectId>
+    <role id="14" parent="1" name="pg_checkpoint">
+      <ObjectId>4544</ObjectId>
     </role>
-    <role id="15" parent="1" name="pg_use_reserved_connections">
+    <role id="15" parent="1" name="pg_maintain">
+      <ObjectId>6337</ObjectId>
+    </role>
+    <role id="16" parent="1" name="pg_use_reserved_connections">
       <ObjectId>4550</ObjectId>
     </role>
-    <role id="16" parent="1" name="pg_write_all_data">
-      <ObjectId>6182</ObjectId>
-    </role>
-    <role id="17" parent="1" name="pg_write_server_files">
-      <ObjectId>4570</ObjectId>
+    <role id="17" parent="1" name="pg_create_subscription">
+      <ObjectId>6304</ObjectId>
     </role>
     <role id="18" parent="1" name="postgres">
       <BypassRls>1</BypassRls>
@@ -4362,14 +4362,14 @@ false Zulu
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="284" parent="264" name="restaurants">
-      <ObjectId>19931</ObjectId>
-      <StateNumber>2164</StateNumber>
+      <ObjectId>20378</ObjectId>
+      <StateNumber>2330</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="285" parent="264" name="users">
-      <ObjectId>20226</ObjectId>
-      <StateNumber>2217</StateNumber>
+      <ObjectId>20388</ObjectId>
+      <StateNumber>2302</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
@@ -4983,334 +4983,331 @@ false Zulu
     </key>
     <check id="373" parent="284" name="restaurants_category_check">
       <ColNames>category</ColNames>
-      <ObjectId>19935</ObjectId>
+      <ObjectId>20382</ObjectId>
       <Predicate>(category)::text = ANY ((ARRAY[&apos;FAST_FOOD&apos;::character varying, &apos;CAFE&apos;::character varying, &apos;TRADITIONAL&apos;::character varying, &apos;BREAKFAST&apos;::character varying, &apos;SEAFOOD&apos;::character varying, &apos;ITALIAN&apos;::character varying])::text[])</Predicate>
-      <StateNumber>2089</StateNumber>
+      <StateNumber>2271</StateNumber>
     </check>
     <check id="374" parent="284" name="restaurants_status_check">
       <ColNames>status</ColNames>
-      <ObjectId>19936</ObjectId>
+      <ObjectId>20383</ObjectId>
       <Predicate>(status)::text = ANY ((ARRAY[&apos;WAITING&apos;::character varying, &apos;REGISTERED&apos;::character varying])::text[])</Predicate>
-      <StateNumber>2089</StateNumber>
+      <StateNumber>2271</StateNumber>
     </check>
-    <column id="375" parent="284" name="latitude">
-      <Position>1</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>double precision|0s</StoredType>
-      <TypeId>701</TypeId>
-    </column>
-    <column id="376" parent="284" name="longitude">
-      <Position>2</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>double precision|0s</StoredType>
-      <TypeId>701</TypeId>
-    </column>
-    <column id="377" parent="284" name="id">
+    <column id="375" parent="284" name="id">
       <DefaultExpression>nextval(&apos;restaurants_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
-      <Position>3</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>bigint|0s</StoredType>
-      <TypeId>20</TypeId>
-    </column>
-    <column id="378" parent="284" name="menu_id">
-      <Position>4</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>bigint|0s</StoredType>
-      <TypeId>20</TypeId>
-    </column>
-    <column id="379" parent="284" name="owner_id">
-      <Position>5</Position>
-      <StateNumber>2164</StateNumber>
+      <Position>1</Position>
+      <StateNumber>2330</StateNumber>
       <StoredType>integer|0s</StoredType>
+      <SequenceId>20377</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="380" parent="284" name="addressdetails">
-      <Position>6</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="381" parent="284" name="addresstitle">
-      <Position>7</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="382" parent="284" name="category">
-      <Position>8</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="383" parent="284" name="phone_number">
-      <Position>9</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="384" parent="284" name="status">
-      <Position>10</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="385" parent="284" name="title">
-      <Position>11</Position>
-      <StateNumber>2089</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="386" parent="284" name="additional_fee">
+    <column id="376" parent="284" name="additional_fee">
       <NotNull>1</NotNull>
-      <Position>12</Position>
-      <StateNumber>2157</StateNumber>
+      <Position>2</Position>
+      <StateNumber>2271</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="387" parent="284" name="coder">
-      <Position>13</Position>
-      <StateNumber>2158</StateNumber>
+    <column id="377" parent="284" name="coder">
+      <Position>3</Position>
+      <StateNumber>2271</StateNumber>
       <StoredType>smallint|0s</StoredType>
       <TypeId>21</TypeId>
     </column>
-    <column id="388" parent="284" name="hash">
-      <Position>14</Position>
-      <StateNumber>2159</StateNumber>
+    <column id="378" parent="284" name="hash">
+      <Position>4</Position>
+      <StateNumber>2271</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="389" parent="284" name="hashiszero">
-      <Position>15</Position>
-      <StateNumber>2160</StateNumber>
+    <column id="379" parent="284" name="hashiszero">
+      <Position>5</Position>
+      <StateNumber>2271</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="390" parent="284" name="value">
-      <Position>16</Position>
-      <StateNumber>2161</StateNumber>
+    <column id="380" parent="284" name="value">
+      <Position>6</Position>
+      <StateNumber>2271</StateNumber>
       <StoredType>bytea|0s</StoredType>
       <TypeId>17</TypeId>
     </column>
-    <column id="391" parent="284" name="logobase64">
-      <Position>17</Position>
-      <StateNumber>2162</StateNumber>
+    <column id="381" parent="284" name="category">
+      <Position>7</Position>
+      <StateNumber>2271</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="392" parent="284" name="tax_fee">
+    <column id="382" parent="284" name="latitude">
+      <Position>8</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>double precision|0s</StoredType>
+      <TypeId>701</TypeId>
+    </column>
+    <column id="383" parent="284" name="longitude">
+      <Position>9</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>double precision|0s</StoredType>
+      <TypeId>701</TypeId>
+    </column>
+    <column id="384" parent="284" name="logobase64">
+      <Position>10</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="385" parent="284" name="phone_number">
+      <Position>11</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="386" parent="284" name="status">
+      <Position>12</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="387" parent="284" name="tax_fee">
       <NotNull>1</NotNull>
-      <Position>18</Position>
-      <StateNumber>2163</StateNumber>
+      <Position>13</Position>
+      <StateNumber>2271</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="393" parent="284" name="fk3fywyo37g4h5tvi9ioicsyh44">
+    <column id="388" parent="284" name="title">
+      <Position>14</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="389" parent="284" name="menu_id">
+      <Position>15</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="390" parent="284" name="owner_id">
+      <Position>16</Position>
+      <StateNumber>2271</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <foreign-key id="391" parent="284" name="fk3fywyo37g4h5tvi9ioicsyh44">
       <ColNames>menu_id</ColNames>
-      <ObjectId>20029</ObjectId>
-      <StateNumber>2105</StateNumber>
+      <ObjectId>20495</ObjectId>
+      <StateNumber>2316</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>19901</RefTableId>
+      <RefTableId>20354</RefTableId>
     </foreign-key>
-    <foreign-key id="394" parent="284" name="fkp5mmmypepihvmkdb83qwugr4d">
+    <foreign-key id="392" parent="284" name="fkp5mmmypepihvmkdb83qwugr4d">
       <ColNames>owner_id</ColNames>
-      <ObjectId>20114</ObjectId>
-      <StateNumber>2165</StateNumber>
-      <RefKeyColPositions>5</RefKeyColPositions>
-      <RefTableId>19945</RefTableId>
+      <ObjectId>20500</ObjectId>
+      <StateNumber>2317</StateNumber>
+      <RefKeyColPositions>2</RefKeyColPositions>
+      <RefTableId>20388</RefTableId>
     </foreign-key>
-    <index id="395" parent="284" name="restaurants_pkey">
+    <index id="393" parent="284" name="restaurants_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>19939</ObjectId>
+      <ObjectId>20529</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2164</StateNumber>
+      <StateNumber>2330</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="396" parent="284" name="restaurants_menu_id_key">
+    <index id="394" parent="284" name="uk_thig4i0d3mocamrqyupicmm61">
+      <ColNames>phone_number</ColNames>
+      <ObjectId>20412</ObjectId>
+      <StateNumber>2330</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <index id="395" parent="284" name="uk_23gxw3rl6urgabg3n1c0xl7bx">
       <ColNames>menu_id</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>19941</ObjectId>
-      <StateNumber>2164</StateNumber>
+      <ObjectId>20414</ObjectId>
+      <StateNumber>2330</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="397" parent="284" name="restaurants_owner_id_key">
+    <index id="396" parent="284" name="uk_82grnfy9su7xfo22jh2wopaen">
       <ColNames>owner_id</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20082</ObjectId>
-      <StateNumber>2164</StateNumber>
+      <ObjectId>20416</ObjectId>
+      <StateNumber>2330</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="398" parent="284" name="restaurants_pkey">
+    <key id="397" parent="284" name="restaurants_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>19940</ObjectId>
+      <ObjectId>20530</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2089</StateNumber>
-      <UnderlyingIndexId>19939</UnderlyingIndexId>
+      <StateNumber>2330</StateNumber>
+      <UnderlyingIndexId>20529</UnderlyingIndexId>
     </key>
-    <key id="399" parent="284" name="restaurants_menu_id_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>19942</ObjectId>
-      <StateNumber>2089</StateNumber>
-      <UnderlyingIndexId>19941</UnderlyingIndexId>
+    <key id="398" parent="284" name="uk_thig4i0d3mocamrqyupicmm61">
+      <ObjectId>20413</ObjectId>
+      <StateNumber>2290</StateNumber>
+      <UnderlyingIndexId>20412</UnderlyingIndexId>
     </key>
-    <key id="400" parent="284" name="restaurants_owner_id_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20083</ObjectId>
-      <StateNumber>2164</StateNumber>
-      <UnderlyingIndexId>20082</UnderlyingIndexId>
+    <key id="399" parent="284" name="uk_23gxw3rl6urgabg3n1c0xl7bx">
+      <ObjectId>20415</ObjectId>
+      <StateNumber>2292</StateNumber>
+      <UnderlyingIndexId>20414</UnderlyingIndexId>
+    </key>
+    <key id="400" parent="284" name="uk_82grnfy9su7xfo22jh2wopaen">
+      <ObjectId>20417</ObjectId>
+      <StateNumber>2294</StateNumber>
+      <UnderlyingIndexId>20416</UnderlyingIndexId>
     </key>
     <check id="401" parent="285" name="users_role_check">
       <ColNames>role</ColNames>
-      <ObjectId>20229</ObjectId>
+      <ObjectId>20391</ObjectId>
       <Predicate>(role)::text = ANY ((ARRAY[&apos;ADMIN&apos;::character varying, &apos;COURIER&apos;::character varying, &apos;BUYER&apos;::character varying, &apos;SELLER&apos;::character varying])::text[])</Predicate>
-      <StateNumber>2216</StateNumber>
+      <StateNumber>2272</StateNumber>
     </check>
-    <column id="402" parent="285" name="id">
+    <column id="402" parent="285" name="dtype">
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>integer|0s</StoredType>
-      <TypeId>23</TypeId>
-    </column>
-    <column id="403" parent="285" name="isverified">
-      <NotNull>1</NotNull>
-      <Position>2</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>boolean|0s</StoredType>
-      <TypeId>16</TypeId>
-    </column>
-    <column id="404" parent="285" name="latitude">
-      <Position>3</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>double precision|0s</StoredType>
-      <TypeId>701</TypeId>
-    </column>
-    <column id="405" parent="285" name="longitude">
-      <Position>4</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>double precision|0s</StoredType>
-      <TypeId>701</TypeId>
-    </column>
-    <column id="406" parent="285" name="createdat">
-      <Position>5</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>timestamp(6)|0s</StoredType>
-      <TypeId>1114</TypeId>
-    </column>
-    <column id="407" parent="285" name="updatedat">
-      <Position>6</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>timestamp(6)|0s</StoredType>
-      <TypeId>1114</TypeId>
-    </column>
-    <column id="408" parent="285" name="dtype">
-      <NotNull>1</NotNull>
-      <Position>7</Position>
-      <StateNumber>2216</StateNumber>
+      <StateNumber>2272</StateNumber>
       <StoredType>varchar(31)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="409" parent="285" name="accountnumber">
-      <Position>8</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="410" parent="285" name="address">
-      <Position>9</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="411" parent="285" name="bankname">
-      <Position>10</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="412" parent="285" name="email">
-      <Position>11</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="413" parent="285" name="fullname">
-      <Position>12</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="414" parent="285" name="password">
-      <Position>13</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="415" parent="285" name="phonenumber">
-      <Position>14</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="416" parent="285" name="profileimagebase64">
-      <Position>15</Position>
-      <StateNumber>2216</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="417" parent="285" name="publicid">
+    <column id="403" parent="285" name="id">
       <NotNull>1</NotNull>
-      <Position>16</Position>
-      <StateNumber>2216</StateNumber>
+      <Position>2</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="404" parent="285" name="accountnumber">
+      <Position>3</Position>
+      <StateNumber>2272</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="418" parent="285" name="role">
-      <Position>17</Position>
-      <StateNumber>2216</StateNumber>
+    <column id="405" parent="285" name="address">
+      <Position>4</Position>
+      <StateNumber>2272</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
+    </column>
+    <column id="406" parent="285" name="bankname">
+      <Position>5</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="407" parent="285" name="createdat">
+      <Position>6</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>timestamp(6)|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <column id="408" parent="285" name="email">
+      <Position>7</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="409" parent="285" name="fullname">
+      <Position>8</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="410" parent="285" name="isverified">
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>boolean|0s</StoredType>
+      <TypeId>16</TypeId>
+    </column>
+    <column id="411" parent="285" name="password">
+      <Position>10</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="412" parent="285" name="phonenumber">
+      <Position>11</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="413" parent="285" name="profileimagebase64">
+      <Position>12</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="414" parent="285" name="publicid">
+      <NotNull>1</NotNull>
+      <Position>13</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="415" parent="285" name="role">
+      <Position>14</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="416" parent="285" name="updatedat">
+      <Position>15</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>timestamp(6)|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <column id="417" parent="285" name="latitude">
+      <Position>16</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>double precision|0s</StoredType>
+      <TypeId>701</TypeId>
+    </column>
+    <column id="418" parent="285" name="longitude">
+      <Position>17</Position>
+      <StateNumber>2272</StateNumber>
+      <StoredType>double precision|0s</StoredType>
+      <TypeId>701</TypeId>
     </column>
     <index id="419" parent="285" name="users_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20232</ObjectId>
+      <ObjectId>20394</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2216</StateNumber>
+      <StateNumber>2272</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="420" parent="285" name="users_email_key">
+    <index id="420" parent="285" name="uk_6dotkott2kjsp8vw4d0m25fb7">
       <ColNames>email</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20234</ObjectId>
-      <StateNumber>2216</StateNumber>
+      <ObjectId>20418</ObjectId>
+      <StateNumber>2296</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="421" parent="285" name="users_phonenumber_key">
+    <index id="421" parent="285" name="uk_kwds03ohobcd8p6eowkw0f5bm">
       <ColNames>phonenumber</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20236</ObjectId>
-      <StateNumber>2216</StateNumber>
+      <ObjectId>20420</ObjectId>
+      <StateNumber>2298</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="422" parent="285" name="users_publicid_key">
+    <index id="422" parent="285" name="uk_kttmtvpigshld3og466g7mcj3">
       <ColNames>publicid</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20238</ObjectId>
-      <StateNumber>2216</StateNumber>
+      <ObjectId>20422</ObjectId>
+      <StateNumber>2300</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
@@ -5319,28 +5316,25 @@ false Zulu
     </index>
     <key id="423" parent="285" name="users_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20233</ObjectId>
+      <ObjectId>20395</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2216</StateNumber>
-      <UnderlyingIndexId>20232</UnderlyingIndexId>
+      <StateNumber>2272</StateNumber>
+      <UnderlyingIndexId>20394</UnderlyingIndexId>
     </key>
-    <key id="424" parent="285" name="users_email_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20235</ObjectId>
-      <StateNumber>2216</StateNumber>
-      <UnderlyingIndexId>20234</UnderlyingIndexId>
+    <key id="424" parent="285" name="uk_6dotkott2kjsp8vw4d0m25fb7">
+      <ObjectId>20419</ObjectId>
+      <StateNumber>2296</StateNumber>
+      <UnderlyingIndexId>20418</UnderlyingIndexId>
     </key>
-    <key id="425" parent="285" name="users_phonenumber_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20237</ObjectId>
-      <StateNumber>2216</StateNumber>
-      <UnderlyingIndexId>20236</UnderlyingIndexId>
+    <key id="425" parent="285" name="uk_kwds03ohobcd8p6eowkw0f5bm">
+      <ObjectId>20421</ObjectId>
+      <StateNumber>2298</StateNumber>
+      <UnderlyingIndexId>20420</UnderlyingIndexId>
     </key>
-    <key id="426" parent="285" name="users_publicid_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20239</ObjectId>
-      <StateNumber>2216</StateNumber>
-      <UnderlyingIndexId>20238</UnderlyingIndexId>
+    <key id="426" parent="285" name="uk_kttmtvpigshld3og466g7mcj3">
+      <ObjectId>20423</ObjectId>
+      <StateNumber>2300</StateNumber>
+      <UnderlyingIndexId>20422</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>

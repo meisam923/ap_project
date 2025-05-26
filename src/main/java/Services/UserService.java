@@ -207,10 +207,9 @@ public class UserService {
 
             return switch (role) {
                 case BUYER -> new Customer(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                case SELLER -> {
-                    //if (restaurant == null) throw new IllegalArgumentException("Restaurant is required for an Owner role.");
-                    yield new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                }
+                case SELLER ->
+                    new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+
                 case COURIER ->
                         new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
                 default -> null;

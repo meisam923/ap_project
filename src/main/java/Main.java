@@ -29,13 +29,12 @@ public class Main {
             JpaUtil.closeEntityManagerFactory();
         }));
 
-        int port = 8080;
+        int port = 8000;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-
         try {
             server.createContext("/auth", new AuthHandler());
             server.createContext("/restaurants", new RestaurantHandler());
-        } catch ( Exception e) {
+        } catch (Exception e) {
             System.err.println("Main: Error creating AuthHandler: " + e.getMessage());
             e.printStackTrace();
             return;

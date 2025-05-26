@@ -33,12 +33,15 @@ public class RestaurantHandler implements HttpHandler {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
         String contentType = exchange.getRequestHeaders().getFirst("Content-Type");
-        if (contentType == null || !contentType.equals("application/json")) {
-            sendErrorResponse(exchange, 415, "Unsupported Media Type");
-        }
+//        if (contentType == null || !contentType.equals("application/json")) {
+//            sendErrorResponse(exchange, 415, "Unsupported Media Type");
+//        }
 
         if (method.equals("POST") && path.equals("/restaurants")) {
             createRestaurant(exchange);
+        }
+        if (method.equals("GET") && path.equals("/restaurants/mine")) {
+            getSellerRestaurant(exchange);
         }
 
     }
@@ -54,6 +57,9 @@ public class RestaurantHandler implements HttpHandler {
         if (!user.getRole().equals(Role.SELLER)) {
             sendErrorResponse(exchange, 403, "Forbidden request");
         }
+        if (((Owner)user).getRestaurant() != null) {
+            sendErrorResponse(exchange,409,"Conflict occurred");
+        }
         String jsonBody = readRequestBody(exchange);
         RestaurantDto.RegisterRestaurantDto restaurant = objectMapper.readValue(jsonBody, RestaurantDto.RegisterRestaurantDto.class);
         String json = jsonBody.toString();
@@ -64,10 +70,37 @@ public class RestaurantHandler implements HttpHandler {
         } catch (JsonSyntaxException e) {
             System.err.println("JSON Parsing Error: " + e.getMessage());
             e.printStackTrace(); // THIS IS IMPORTANT: Print the stack trace!
-            sendErrorResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
+            sendErrorResponse(exchange, 400, "Invalid input");
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, e.getMessage());
+        }
+    }
+
+    private void getSellerRestaurant(HttpExchange exchange) throws IOException {
+        String token_header = exchange.getRequestHeaders().getFirst("Authorization");
+        if (token_header == null || !token_header.startsWith("Bearer ")) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        }
+        try{
+            String token = token_header.substring(7);
+            User user = authController.requireLogin(token);
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+            }
+            Owner seller = (Owner) user;
+            Restaurant seller_restaurant=seller.getRestaurant();
+            RestaurantDto.RegisterReponseRestaurantDto restaurant=new RestaurantDto.RegisterReponseRestaurantDto(seller_restaurant.getId(),seller_restaurant.getTitle(),seller_restaurant.getAddress(),seller_restaurant.getPhone_number(),seller_restaurant.getLogoBase64(),seller_restaurant.getTax_fee(),seller_restaurant.getAdditional_fee());
+            if (restaurant==null){
+                sendErrorResponse(exchange, 400, "json/application");
+            }
+            sendResponse(exchange, 200, gson.toJson(restaurant), "application/json");
+        } catch (JsonSyntaxException e) {
+            sendErrorResponse(exchange, 400, "Invalid input");
+        }
+        catch (Exception e) {
             e.printStackTrace();
             sendErrorResponse(exchange, 500, e.getMessage());
         }
@@ -86,6 +119,7 @@ public class RestaurantHandler implements HttpHandler {
         }
         return jsonBody.toString();
     }
+
 
     private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", contentType);
