@@ -17,7 +17,7 @@ public class Customer extends User {
     @Embedded
     private Location location;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Order> ordersAssigned = new ArrayList<>();
 
     public Customer() {

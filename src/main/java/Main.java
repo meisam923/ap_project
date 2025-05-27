@@ -21,13 +21,7 @@ public class Main {
             System.err.println("Main: CRITICAL ERROR during JpaUtil/EMF initialization. Server cannot start.");
             e.printStackTrace();
             return;
-        }
-
-        // Add a shutdown hook to close EMF when JVM terminates
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Main: Shutdown hook triggered.");
-            JpaUtil.closeEntityManagerFactory();
-        }));
+        };
 
         int port = 8000;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);

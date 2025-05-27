@@ -17,7 +17,7 @@ public class Deliveryman extends User {
     @Embedded
     private Location location;
 
-    @OneToMany(mappedBy = "deliveryman", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "deliveryman", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Order> ordersAssigned = new ArrayList<>();
 
     public Deliveryman() {
