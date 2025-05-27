@@ -30,4 +30,17 @@ public class MenuDao {
             em.close();
         }
     }
+
+    public void update(Menu menu) throws Exception {
+        EntityManager em= JpaUtil.getEntityManager();
+        EntityTransaction tx=em.getTransaction();
+        try {
+            tx.begin();
+            em.merge(menu);
+            tx.commit();
+        }
+        finally {
+            em.close();
+        }
+    }
 }

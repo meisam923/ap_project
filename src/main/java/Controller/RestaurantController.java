@@ -101,13 +101,84 @@ public class RestaurantController {
              if (key==null) {throw new InvalidInputException(400, "keywords");}
          }
          Menu baseMenu =restaurant.getMenu("base");
-         Item newItem=new Item(itemDto.name(),itemDto.description(),itemDto.price(),itemDto.price(),itemDto.keywords(),itemDto.category());
+         Item newItem=new Item(itemDto.name(),itemDto.description(),itemDto.price(),itemDto.price(),itemDto.keywords(),itemDto.category(),itemDto.imageBase64());
          baseMenu.addItem(newItem);
          menuDao.save(baseMenu);
          itemDao.save(newItem);
          return new RestaurantDto.AddItemToRestaurantResponseDto(newItem.getId(),itemDto.name(),itemDto.imageBase64(),itemDto.description(),restaurant.getId(),itemDto.price(),itemDto.supply(),itemDto.keywords());
      }
 
+    public RestaurantDto.AddItemToRestaurantResponseDto editItemTORestaurant(RestaurantDto.AddItemToRestaurantDto itemDto,Restaurant restaurant,int itemID) throws Exception {
+        if (itemDto.name() == null) {
+            throw new InvalidInputException(400, "name");
+        }
+        if (itemDto.description() == null) {
+            throw new InvalidInputException(400, "description");
+        }
+        if (itemDto.price() < 0) {
+            throw new InvalidInputException(400, "price");
+        }
+        if (itemDto.supply() <= 0) {
+            throw new InvalidInputException(400, "supply");
+        }
+        for (String key : itemDto.keywords()) {
+            if (key == null) {
+                throw new InvalidInputException(400, "keywords");
+            }
+        }
+        Item item = itemDao.findById(itemID);
+        if (item == null) {
+            throw new NotFoundException(404, "Item");
+        }
+        if (!restaurant.equals(item.getRestaurant())) {
+            throw new NotFoundException(404, "Menu");
+        }
+        item.setTitle(itemDto.name());
+        item.setDescription(itemDto.description());
+        item.setPrice(itemDto.price());
+        item.setCount(itemDto.supply());
+        item.setHashtags(itemDto.keywords());
+        item.setImageBase64(itemDto.imageBase64());
+        itemDao.update(item);
+        for (Menu menu:item.getMenus()) {
+        menuDao.update(menu);}
+        return new RestaurantDto.AddItemToRestaurantResponseDto(item.getId(), itemDto.name(), itemDto.imageBase64(), itemDto.description(), restaurant.getId(), itemDto.price(), itemDto.supply(), itemDto.keywords());
+    }
+
+    public void deleteItemfromRestaurant(Restaurant restaurant,int itemId) throws Exception {
+        Item item =itemDao.findById(itemId);
+        if (item == null) {throw new NotFoundException(404, "Item");}
+        if (!restaurant.equals(item.getRestaurant())) { throw new NotFoundException(404, "Menu");}
+        for (Menu menu:item.getMenus()) {
+            menuDao.delete(menu);
+            menuDao.update(menu);
+        }
+    }
+    public void addAItemToMenu(Restaurant restaurant,String title,int itemID) throws Exception {
+        Menu menu =restaurant.getMenu(title);
+        if (menu == null) {throw new NotFoundException(404, "Menu");}
+        Item item =itemDao.findById(itemID);
+        if (item == null) {throw new NotFoundException(404, "Item");}
+        for (Menu menutmp: item.getMenus()){
+            if (menutmp.getTitle().equals(title))
+            new ConflictException(409);
+        }
+        item.addToMenu(menu);
+        menu.addItem(item);
+        itemDao.update(item);
+        menuDao.update(menu);
+        return;
+    }
+    public void deleteAItemFromMenu(Restaurant restaurant,String title,int itemID) throws Exception {
+        Menu menu =restaurant.getMenu(title);
+        if (menu == null) {throw new NotFoundException(404, "Menu");}
+        Item item =itemDao.findById(itemID);
+        if (item == null) {throw new NotFoundException(404, "Item");}
+        menu.removeItem(item);
+        item.removeFromMenu(menu);
+        itemDao.update(item);
+        menuDao.update(menu);
+    }
     public void addRestaurantObserver(RestaurantObserver o) {
         restaurantRegisterService.registerObserver(o);
     }

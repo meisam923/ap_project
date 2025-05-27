@@ -31,7 +31,8 @@ public class Item {
     @CollectionTable(name = "item_hashtags", joinColumns = @JoinColumn(name = "item_id"))
     @Column(name = "hashtag")
     private List<String> hashtags = new ArrayList<>();
-
+    @Lob
+    private String imageBase64;
 
     @Enumerated(EnumType.STRING)
     private ItemCategory category;
@@ -39,34 +40,24 @@ public class Item {
     @Embedded
     private Price price;
 
-    @OneToOne
-    @JoinColumn(name = "menu_id")
-    private Menu menu;
-    @Lob
-    private byte[] image;
+    @OneToMany
+    private List<Menu> menus = new ArrayList<>();
 
     public Item() {
     }
-
     public Item(String title,
                 String description,
                 int priceValue,
                 int count,
-                ArrayList<String> hashtags,String category) {
+                ArrayList<String> hashtags,String category,String imageBase64) {
         this.title = title;
         this.description = description;
         this.count = count;
         this.hashtags = hashtags;
         this.category=ItemCategory.valueOf(category);
         this.price = new Price(priceValue);
+        this.imageBase64 = imageBase64;
     }
-
-
-    public void setHashtags(ArrayList<String> hashtags) {
-        this.hashtags = hashtags;
-    }
-
-
     public void setPrice(int price) throws  InvalidInputException {
         if (price >= 0)
             this.price.setPrice(price);
@@ -80,9 +71,14 @@ public class Item {
     public void increaseCount(int quantity) {
         this.count += quantity;
     }
-
-    public void setHashtags(List<String> hashtags) {
-        this.hashtags = hashtags;
+    public Restaurant getRestaurant() {
+        return this.menus.getFirst().getRestaurant();
+    }
+    public void addToMenu(Menu menu) {
+        menus.add(menu);
+    }
+    public void removeFromMenu(Menu menu) {
+        menus.remove(menu);
     }
 
 }
