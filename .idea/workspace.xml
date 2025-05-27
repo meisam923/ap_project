@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="">
+    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="all">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Controller/RestaurantController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controller/RestaurantController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Handler/RestaurantHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Handler/RestaurantHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dao/RestaurantDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/RestaurantDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aut_food.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aut_food.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Handler/AuthHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Handler/AuthHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/persistence.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/persistence.xml" afterDir="false" />
+
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +22,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
+        <option value="Exception" />
+
       </list>
     </option>
   </component>
@@ -36,12 +41,16 @@
     &quot;assignee&quot;: &quot;rezaj123&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/meisam923/ap_project.git",
-    "accountId": "e8491cc7-8b64-4ebe-b9bc-af0cce7314ec"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/meisam923/ap_project.git&quot;,
+    &quot;accountId&quot;: &quot;b8f79daa-7990-40cc-842b-5b5ef10910e5&quot;
   }
-}]]></component>
+}</component>
+  <component name="HttpClientSelectedEnvironments">
+    <file url="file://$USER_HOME$/AppData/Local/Temp/whats-new-dir/whats-new.http" environment="test" />
+  </component>
+
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -59,10 +68,12 @@
   "keyToString": {
     "Application.Main.executor": "Run",
     "Application.Unnamed.executor": "Run",
+    "HTTP Request.generated-requests | #1.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "new",
     "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Users/USER/IdeaProjects/ap_project",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -71,11 +82,11 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "project.propCompiler",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
       <envs>
         <env name="my-very-secret-key" value="MySuperLongAndVerySecureSecretKeyForMyUberEatsApp1234567890!@#$%" />
@@ -87,6 +98,14 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="generated-requests | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#1" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="HTTP Request.generated-requests | #1" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -105,22 +124,39 @@
       <updated>1748233095700</updated>
       <workItem from="1748233097294" duration="239000" />
       <workItem from="1748233353861" duration="2536000" />
-      <workItem from="1748276148494" duration="10435000" />
+      <workItem from="1748241940801" duration="3626000" />
+      <workItem from="1748245617475" duration="3028000" />
+      <workItem from="1748254226965" duration="321000" />
+      <workItem from="1748254601969" duration="4189000" />
+      <workItem from="1748311938802" duration="9211000" />
+      <workItem from="1748329442899" duration="2645000" />
+
     </task>
+    <task id="LOCAL-00001" summary="all">
+      <option name="closed" value="true" />
+      <created>1748248639512</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1748248639512</updated>
+    </task>
+    <task id="LOCAL-00002" summary="all">
+      <option name="closed" value="true" />
+      <created>1748321183740</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1748321183740</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/Handler/RestaurantHandler.java</url>
-          <line>262</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="finally" />
+    <MESSAGE value="all" />
+    <option name="LAST_COMMIT_MESSAGE" value="all" />
   </component>
 </project>

@@ -103,7 +103,7 @@ public class UserService {
     }
 
 
-    public boolean updateBasicProfile(@NotNull User user, String fullName, String phoneNumber, String email, String password) {
+    public boolean updateBasicProfile(@NotNull User user, String fullName, String phoneNumber, String email, String profileImageBase64,String bankName, String accountNumber) {
         boolean changed = false;
         if (fullName != null && !fullName.isBlank() && !fullName.equals(user.getFullName())) {
             user.setFullName(fullName);
@@ -125,8 +125,17 @@ public class UserService {
             user.setEmail(email);
             changed = true;
         }
-        if (password != null && !password.isBlank()) {
-            user.setPassword(password);
+
+        if (bankName != null && !bankName.isBlank() && !bankName.equals(user.getBankName())) {
+            user.setBankName(bankName);
+            changed = true;
+        }
+        if (accountNumber != null && !accountNumber.isBlank() && !accountNumber.equals(user.getAccountNumber())) {
+            user.setAccountNumber(accountNumber);
+            changed = true;
+        }
+        if (profileImageBase64 != null && !profileImageBase64.isBlank()) {
+            user.setProfileImageBase64(profileImageBase64);
             changed = true;
         }
 
@@ -198,21 +207,26 @@ public class UserService {
                 String bankName,
                 String accountNumber,
                 String address,
-                Restaurant restaurant,
                 String profileImageBase64
         ) {
-            if (email == null || email.isBlank() || password == null || password.isBlank()) {
-                throw new IllegalArgumentException("Email and password are required for user creation.");
+            if (fullName == null || fullName.isBlank()) {
+                throw new IllegalArgumentException("Full name is required for user creation.");
             }
-
+            if (phoneNumber == null || phoneNumber.isBlank()) {
+                throw new IllegalArgumentException("Phone number is required for user creation.");
+            }
+            if (password == null || password.isBlank()) {
+                throw new IllegalArgumentException("Password is required for user creation.");
+            }
+            if (address == null || address.isBlank()) {
+                throw new IllegalArgumentException("Address is required for user creation.");
+            }
             return switch (role) {
                 case BUYER -> new Customer(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                case SELLER ->
-                    new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+                case SELLER -> new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber); 
+                case COURIER -> new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+                default -> throw new IllegalArgumentException("Unsupported role: " + role); 
 
-                case COURIER ->
-                        new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                default -> null;
             };
         }
     }
