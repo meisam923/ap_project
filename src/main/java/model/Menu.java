@@ -12,7 +12,7 @@ import lombok.Setter;
 @Entity
 public class Menu {
 
-
+    private String title;
     @OneToMany
     private List<Item> items = new ArrayList<>();
 
@@ -21,7 +21,14 @@ public class Menu {
     private Restaurant restaurant;
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
+
+    public Menu(Restaurant restaurant,String title) {
+        this.restaurant = restaurant;
+        this.title = title;
+    }
+
+    protected Menu() {}
 
     public void addItem(Item item) {
         items.add(item);

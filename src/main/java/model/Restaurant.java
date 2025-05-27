@@ -39,8 +39,8 @@ public class Restaurant {
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
-    @OneToOne
-    private Menu menu;
+    @OneToMany
+    private ArrayList<Menu> menus = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
@@ -61,12 +61,32 @@ public class Restaurant {
         this.title = title;
         this.owner = owner;
         this.status = RestaurantStatus.WAITING;
-
+        Menu base = new Menu(this,"base");
+        menus.add(base);
     }
 
     public Restaurant() { // used for testing
         address = null;
         location = new Location(0,0);
+    }
+
+    public void addMenu(Menu menu){
+        menus.add(menu);
+    }
+    public Menu getMenu(String title){
+        for (Menu menu : menus){
+            if (menu.getTitle().equals(title)){
+                return menu;
+            }
+        }
+        return null;
+    }
+    public void removeMenu(String title){
+        for (Menu menu:menus){
+            if (menu.getTitle().equals(title)){
+                menus.remove(menu);
+            }
+        }
     }
 
 

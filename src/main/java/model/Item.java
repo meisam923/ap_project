@@ -1,6 +1,7 @@
 package model;
 
 import enums.ItemCategory;
+import exception.InvalidInputException;
 import exception.NotAcceptableException;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     private String title;
     @Column (columnDefinition = "TEXT")
@@ -51,34 +52,26 @@ public class Item {
                 String description,
                 int priceValue,
                 int count,
-                ArrayList<String> hashtags,
-                ItemCategory category) throws NotAcceptableException {
-        validateField(title, description, priceValue, count, hashtags);
+                ArrayList<String> hashtags,String category) {
         this.title = title;
         this.description = description;
         this.count = count;
         this.hashtags = hashtags;
-        this.category = category;
+        this.category=ItemCategory.valueOf(category);
         this.price = new Price(priceValue);
     }
 
-    public static void validateField(String title, String description, int price, int count, ArrayList<String> hashtags) throws NotAcceptableException {
-        if (title == null || price <= 0 || count < 0 || hashtags == null ||
-                (!title.matches("(?i)^[a-z]{1,20}$") ||
-                        (!description.matches("(?i)^[a-z]{0,50}$"))))
-            throw new NotAcceptableException("invalid field");
-    }
 
     public void setHashtags(ArrayList<String> hashtags) {
         this.hashtags = hashtags;
     }
 
 
-    public void setPrice(int price) throws NotAcceptableException {
+    public void setPrice(int price) throws  InvalidInputException {
         if (price >= 0)
             this.price.setPrice(price);
         else
-            throw new NotAcceptableException("invalid argument");
+            throw new InvalidInputException(400,"invalid price");
     }
 
     public void decreaseCount(int quantity) {
@@ -90,11 +83,6 @@ public class Item {
 
     public void setHashtags(List<String> hashtags) {
         this.hashtags = hashtags;
-    }
-
-
-    public void setPrice(Price price) {
-        this.price = price;
     }
 
 }

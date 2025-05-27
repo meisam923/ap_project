@@ -1,7 +1,6 @@
 package dao;
 
 import jakarta.persistence.*;
-import model.Customer;
 import model.Restaurant;
 import util.JpaUtil;
 
