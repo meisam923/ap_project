@@ -360,7 +360,6 @@ public class AuthHandler implements HttpHandler {
         }
     }
 
-    // handleGetProfile method
     private void handleGetProfile(HttpExchange exchange) throws IOException {
         try {
             String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
