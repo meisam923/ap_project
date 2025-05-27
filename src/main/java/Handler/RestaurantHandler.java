@@ -194,12 +194,7 @@ public class RestaurantHandler implements HttpHandler {
 
     private void getSellerRestaurantAction(HttpExchange exchange) {
         try {
-            String token_header = exchange.getRequestHeaders().getFirst("Authorization");
-            if (token_header == null || !token_header.startsWith("Bearer ")) {
-                sendErrorResponse(exchange, 401, "Unauthorized request"); return;
-            }
-            String token = token_header.substring(7);
-            User user = authController.requireLogin(token);
+            User user = getUserFromToken(exchange);
             if (!user.getRole().equals(Role.SELLER)) {
                 sendErrorResponse(exchange, 403, "Forbidden request"); return;
             }
@@ -213,7 +208,9 @@ public class RestaurantHandler implements HttpHandler {
                     seller_restaurant.getPhone_number(), seller_restaurant.getLogoBase64(),
                     seller_restaurant.getTax_fee(), seller_restaurant.getAdditional_fee()
             );
-            sendResponse(exchange, 200, gson.toJson(restaurantDto), "application/json");
+            List<RestaurantDto.RegisterReponseRestaurantDto> list=new ArrayList<>();
+            list.add(restaurantDto);
+            sendResponse(exchange, 200, gson.toJson(list), "application/json");
         } catch (IOException e) {
             System.err.println("IOException in getSellerRestaurantAction: " + e.getMessage()); e.printStackTrace();
         } catch (Exception e) {
@@ -224,16 +221,12 @@ public class RestaurantHandler implements HttpHandler {
 
     private void updateRestaurantAction(HttpExchange exchange, String restaurantId) {
         try {checkMediaType(exchange);
-            String token_header = exchange.getRequestHeaders().getFirst("Authorization");
-            if (token_header == null || !token_header.startsWith("Bearer ")) {
-                sendErrorResponse(exchange, 401, "Unauthorized request"); return;
-            }
-            String token = token_header.substring(7);
-            User user = authController.requireLogin(token);
+            int restaurant_id = extractInteger(restaurantId);
+            User user = getUserFromToken(exchange);
             if (!user.getRole().equals(Role.SELLER)) {
                 sendErrorResponse(exchange, 403, "Forbidden request"); return;
             }
-            if (((Owner)user).getRestaurant() == null) {
+            if (((Owner)user).getRestaurant() == null || ((Owner)user).getRestaurant().getId()!=restaurant_id) {
                 sendErrorResponse(exchange,404,"Conflict occurred: Seller does not have a restaurant"); return;
             }
 //            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
@@ -389,6 +382,13 @@ public class RestaurantHandler implements HttpHandler {
             throw new InvalidInputException(415, "Unsupported Media Type");
         }
     }
+    private int extractInteger(String str) throws InvalidInputException {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(400, "Invalid id");
+        }
+    }
 
     private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", contentType);
@@ -399,6 +399,15 @@ public class RestaurantHandler implements HttpHandler {
         }
     }
 
+    private User getUserFromToken(HttpExchange exchange)throws AuthController.AuthenticationException {
+        String token_header = exchange.getRequestHeaders().getFirst("Authorization");
+        if (token_header == null || !token_header.startsWith("Bearer ")) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+            return null;
+        }
+        String token = token_header.substring(7);
+        return authController.requireLogin(token);
+    }
     private void sendErrorResponse(HttpExchange exchange, int statusCode, String errorMessage)  {
 
         // To ensure the errorMessage itself is a valid JSON string value if it contains quotes
