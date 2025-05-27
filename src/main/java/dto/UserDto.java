@@ -56,7 +56,7 @@ public class UserDto {
             @JsonProperty("email") String email,
             @JsonProperty("address") String address,
             @JsonProperty("profileImageBase64") String profileImageBase64,
-            @JsonProperty("bank_info") RegisterRequestDTO.BankInfoDTO bankInfo // Refers to UserDto.BankInfoDTO
+            @JsonProperty("bank_info") RegisterRequestDTO.BankInfoDTO bankInfo
     ) {}
     public record MessageResponseDTO(
             @JsonProperty("message") String message
