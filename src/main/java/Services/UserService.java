@@ -223,9 +223,10 @@ public class UserService {
             }
             return switch (role) {
                 case BUYER -> new Customer(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                case SELLER -> new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber); // Restaurant to be set via setter later
+                case SELLER -> new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber); 
                 case COURIER -> new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                default -> throw new IllegalArgumentException("Unsupported role: " + role); // Ensures a User is always returned or an exception is thrown
+                default -> throw new IllegalArgumentException("Unsupported role: " + role); 
+
             };
         }
     }

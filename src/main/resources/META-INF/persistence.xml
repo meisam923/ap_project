@@ -20,7 +20,6 @@
             <property name="jakarta.persistence.jdbc.password" value="newpassword"/>
 
 
-
             <property name="hibernate.dialect"
                       value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.hbm2ddl.auto"

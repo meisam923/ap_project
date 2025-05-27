@@ -21,12 +21,12 @@ public class Restaurant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @Embedded
     private String  address;// human-readable address (not used for distance)
     @Embedded
-    private final Location location;// a coordinate system
+    private Location location;// a coordinate system
 
     @SerializedName("phone")
     @Column (unique = true)
@@ -54,14 +54,12 @@ public class Restaurant {
 
     private String logoBase64;
 
-    public Restaurant(String address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
+    public Restaurant(String address, String phone_number, String title, Owner owner)  {
         //validateField(address, location, phone_number, title, owner, category);
         this.address = address;
-        this.location = location;
         this.phone_number = phone_number;
         this.title = title;
         this.owner = owner;
-        this.category = RestaurantCategory.buildCategory(category);
         this.status = RestaurantStatus.WAITING;
 
     }

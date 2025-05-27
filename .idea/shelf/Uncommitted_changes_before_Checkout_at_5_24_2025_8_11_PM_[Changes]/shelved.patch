@@ -1,0 +1,51 @@
+Index: src/main/java/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import com.sun.net.httpserver.HttpServer;\r\nimport dao.RestaurantDao;\r\nimport dao.UserDao;\r\nimport enums.RestaurantCategory;\r\nimport exception.NotAcceptableException;\r\nimport handler.HelloHandler;\r\nimport jakarta.persistence.*;\r\nimport model.*;\r\n\r\nimport java.io.IOException;\r\nimport java.net.InetSocketAddress;\r\nimport java.time.LocalTime;\r\n\r\npublic class Main {\r\n    public static void main(String[] args) throws IOException {\r\n\r\n        int port = 8000;\r\n        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);\r\n\r\n        // Register handler at /hello\r\n        server.createContext(\"/hello\", new HelloHandler());\r\n\r\n        server.setExecutor(null); // uses default executor\r\n        server.start();\r\n        System.out.println(\"Server is running at http://localhost:\" + port + \"/hello\");\r\n\r\n\r\n        /*EntityManagerFactory emf = Persistence.createEntityManagerFactory(\"MyPU\");\r\n        EntityManager em = emf.createEntityManager();\r\n        try {\r\n            em.getTransaction().begin();\r\n\r\n            Customer customer = new Customer(\r\n                    \"Ali\", \"Rezai\",\r\n                    \"09121234561117\",\r\n                    \"alaaaa@gmail.com\",\r\n                    \"my_password\",\r\n                    new Address(\"1231\", \"131\"),\r\n                    new Location(123, 123)\r\n            );\r\n            customer.setLocation(new Location(35.7, 51.4));\r\n            customer.setAddress(new Address(\"Tehran12345\", \"Home\"));\r\n            em.merge(customer);\r\n\r\n\r\n            UserDao userDao = new UserDao();\r\n            User us=userDao.findUserByEmail(\"seyedmohammadrezahamidi@gmail.com\");\r\n            RestaurantDao restaurantDao = new RestaurantDao();\r\n            Restaurant rs=restaurantDao.findByOwnerId(((Owner)us).getId());\r\n            rs.setPhone_number(\"09998765432\");\r\n            LocalTime start = LocalTime.of(12,15);\r\n            LocalTime end = LocalTime.of(14,15);\r\n            if (rs.setPeriod(start, end))\r\n                System.out.println(\"set\");\r\n            restaurantDao.update(rs);\r\n\r\n            Restaurant sampleRestaurant = new Restaurant (new Address(\"tst\",\"tst\"),new Location(90,90),\"09903099157\",\"kababi\",owner, \"Cafe\");\r\n\r\n           restaurantDao.save(sampleRestaurant);\r\n            owner.setRestaurant(sampleRestaurant);\r\n            em.merge(owner);\r\n\r\n            em.getTransaction().commit();\r\n            System.out.println(\"\\nAll Users in DB:\");\r\n            TypedQuery<User> q = em.createQuery(\"SELECT u FROM User u\", User.class);\r\n            for (User u : q.getResultList()) {\r\n                System.out.printf(\"- %s: %s %s (%s)%n\",\r\n                        u.getRole(), u.getFirstName(), u.getLastName(), u.getEmail());\r\n            }\r\n        } catch (NotAcceptableException e) {\r\n            System.err.println(e.getMessage());\r\n        } finally {\r\n            if (em.getTransaction().isActive()) {\r\n                em.getTransaction().rollback();\r\n            }\r\n            em.close();\r\n            emf.close();\r\n        }*/\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/Main.java b/src/main/java/Main.java
+--- a/src/main/java/Main.java	(revision 7929580b634c1490ab9115764f61e4c8d85231d5)
++++ b/src/main/java/Main.java	(date 1748104852229)
+@@ -19,7 +19,7 @@
+ 
+         // Register handler at /hello
+         server.createContext("/hello", new HelloHandler());
+-
++        
+         server.setExecutor(null); // uses default executor
+         server.start();
+         System.out.println("Server is running at http://localhost:" + port + "/hello");
+Index: src/main/java/handler/RestaurantHandler.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package handler;\r\n\r\nimport com.google.gson.Gson;\r\nimport com.google.gson.JsonSyntaxException;\r\nimport com.sun.net.httpserver.HttpExchange;\r\nimport com.sun.net.httpserver.HttpHandler;\r\nimport controller.RestaurantController;\r\nimport exception.InvalidInputException;\r\nimport model.Restaurant;\r\n\r\nimport java.io.BufferedReader;\r\nimport java.io.IOException;\r\nimport java.io.InputStream;\r\nimport java.io.InputStreamReader;\r\nimport java.io.OutputStream;\r\n\r\npublic class RestaurantHandler implements HttpHandler {\r\n    private RestaurantController restaurantController=new RestaurantController();\r\n\r\n\r\n    @Override\r\n    public void handle (HttpExchange exchange ) throws IOException {\r\n        String method = exchange.getRequestMethod();\r\n        String path = exchange.getRequestURI().getPath();\r\n        String contentType = exchange.getRequestHeaders().getFirst(\"Content-Type\");\r\n        if (contentType == null || !contentType.equals(\"application/json\")) {\r\n            sendErrorResponse(exchange, 415, \"Unsupported Media Type\");\r\n        }\r\n\r\n        if (method.equals(\"POST\") && path.equals(\"/restaurants\")) {\r\n            createRestaurant(exchange);\r\n        }\r\n\r\n    }\r\n    private void createRestaurant(HttpExchange exchange) throws IOException {\r\n        StringBuilder jsonBody = new StringBuilder();\r\n        try (BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))) {\r\n            String line;\r\n            while ((line = reader.readLine()) != null) {\r\n                jsonBody.append(line);\r\n            }\r\n        } catch (IOException e) {\r\n            sendErrorResponse(exchange, 500, \"Error reading request body: \" + e.getMessage());\r\n            return;\r\n        }\r\n        String json = jsonBody.toString();\r\n        System.out.println(\"Received JSON: \" + json);\r\n        String response = \"\";\r\n        Restaurant restaurant = null;\r\n        try{\r\n        restaurant= new Gson().fromJson(json, Restaurant.class);\r\n            response=restaurantController.createRestaurant(restaurant);\r\n            System.out.println(\"Created restaurant \" + restaurant.getTitle());\r\n        }\r\n        catch (JsonSyntaxException e)\r\n        {\r\n            // Specific catch for GSON parsing errors\r\n            System.err.println(\"JSON Parsing Error: \" + e.getMessage());\r\n            e.printStackTrace(); // THIS IS IMPORTANT: Print the stack trace!\r\n            sendErrorResponse(exchange, 400, \"Invalid JSON format: \" + e.getMessage());\r\n        }catch (InvalidInputException e) {\r\n            sendErrorResponse(exchange,e.getStatusCode(), e.getMessage());\r\n            System.out.println(\"Restaurant \" + restaurant.getTitle() + \" is invalid\");\r\n        }\r\n        catch (Exception e) {\r\n            sendErrorResponse(exchange, 500, e.getMessage());\r\n        }\r\n        sendResponse(exchange,201,response,\"application/json\");\r\n\r\n    }\r\n    private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {\r\n        exchange.getResponseHeaders().set(\"Content-Type\", contentType);\r\n        exchange.sendResponseHeaders(statusCode, responseBody.getBytes().length);\r\n        try (OutputStream os = exchange.getResponseBody()) {\r\n            os.write(responseBody.getBytes());\r\n        }\r\n    }\r\n\r\n    private void sendErrorResponse(HttpExchange exchange, int statusCode, String errorMessage) throws IOException {\r\n        String jsonError = String.format(\"{ \\\"error\\\": \\\"%s\\\" }\", errorMessage);\r\n        sendResponse(exchange, statusCode, jsonError, \"application/json\");\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/handler/RestaurantHandler.java b/src/main/java/handler/RestaurantHandler.java
+--- a/src/main/java/handler/RestaurantHandler.java	(revision 7929580b634c1490ab9115764f61e4c8d85231d5)
++++ b/src/main/java/handler/RestaurantHandler.java	(date 1748104681004)
+@@ -1,10 +1,11 @@
+ package handler;
+ 
++import Controller.RestaurantController;
+ import com.google.gson.Gson;
+ import com.google.gson.JsonSyntaxException;
+ import com.sun.net.httpserver.HttpExchange;
+ import com.sun.net.httpserver.HttpHandler;
+-import controller.RestaurantController;
++
+ import exception.InvalidInputException;
+ import model.Restaurant;
+ 
+@@ -15,7 +16,7 @@
+ import java.io.OutputStream;
+ 
+ public class RestaurantHandler implements HttpHandler {
+-    private RestaurantController restaurantController=new RestaurantController();
++    private Controller.RestaurantController restaurantController=new RestaurantController();
+ 
+ 
+     @Override
