@@ -115,7 +115,7 @@ public class AuthController {
     }
 
     public Optional<User> register(Role role, String fullName, String phoneNumber, String email, String password,
-                                   String address, Restaurant restaurant, String profileImageBase64,
+                                   String address, String profileImageBase64,
                                    String bankName, String accountNumber) {
         if (email != null && !email.isBlank() && userService.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already exists: " + email);
@@ -127,7 +127,7 @@ public class AuthController {
         User user;
         try {
             user = UserService.UserFactory.createUser(role, fullName, phoneNumber, email, password,
-                    bankName, accountNumber, address, restaurant, profileImageBase64);
+                    bankName, accountNumber, address, profileImageBase64);
         } catch (IllegalArgumentException e) {
             throw e;
         }

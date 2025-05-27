@@ -207,22 +207,25 @@ public class UserService {
                 String bankName,
                 String accountNumber,
                 String address,
-                Restaurant restaurant,
                 String profileImageBase64
         ) {
-            if (email == null || email.isBlank() || password == null || password.isBlank()) {
-                throw new IllegalArgumentException("Email and password are required for user creation.");
+            if (fullName == null || fullName.isBlank()) {
+                throw new IllegalArgumentException("Full name is required for user creation.");
             }
-
+            if (phoneNumber == null || phoneNumber.isBlank()) {
+                throw new IllegalArgumentException("Phone number is required for user creation.");
+            }
+            if (password == null || password.isBlank()) {
+                throw new IllegalArgumentException("Password is required for user creation.");
+            }
+            if (address == null || address.isBlank()) {
+                throw new IllegalArgumentException("Address is required for user creation.");
+            }
             return switch (role) {
                 case BUYER -> new Customer(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                case SELLER -> {
-                    if (restaurant == null) throw new IllegalArgumentException("Restaurant is required for an Owner role.");
-                    yield new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                }
-                case COURIER ->
-                        new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
-                default -> null;
+                case SELLER -> new Owner(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber); // Restaurant to be set via setter later
+                case COURIER -> new Deliveryman(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+                default -> throw new IllegalArgumentException("Unsupported role: " + role); // Ensures a User is always returned or an exception is thrown
             };
         }
     }

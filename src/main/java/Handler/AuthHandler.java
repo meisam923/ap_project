@@ -257,7 +257,6 @@ public class AuthHandler implements HttpHandler {
                     requestDto.email(),
                     requestDto.password(),
                     requestDto.address(),
-                    null,
                     requestDto.profileImageBase64(),
                     requestDto.bankInfo() != null ? requestDto.bankInfo().bankName() : null,
                     requestDto.bankInfo() != null ? requestDto.bankInfo().accountNumber() : null
