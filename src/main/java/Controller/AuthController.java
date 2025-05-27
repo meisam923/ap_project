@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-
 public class AuthController {
 
     private static AuthController instance;
@@ -38,6 +37,11 @@ public class AuthController {
             instance = new AuthController();
         }
         return instance;
+    }
+
+    public void logoutUser(String accessToken) throws AuthenticationException {
+        User user = requireLogin(accessToken);
+        refreshTokenDao.deleteByUser(user);
     }
 
     public Optional<LoginResponsePayload> login(String identifier, String password, boolean isEmail) {
@@ -185,11 +189,11 @@ public class AuthController {
         return userService.removeUser(user);
     }
 
-    public boolean editProfile(String accessToken, String fullName, String phoneNumber, String email, String password,
-                               String address, Location location) throws AuthenticationException {
+    public boolean editProfile(String accessToken, String fullName, String phoneNumber, String email,
+                               String address, String profileImageBase64, String bankName, String accountNumber, Location location) throws AuthenticationException {
         User user = requireLogin(accessToken);
 
-        boolean basicUpdated = userService.updateBasicProfile(user, fullName, phoneNumber, email, password);
+        boolean basicUpdated = userService.updateBasicProfile(user, fullName, phoneNumber, email, profileImageBase64, bankName, accountNumber);
         boolean specificUpdated = false;
 
         switch (user.getRole()) {
@@ -228,20 +232,30 @@ public class AuthController {
     public void registerLoginObserver(LoginObserver obs) {
         if (obs != null && !loginObservers.contains(obs)) loginObservers.add(obs);
     }
+
     public void registerSignUpObserver(SignUpObserver obs) {
         if (obs != null && !signUpObservers.contains(obs)) signUpObservers.add(obs);
     }
+
     public void registerForgetPasswordObserver(ForgetPasswordObserver obs) {
         if (obs != null && !forgetPasswordObservers.contains(obs)) forgetPasswordObservers.add(obs);
     }
 
-    public record LoginResponsePayload(String accessToken, String refreshToken, User user) {}
-    private record PasswordResetTokenInfo(String code, LocalDateTime expiryTime, String userPublicId) {}
+    public record LoginResponsePayload(String accessToken, String refreshToken, User user) {
+    }
+
+    private record PasswordResetTokenInfo(String code, LocalDateTime expiryTime, String userPublicId) {
+    }
 
     public static class AuthenticationException extends RuntimeException {
-        public AuthenticationException(String message) { super(message); }
+        public AuthenticationException(String message) {
+            super(message);
+        }
     }
+
     public static class UserNotFoundException extends RuntimeException {
-        public UserNotFoundException(String message) { super(message); }
+        public UserNotFoundException(String message) {
+            super(message);
+        }
     }
 }

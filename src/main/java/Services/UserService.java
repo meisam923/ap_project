@@ -103,7 +103,7 @@ public class UserService {
     }
 
 
-    public boolean updateBasicProfile(@NotNull User user, String fullName, String phoneNumber, String email, String password) {
+    public boolean updateBasicProfile(@NotNull User user, String fullName, String phoneNumber, String email, String profileImageBase64,String bankName, String accountNumber) {
         boolean changed = false;
         if (fullName != null && !fullName.isBlank() && !fullName.equals(user.getFullName())) {
             user.setFullName(fullName);
@@ -125,8 +125,17 @@ public class UserService {
             user.setEmail(email);
             changed = true;
         }
-        if (password != null && !password.isBlank()) {
-            user.setPassword(password);
+
+        if (bankName != null && !bankName.isBlank() && !bankName.equals(user.getBankName())) {
+            user.setBankName(bankName);
+            changed = true;
+        }
+        if (accountNumber != null && !accountNumber.isBlank() && !accountNumber.equals(user.getAccountNumber())) {
+            user.setAccountNumber(accountNumber);
+            changed = true;
+        }
+        if (profileImageBase64 != null && !profileImageBase64.isBlank()) {
+            user.setProfileImageBase64(profileImageBase64);
             changed = true;
         }
 
