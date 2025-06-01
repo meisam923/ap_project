@@ -18,12 +18,15 @@ public class MenuDao {
         }
     }
 
-    public void delete(Menu menu) throws Exception {
+    public void delete(int menuId) throws Exception {
         EntityManager em= JpaUtil.getEntityManager();
         EntityTransaction tx=em.getTransaction();
         try {
             tx.begin();
-            em.remove(menu);
+            Menu menu=em.find(Menu.class, menuId);
+            if (menu!=null){
+                em.remove(menu);
+            }
             tx.commit();
         }
         finally {

@@ -15,6 +15,8 @@ import exception.NotFoundException;
 import model.*;
 import observers.RestaurantObserver;
 
+import java.util.Iterator;
+
 //user dao is now not used anymore, instead we use dedicated daos for different user types
 
 public class RestaurantController {
@@ -29,7 +31,7 @@ public class RestaurantController {
         userService = UserService.getInstance();
     }
 
-    public RestaurantDto.RegisterReponseRestaurantDto createRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws  InvalidInputException {
+    public RestaurantDto.RegisterReponseRestaurantDto createRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws  InvalidInputException,Exception {
         if (restaurant.name()== null) {
             throw new InvalidInputException(400, "name");
         }
@@ -42,7 +44,7 @@ public class RestaurantController {
         if (restaurantDao.findByPhone(restaurant.phone())!=null || userService.findByPhone(restaurant.phone())!=null ) {
             new AlreadyExistValueException(409, "phone");
         }
-        Restaurant newRestaurant = new Restaurant(restaurant.address(),restaurant.phone(),restaurant.name(),owner);
+        Restaurant newRestaurant = new Restaurant(restaurant.address(),restaurant.phone(),restaurant.name(),owner,restaurant.tax_fee(),restaurant.additional_fee(),restaurant.logaBase64());
         owner.setRestaurant(newRestaurant);
         restaurantDao.save(newRestaurant);
         return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
@@ -61,7 +63,7 @@ public class RestaurantController {
              new AlreadyExistValueException(409, "phone");
          }
          Restaurant res=owner.getRestaurant();
-         res.setPhone_number(restaurant.phone()); res.setAddress(restaurant.address()); res.setTitle(restaurant.name()); res.setAdditional_fee(restaurant.additional_fee()); res.setTax_fee(restaurant.tax_fee());
+         res.setPhone_number(restaurant.phone()); res.setAddress(restaurant.address()); res.setTitle(restaurant.name()); res.setAdditional_fee(restaurant.additional_fee()); res.setTax_fee(restaurant.tax_fee()); res.setLogoBase64(restaurant.logaBase64());
          restaurantDao.update(res);
          return new RestaurantDto.RegisterReponseRestaurantDto(res.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
 
@@ -80,16 +82,22 @@ public class RestaurantController {
      }
 
      public void deleteMenoFromRestaurant (Restaurant restaurant,String title) throws Exception {
-        Menu currentMenu =null;
-        for (Menu menu:restaurant.getMenus()) {
-             if (menu.getTitle().equals(title)) {
-                 currentMenu = menu;
+         Menu currentMenu = null;
+         Iterator<Menu> menuIterator = restaurant.getMenus().iterator();
+         while (menuIterator.hasNext()) {
+             currentMenu = menuIterator.next();
+             if (currentMenu.getTitle().equals(title)) {
                  restaurant.removeMenu(title);
-                 menuDao.delete(currentMenu);
+                 menuDao.delete(currentMenu.getId());
                  restaurantDao.update(restaurant);
+                 return ;
              }
+             currentMenu=null;
+
          }
-        if (currentMenu==null){ throw new NotFoundException(404,"Menu"); }
+             if (currentMenu == null) {
+                 throw new NotFoundException(404, "Menu");
+             }
      }
 
      public RestaurantDto.AddItemToRestaurantResponseDto addItemTORestaurant(RestaurantDto.AddItemToRestaurantDto itemDto,Restaurant restaurant) throws Exception {
@@ -101,10 +109,11 @@ public class RestaurantController {
              if (key==null) {throw new InvalidInputException(400, "keywords");}
          }
          Menu baseMenu =restaurant.getMenu("base");
-         Item newItem=new Item(itemDto.name(),itemDto.description(),itemDto.price(),itemDto.price(),itemDto.keywords(),itemDto.category(),itemDto.imageBase64());
-         baseMenu.addItem(newItem);
-         menuDao.save(baseMenu);
+         Item newItem=new Item(itemDto.name(),itemDto.description(),itemDto.price(),itemDto.supply(),itemDto.keywords(),itemDto.imageBase64());
          itemDao.save(newItem);
+         baseMenu.addItem(newItem);
+         newItem.addToMenu(baseMenu);
+         itemDao.update(newItem); menuDao.update(baseMenu);
          return new RestaurantDto.AddItemToRestaurantResponseDto(newItem.getId(),itemDto.name(),itemDto.imageBase64(),itemDto.description(),restaurant.getId(),itemDto.price(),itemDto.supply(),itemDto.keywords());
      }
 
@@ -130,7 +139,7 @@ public class RestaurantController {
         if (item == null) {
             throw new NotFoundException(404, "Item");
         }
-        if (!restaurant.equals(item.getRestaurant())) {
+        if (restaurant.getId()!=item.getRestaurant().getId()) {
             throw new NotFoundException(404, "Menu");
         }
         item.setTitle(itemDto.name());
@@ -148,11 +157,12 @@ public class RestaurantController {
     public void deleteItemfromRestaurant(Restaurant restaurant,int itemId) throws Exception {
         Item item =itemDao.findById(itemId);
         if (item == null) {throw new NotFoundException(404, "Item");}
-        if (!restaurant.equals(item.getRestaurant())) { throw new NotFoundException(404, "Menu");}
+        if (restaurant.getId()!=item.getRestaurant().getId()) { throw new NotFoundException(404, "Menu");}
         for (Menu menu:item.getMenus()) {
-            menuDao.delete(menu);
+            menu.removeItem(item.getId());
             menuDao.update(menu);
         }
+        itemDao.delete(itemId);
     }
     public void addAItemToMenu(Restaurant restaurant,String title,int itemID) throws Exception {
         Menu menu =restaurant.getMenu(title);
@@ -161,12 +171,11 @@ public class RestaurantController {
         if (item == null) {throw new NotFoundException(404, "Item");}
         for (Menu menutmp: item.getMenus()){
             if (menutmp.getTitle().equals(title))
-            new ConflictException(409);
+            throw new ConflictException(409);
         }
         item.addToMenu(menu);
         menu.addItem(item);
         itemDao.update(item);
-        menuDao.update(menu);
         return;
     }
     public void deleteAItemFromMenu(Restaurant restaurant,String title,int itemID) throws Exception {
@@ -174,9 +183,8 @@ public class RestaurantController {
         if (menu == null) {throw new NotFoundException(404, "Menu");}
         Item item =itemDao.findById(itemID);
         if (item == null) {throw new NotFoundException(404, "Item");}
-        menu.removeItem(item);
-        item.removeFromMenu(menu);
-        itemDao.update(item);
+        menu.removeItem(item.getId());
+        item.removeFromMenu(menu.getId());
         menuDao.update(menu);
     }
     public void addRestaurantObserver(RestaurantObserver o) {

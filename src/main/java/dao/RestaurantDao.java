@@ -6,16 +6,13 @@ import util.JpaUtil;
 
 public class RestaurantDao {
 
-    public void save(Restaurant restaurant)  {
+    public void save(Restaurant restaurant) throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
             em.persist(restaurant);
             tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
         } finally {
             em.close();
         }

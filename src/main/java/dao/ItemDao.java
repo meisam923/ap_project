@@ -19,17 +19,20 @@ public class ItemDao {
             em.close();
         }
     }
-    public Item findById(int l) throws Exception {
+    public Item findById(int id) throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
-        Item item = null;
         try {
-            item = em.find(Item.class, l);
-        } catch (Exception e){
-            e.printStackTrace();
+            return em.createQuery(
+                            "SELECT DISTINCT i FROM Item i " +
+                                    "LEFT JOIN FETCH i.menus m " +
+                                    "LEFT JOIN FETCH m.restaurant " +
+                                    "WHERE i.id = :id", Item.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+
         } finally {
             em.close();
         }
-        return item;
     }
     public void update(Item item) throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
@@ -43,12 +46,15 @@ public class ItemDao {
             em.close();
         }
     }
-    public void delete(Item item) throws Exception {
+    public void delete(int itemId) throws Exception {
         EntityManager em= JpaUtil.getEntityManager();
         EntityTransaction tx=em.getTransaction();
         try {
             tx.begin();
-            em.remove(item);
+            Item item = em.find(Item.class, itemId); // attached entity
+            if (item != null) {
+                em.remove(item);
+            }
             tx.commit();
         }
         finally {
