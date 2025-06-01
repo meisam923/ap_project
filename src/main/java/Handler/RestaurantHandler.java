@@ -13,6 +13,7 @@ import enums.Role;
 import exception.ConflictException;
 import exception.InvalidInputException;
 import exception.NotFoundException;
+import io.jsonwebtoken.ExpiredJwtException;
 import model.Owner;
 import model.Restaurant;
 import model.User;
@@ -188,7 +189,10 @@ public class RestaurantHandler implements HttpHandler {
             RestaurantDto.RegisterRestaurantDto restaurantDto = objectMapper.readValue(jsonBody, RestaurantDto.RegisterRestaurantDto.class);
             RestaurantDto.RegisterReponseRestaurantDto response = restaurantController.createRestaurant(restaurantDto, (Owner) user);
             sendResponse(exchange, 201, gson.toJson(response), "application/json");
-        } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        }
+        catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
             System.err.println("JSON Parsing Error: " + e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 400, "Invalid JSON input");
@@ -226,7 +230,11 @@ public class RestaurantHandler implements HttpHandler {
             List<RestaurantDto.RegisterReponseRestaurantDto> list = new ArrayList<>();
             list.add(restaurantDto);
             sendResponse(exchange, 200, gson.toJson(list), "application/json");
-        } catch (IOException e) {
+        }
+        catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        }
+        catch (IOException e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 400, "error in reading json");
@@ -250,16 +258,17 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Conflict occurred: Seller does not have a restaurant");
                 return;
             }
-//            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
-//                sendErrorResponse(exchange,409,"Conflict occurred: restaurant is still unregistered"); return;
-//            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             String jsonBody = readRequestBody(exchange);
             if (jsonBody == null)
                 new InvalidInputException(400, "body is null");
             RestaurantDto.RegisterRestaurantDto restaurantDto = objectMapper.readValue(jsonBody, RestaurantDto.RegisterRestaurantDto.class);
             RestaurantDto.RegisterReponseRestaurantDto response = restaurantController.editRestaurant(restaurantDto, (Owner) user);
             sendResponse(exchange, 200, gson.toJson(response), "application/json");
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
             System.err.println("JSON Parsing Error: " + e.getMessage());
@@ -289,6 +298,10 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             int restaurant_id = extractInteger(restaurantId);
             if (((Owner) user).getRestaurant().getId() != restaurant_id) {
                 sendErrorResponse(exchange, 404, "Resource not found");
@@ -302,7 +315,7 @@ public class RestaurantHandler implements HttpHandler {
             RestaurantDto.AddItemToRestaurantDto itemdto = objectMapper.readValue(jsonBody, RestaurantDto.AddItemToRestaurantDto.class);
             RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.addItemTORestaurant(itemdto, ((Owner) user).getRestaurant());
             sendResponse(exchange, 200, gson.toJson(response), "application/json");
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException | ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
             System.err.println("JSON Parsing Error: " + e.getMessage());
@@ -331,6 +344,10 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             int restaurant_id = extractInteger(restaurantId);
             int item_id = extractInteger(itemId);
             if (((Owner) user).getRestaurant().getId() != restaurant_id) {
@@ -345,7 +362,7 @@ public class RestaurantHandler implements HttpHandler {
             RestaurantDto.AddItemToRestaurantDto itemdto = objectMapper.readValue(jsonBody, RestaurantDto.AddItemToRestaurantDto.class);
             RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.editItemTORestaurant(itemdto, ((Owner) user).getRestaurant(), item_id);
             sendResponse(exchange, 200, gson.toJson(response), "application/json");
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
             System.err.println("JSON Parsing Error: " + e.getMessage());
@@ -368,9 +385,12 @@ public class RestaurantHandler implements HttpHandler {
         try {
             System.out.println("Action: Delete item " + itemId + " for restaurant " + restaurantId);
             // TODO: Implement logic for DELETE /restaurants/{id}/item/{item_id}
-            checkMediaType(exchange);
             User user = getUserFromToken(exchange);
             if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -382,7 +402,7 @@ public class RestaurantHandler implements HttpHandler {
             }
             restaurantController.deleteItemfromRestaurant(((Owner) user).getRestaurant(), item_id);
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "Food item removed successfully")), "application/json");
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
             System.err.println("JSON Parsing Error: " + e.getMessage());
@@ -415,6 +435,10 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             String title = objectMapper.readTree(readRequestBody(exchange)).get("title").asText();
             if (title == null) {
                 throw new InvalidInputException(400, "title");
@@ -425,7 +449,7 @@ public class RestaurantHandler implements HttpHandler {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (ConflictException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -441,7 +465,6 @@ public class RestaurantHandler implements HttpHandler {
     private void deleteRestaurantMenuAction(HttpExchange exchange, String restaurantId, String title) {
         try {
             System.out.println("Action: Delete menu '" + title + "' for restaurant " + restaurantId);
-            checkMediaType(exchange);
             User user = getUserFromToken(exchange);
             if (title == null) {
                 throw new InvalidInputException(400, "title");
@@ -455,6 +478,10 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             restaurantController.deleteMenoFromRestaurant(((Owner) user).getRestaurant(), title);
             sendResponse(exchange, 200, gson.toJson(Map.of("message",
                     "Food menu removed from restaurant successfully")), "application/json"); // Or 204
@@ -462,14 +489,13 @@ public class RestaurantHandler implements HttpHandler {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (NotFoundException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (IOException e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 400, "error in reading json");
         } catch (Exception e) {
-            System.err.println("Unexpected error in createRestaurat menu: " + e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 500, "Internal Server Error: ");
         }
@@ -493,6 +519,10 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             if (((Owner) user).getRestaurant().getMenu(title) == null) {
                 sendErrorResponse(exchange, 404, "Menu not found");
             }
@@ -505,7 +535,7 @@ public class RestaurantHandler implements HttpHandler {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (NotFoundException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (ConflictException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
@@ -514,6 +544,8 @@ public class RestaurantHandler implements HttpHandler {
             e.printStackTrace();
             sendErrorResponse(exchange, 400, "error in reading json");
         } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error: ");
         }
     }
 
@@ -521,7 +553,6 @@ public class RestaurantHandler implements HttpHandler {
         try {
             System.out.println("Action: Remove item " + itemId + " from menu '" + title + "' for restaurant " + restaurantId);
             // TODO: Implement logic for DELETE /restaurants/{id}/menu/{title}/{item_id}
-            checkMediaType(exchange);
             User user = getUserFromToken(exchange);
             if (title == null) {
                 throw new InvalidInputException(400, "title");
@@ -535,6 +566,10 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             if (((Owner) user).getRestaurant().getMenu(title) == null) {
                 sendErrorResponse(exchange, 404, "Menu not found");
             }
@@ -546,7 +581,7 @@ public class RestaurantHandler implements HttpHandler {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (NotFoundException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
-        } catch (AuthController.AuthenticationException e) {
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (IOException e) {
             System.err.println(e.getMessage());

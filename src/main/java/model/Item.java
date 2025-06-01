@@ -3,12 +3,15 @@ package model;
 import enums.ItemCategory;
 import exception.InvalidInputException;
 import exception.NotAcceptableException;
+import exception.NotFoundException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.engine.internal.Nullability;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Setter
@@ -29,7 +32,7 @@ public class Item {
 
     @ElementCollection
     @CollectionTable(name = "item_hashtags", joinColumns = @JoinColumn(name = "item_id"))
-    @Column(name = "hashtag")
+    @Column(name = "hashtag" )
     private List<String> hashtags = new ArrayList<>();
     @Lob
     private String imageBase64;
@@ -40,7 +43,7 @@ public class Item {
     @Embedded
     private Price price;
 
-    @OneToMany
+    @ManyToMany(mappedBy = "items", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Menu> menus = new ArrayList<>();
 
     public Item() {
@@ -49,12 +52,11 @@ public class Item {
                 String description,
                 int priceValue,
                 int count,
-                ArrayList<String> hashtags,String category,String imageBase64) {
-        this.title = title;
-        this.description = description;
+                ArrayList<String> hashtags,String imageBase64) {
+                this.title = title;
+                this.description = description;
         this.count = count;
         this.hashtags = hashtags;
-        this.category=ItemCategory.valueOf(category);
         this.price = new Price(priceValue);
         this.imageBase64 = imageBase64;
     }
@@ -77,10 +79,19 @@ public class Item {
     public void addToMenu(Menu menu) {
         menus.add(menu);
     }
-    public void removeFromMenu(Menu menu) {
-        menus.remove(menu);
+    public void removeFromMenu(int menuId) throws NotFoundException {
+        Iterator<Menu> iterator = menus.iterator();
+        Menu menu = null;
+        while (iterator.hasNext()) {
+            menu = iterator.next();
+            if (menu.getId() == menuId) {
+                iterator.remove();
+                return;
+            }
+            menu=null;
+        }
+        if (menu==null){throw new NotFoundException(404, "Menu");}
     }
-
 }
 
 

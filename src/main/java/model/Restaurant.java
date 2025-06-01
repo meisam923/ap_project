@@ -7,6 +7,7 @@ import enums.RestaurantStatus;
 import exception.NotAcceptableException;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -39,8 +40,8 @@ public class Restaurant {
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
-    @OneToMany
-    private ArrayList<Menu> menus = new ArrayList<>();
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Menu> menus = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
@@ -54,13 +55,16 @@ public class Restaurant {
 
     private String logoBase64;
 
-    public Restaurant(String address, String phone_number, String title, Owner owner)  {
+    public Restaurant(String address, String phone_number, String title, Owner owner,int tax_fee,int additional_fee,String logoBase64)  {
         //validateField(address, location, phone_number, title, owner, category);
         this.address = address;
         this.phone_number = phone_number;
         this.title = title;
         this.owner = owner;
         this.status = RestaurantStatus.WAITING;
+        this.tax_fee = tax_fee;
+        this.additional_fee = additional_fee;
+        this.logoBase64 = logoBase64;
         Menu base = new Menu(this,"base");
         menus.add(base);
     }
@@ -82,9 +86,11 @@ public class Restaurant {
         return null;
     }
     public void removeMenu(String title){
-        for (Menu menu:menus){
+        Iterator<Menu> iterator = menus.iterator();
+        while (iterator.hasNext()){
+            Menu menu = iterator.next();
             if (menu.getTitle().equals(title)){
-                menus.remove(menu);
+                iterator.remove();
             }
         }
     }
