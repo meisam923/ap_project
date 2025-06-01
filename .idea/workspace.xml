@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="Merge branch 'main' into meisi&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
+    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="Merge branch 'main' into meisi&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
+      <change beforePath="$PROJECT_DIR$/src/main/java/dao/ItemDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/ItemDao.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
