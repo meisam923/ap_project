@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map; // For placeholder responses
 import java.util.function.BiConsumer;
@@ -597,12 +598,16 @@ public class RestaurantHandler implements HttpHandler {
             String query = exchange.getRequestURI().getQuery(); // Handle query params like status, search, user, courier
             System.out.println("Query params: " + (query != null ? query : "none"));
             // TODO: Implement logic for GET /restaurants/{id}/orders
+            Map<String, String> params = getQueryParmaters(query);
+            System.out.println(params);
             // - Auth (owner or specific roles)
             // - Parse query parameters for filtering
             // - List<Order> orders = restaurantController.getOrdersForRestaurant(Long.parseLong(restaurantId), queryParamsMap, (Owner) user);
             // - Map to DTO list
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "List of orders for restaurant " + restaurantId + " (placeholder)")), "application/json");
         } catch (Exception e) {
+            System.err.println(e.getMessage());
+            sendErrorResponse(exchange, 500, "Internal Server Error");
         }
     }
 
@@ -649,6 +654,23 @@ public class RestaurantHandler implements HttpHandler {
         } catch (NumberFormatException e) {
             throw new InvalidInputException(400, "Invalid id");
         }
+    }
+
+    private HashMap<String ,String> getQueryParmaters(String query){
+        if (query == null || query.isEmpty()) {
+            return null;
+        }
+        HashMap<String ,String> result = new HashMap<>();
+        String[] queryArr = query.split("&");
+        for  (String queryParm : queryArr) {
+            if (!queryParm.isEmpty() || !queryParm.contains("=")) {
+                String[] keyVal = queryParm.split("=");
+                if (keyVal.length == 2) {
+                    result.put(keyVal[0], keyVal[1]);
+                }
+            }
+        }
+        return result;
     }
 
     private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {
