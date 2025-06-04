@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="Merge branch 'jkjk'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Handler/RestaurantHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Handler/RestaurantHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/enums/OrderStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/enums/OrderStatus.java" afterDir="false" />
-    </list>
+    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="Merge branch 'jkjk'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -134,7 +128,7 @@
       <workItem from="1748311938802" duration="9211000" />
       <workItem from="1748329442899" duration="2645000" />
       <workItem from="1748779273878" duration="20137000" />
-      <workItem from="1748892688035" duration="3871000" />
+      <workItem from="1748892688035" duration="4258000" />
     </task>
     <task id="LOCAL-00001" summary="all">
       <option name="closed" value="true" />
