@@ -7,15 +7,20 @@ import dao.MenuDao;
 import dao.RestaurantDao;
 
 import dto.RestaurantDto;
+import enums.OrderStatus;
 import exception.AlreadyExistValueException;
 import exception.ConflictException;
 import exception.InvalidInputException;
 
 import exception.NotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 import model.*;
 import observers.RestaurantObserver;
+import util.JpaUtil;
 
-import java.util.Iterator;
+import java.util.*;
 
 //user dao is now not used anymore, instead we use dedicated daos for different user types
 
@@ -189,5 +194,80 @@ public class RestaurantController {
     }
     public void addRestaurantObserver(RestaurantObserver o) {
         restaurantRegisterService.registerObserver(o);
+    }
+
+    public List<RestaurantDto.OrderResponseDto> getRestaurantOrders(HashMap<String, String> queryFilters, int restaurantId) throws Exception {
+
+        StringBuilder jpqlString = new StringBuilder("SELECT o FROM Order o WHERE o.restaurant.id = :restaurantId");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("restaurantId", restaurantId);
+
+        // 1. Filter by Status (assuming OrderStatus.fromString() handles normalization)
+        if (queryFilters.containsKey("status") && queryFilters.get("status") != null && !queryFilters.get("status").isEmpty()) {
+            String statustmp = queryFilters.get("status").trim().toUpperCase().replaceAll(" ", "_");
+                OrderStatus statusEnum = OrderStatus.fromString(statustmp);
+                jpqlString.append(" AND o.status = :status");
+                parameters.put("status", statusEnum);
+
+        }
+
+        if (queryFilters.containsKey("user") && queryFilters.get("user") != null && !queryFilters.get("user").isEmpty()) {
+            String userNameSearch = queryFilters.get("user").toLowerCase();
+            // Assuming your Customer entity has a field 'fullName'
+            jpqlString.append(" AND LOWER(o.customer.fullName) LIKE :customerFullName");
+            parameters.put("customerFullName", "%" + userNameSearch + "%");
+        }
+
+        if (queryFilters.containsKey("courier") && queryFilters.get("courier") != null && !queryFilters.get("courier").isEmpty()) {
+            String courierNameSearch = queryFilters.get("courier").toLowerCase();
+            jpqlString.append(" AND LOWER(o.deliveryman.fullName) LIKE :deliverymanFullName");
+            parameters.put("deliverymanFullName", "%" + courierNameSearch + "%");
+        }
+
+        if (queryFilters.containsKey("search") && queryFilters.get("search") != null && !queryFilters.get("search").isEmpty()) {
+            String itemTitleSearch = queryFilters.get("search").toLowerCase();
+            jpqlString.append(" AND EXISTS (SELECT 1 FROM o.itemQuantities itemEntry WHERE LOWER(KEY(itemEntry).title) LIKE :itemTitle)");
+            parameters.put("itemTitle", "%" + itemTitleSearch + "%");
+        }
+        EntityManager em= JpaUtil.getEntityManager();
+        EntityTransaction tx= em.getTransaction();
+        TypedQuery<Order> typedQuery = em.createQuery(jpqlString.toString(), Order.class);
+
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            typedQuery.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        System.out.println("Executing JPQL: " + jpqlString.toString());
+        System.out.println("With parameters: " + parameters);
+
+        List<Order> orders = typedQuery.getResultList();
+        List<RestaurantDto.OrderResponseDto> orderResponseDtos = new ArrayList<>();
+
+        for (Order order : orders) {
+            List<Integer> itemIds = new ArrayList<>();
+            for (Item item : order.getItems()) {
+                itemIds.add(item.getId());
+            }
+
+            orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
+                    order.getId(),
+                    order.getDelivery_address(),
+                    order.getCustomer().getId(), // Handle potential null customer
+                    order.getRestaurant().getId(),
+                    order.getCoupon_id(),
+                    itemIds,
+                    order.getRaw_price(),
+                    order.getTax_fee(),
+                    order.getAdditional_fee(),
+                    order.getCourier_fee(),
+                    order.getPay_price(),
+                    order.getDeliveryman().getId(),
+                    order.getStatus().name(),
+                    order.getCreatedAt(),
+                    order.getUpdatedAt()
+            ));
+        }
+        em.close();
+        return orderResponseDtos;
     }
 }
