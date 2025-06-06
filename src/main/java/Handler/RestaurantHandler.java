@@ -4,6 +4,7 @@ import Controller.AuthController;
 import Controller.RestaurantController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -34,7 +35,7 @@ public class RestaurantHandler implements HttpHandler {
     // Controllers and helpers
     private final AuthController authController = AuthController.getInstance();
     private final RestaurantController restaurantController = new RestaurantController();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().serializeNulls().create();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final List<Route> routes = new ArrayList<>();
@@ -154,9 +155,9 @@ public class RestaurantHandler implements HttpHandler {
             }
         } else {
             if (pathMatcher != null) {
-                sendErrorResponse(exchange, 405, "Method Not Allowed");
+                sendErrorResponse(exchange, 404, "Resource Not Found");
             } else {
-                sendErrorResponse(exchange, 404, "Not Found");
+                sendErrorResponse(exchange, 404, "Resource Not Found");
             }
         }
     }
@@ -425,6 +426,8 @@ public class RestaurantHandler implements HttpHandler {
     private void addRestaurantMenuAction(HttpExchange exchange, String restaurantId) {
         try {
             System.out.println("Action: Add menu to restaurant ID: " + restaurantId);
+
+
             checkMediaType(exchange);
             User user = getUserFromToken(exchange);
             if (!user.getRole().equals(Role.SELLER)) {
@@ -598,14 +601,30 @@ public class RestaurantHandler implements HttpHandler {
             String query = exchange.getRequestURI().getQuery(); // Handle query params like status, search, user, courier
             System.out.println("Query params: " + (query != null ? query : "none"));
             // TODO: Implement logic for GET /restaurants/{id}/orders
-            Map<String, String> params = getQueryParmaters(query);
+            HashMap<String, String> params = getQueryParmaters(query);
             System.out.println(params);
-            // - Auth (owner or specific roles)
-            // - Parse query parameters for filtering
-            // - List<Order> orders = restaurantController.getOrdersForRestaurant(Long.parseLong(restaurantId), queryParamsMap, (Owner) user);
-            // - Map to DTO list
-            sendResponse(exchange, 200, gson.toJson(Map.of("message", "List of orders for restaurant " + restaurantId + " (placeholder)")), "application/json");
-        } catch (Exception e) {
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            List <RestaurantDto.OrderResponseDto> response =restaurantController.getRestaurantOrders(params,restaurant_id);
+            System.out.println(response);
+            sendResponse(exchange, 200, gson.toJson(response), "application/json");
+        } catch (InvalidInputException e) {
+        sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+        sendErrorResponse(exchange, 401, "Unauthorized request");}
+        catch (Exception e) {
             System.err.println(e.getMessage());
             sendErrorResponse(exchange, 500, "Internal Server Error");
         }
@@ -615,13 +634,32 @@ public class RestaurantHandler implements HttpHandler {
         try {
             System.out.println("Action: Patch order ID: " + orderId);
             // TODO: Implement logic for PATCH /restaurants/orders/{order_id}
-            // - Auth (owner or specific roles for the restaurant this order belongs to - might need to fetch order first)
-            // - checkMediaType(exchange);
-            // - String jsonBody = readRequestBody(exchange); // e.g., { "status": "accepted" }
-            // - RestaurantDto.PatchOrderDto dto = objectMapper.readValue(jsonBody, ...);
-            // - restaurantController.patchOrderStatus(Long.parseLong(orderId), dto.getStatus(), user);
-            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Order " + orderId + " patched (placeholder)")), "application/json");
-        } catch (Exception e) {
+            checkMediaType(exchange);
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int order_id = extractInteger(orderId);
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            String status = objectMapper.readTree(readRequestBody(exchange)).get("status").asText();
+            restaurantController.changeOrderStatus((Owner) user,status,order_id);
+            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Order status changed successfully")), "application/json");
+        } catch (NotFoundException e) {
+            sendErrorResponse(exchange, 404, "Resource not found");
+        } catch(ConflictException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        }
+        catch (InvalidInputException e) {
+        sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+        sendErrorResponse(exchange, 401, "Unauthorized request");}
+        catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error");
         }
     }
 
@@ -693,8 +731,6 @@ public class RestaurantHandler implements HttpHandler {
     }
 
     private void sendErrorResponse(HttpExchange exchange, int statusCode, String errorMessage) {
-
-        // To ensure the errorMessage itself is a valid JSON string value if it contains quotes
         try {
             String errorMsgJson = gson.toJson(Map.of("error", errorMessage));
             sendResponse(exchange, statusCode, errorMsgJson, "application/json");

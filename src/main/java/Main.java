@@ -36,6 +36,6 @@ public class Main {
         server.setExecutor(null);
         server.start();
         System.out.println("Server is running on port " + port);
-        System.out.println("Auth endpoints available at http://localhost:" + port + "/auth/register and http://localhost:" + port + "/auth/login");
+        System.out.println("Auth endpoints available at http://localhost:" + port + "/auth and http://localhost:" + port + "/restaurants");
     }
 }

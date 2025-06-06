@@ -4,6 +4,7 @@ import Services.RestaurantRegisterService;
 import Services.UserService;
 import dao.ItemDao;
 import dao.MenuDao;
+import dao.OrderDao;
 import dao.RestaurantDao;
 
 import dto.RestaurantDto;
@@ -57,6 +58,7 @@ public class RestaurantController {
      public RestaurantDto.RegisterReponseRestaurantDto editRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws InvalidInputException {
          if (restaurant.name()== null) {
              throw new InvalidInputException(400, "name");
+
          }
          if (restaurant.address()== null) {
              throw new InvalidInputException(400, "address");
@@ -203,30 +205,30 @@ public class RestaurantController {
         parameters.put("restaurantId", restaurantId);
 
         // 1. Filter by Status (assuming OrderStatus.fromString() handles normalization)
-        if (queryFilters.containsKey("status") && queryFilters.get("status") != null && !queryFilters.get("status").isEmpty()) {
-            String statustmp = queryFilters.get("status").trim().toUpperCase().replaceAll(" ", "_");
+        if (queryFilters != null && queryFilters.get("status") != null && !queryFilters.get("status").isEmpty()) {
+            String statustmp = queryFilters.get("status");
                 OrderStatus statusEnum = OrderStatus.fromString(statustmp);
                 jpqlString.append(" AND o.status = :status");
                 parameters.put("status", statusEnum);
 
         }
 
-        if (queryFilters.containsKey("user") && queryFilters.get("user") != null && !queryFilters.get("user").isEmpty()) {
+        if (queryFilters != null && queryFilters.containsKey("user") && queryFilters.get("user") != null && !queryFilters.get("user").isEmpty()) {
             String userNameSearch = queryFilters.get("user").toLowerCase();
             // Assuming your Customer entity has a field 'fullName'
             jpqlString.append(" AND LOWER(o.customer.fullName) LIKE :customerFullName");
             parameters.put("customerFullName", "%" + userNameSearch + "%");
         }
 
-        if (queryFilters.containsKey("courier") && queryFilters.get("courier") != null && !queryFilters.get("courier").isEmpty()) {
+        if (queryFilters != null && queryFilters.containsKey("courier") && queryFilters.get("courier") != null && !queryFilters.get("courier").isEmpty()) {
             String courierNameSearch = queryFilters.get("courier").toLowerCase();
             jpqlString.append(" AND LOWER(o.deliveryman.fullName) LIKE :deliverymanFullName");
             parameters.put("deliverymanFullName", "%" + courierNameSearch + "%");
         }
 
-        if (queryFilters.containsKey("search") && queryFilters.get("search") != null && !queryFilters.get("search").isEmpty()) {
+        if (queryFilters != null && queryFilters.containsKey("search") && queryFilters.get("search") != null && !queryFilters.get("search").isEmpty()) {
             String itemTitleSearch = queryFilters.get("search").toLowerCase();
-            jpqlString.append(" AND EXISTS (SELECT 1 FROM o.itemQuantities itemEntry WHERE LOWER(KEY(itemEntry).title) LIKE :itemTitle)");
+            jpqlString.append(" AND EXISTS (SELECT 1 FROM o.Items i WHERE LOWER(i.title) LIKE :itemTitle)");
             parameters.put("itemTitle", "%" + itemTitleSearch + "%");
         }
         EntityManager em= JpaUtil.getEntityManager();
@@ -269,5 +271,21 @@ public class RestaurantController {
         }
         em.close();
         return orderResponseDtos;
+    }
+    public void changeOrderStatus(Owner owner,String status,int orderId) throws Exception {
+        OrderDao orderDao = new OrderDao();
+        Order order = orderDao.findById(orderId);
+        if (order == null) {
+            throw new NotFoundException(404,"Resource Not Found");
+        }
+        if (owner.getRestaurant().getId() != order.getRestaurant().getId()) {
+            throw new NotFoundException(404,"Resource Not Found");
+        }
+        OrderStatus orderStatusEnum = OrderStatus.fromString(status);
+        if (orderStatusEnum == order.getStatus()) {
+            throw new ConflictException(409);
+        }
+        order.setStatus(orderStatusEnum);
+        orderDao.update(order);
     }
 }
