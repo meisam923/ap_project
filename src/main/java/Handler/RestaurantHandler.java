@@ -10,7 +10,10 @@ import com.sun.net.httpserver.HttpHandler;
 import dto.RestaurantDto;
 import enums.RestaurantStatus;
 import enums.Role;
+import exception.ConflictException;
 import exception.InvalidInputException;
+import exception.NotFoundException;
+import io.jsonwebtoken.ExpiredJwtException;
 import model.Owner;
 import model.Restaurant;
 import model.User;
@@ -20,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map; // For placeholder responses
 import java.util.function.BiConsumer;
@@ -35,7 +39,8 @@ public class RestaurantHandler implements HttpHandler {
 
     private final List<Route> routes = new ArrayList<>();
 
-    record Route(String httpMethod, Pattern regexPattern, BiConsumer<HttpExchange, Matcher> action) {}
+    record Route(String httpMethod, Pattern regexPattern, BiConsumer<HttpExchange, Matcher> action) {
+    }
 
     public RestaurantHandler() {
         // === Routes STRICTLY from your OpenAPI Specification ===
@@ -163,181 +168,428 @@ public class RestaurantHandler implements HttpHandler {
             checkMediaType(exchange);
             String token_header = exchange.getRequestHeaders().getFirst("Authorization");
             if (token_header == null || !token_header.startsWith("Bearer ")) {
-                sendErrorResponse(exchange, 401, "Unauthorized request"); return;
+                sendErrorResponse(exchange, 401, "Unauthorized request");
+                return;
             }
             String token = token_header.substring(7);
             User user = authController.requireLogin(token);
             if (!user.getRole().equals(Role.SELLER)) {
-                sendErrorResponse(exchange, 403, "Forbidden request"); return;
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
             }
-            if (((Owner)user).getRestaurant() != null) {
-                sendErrorResponse(exchange,409,"Conflict occurred: Seller already has a restaurant"); return;
+            if (((Owner) user).getRestaurant() != null) {
+                sendErrorResponse(exchange, 409, "Conflict occurred: Seller already has a restaurant");
+                return;
             }
             String jsonBody = readRequestBody(exchange);
-            if (jsonBody == null) return;
+            if (jsonBody == null) {
+                sendErrorResponse(exchange, 400, "Body is empty");
+                return;
+            }
 
             RestaurantDto.RegisterRestaurantDto restaurantDto = objectMapper.readValue(jsonBody, RestaurantDto.RegisterRestaurantDto.class);
             RestaurantDto.RegisterReponseRestaurantDto response = restaurantController.createRestaurant(restaurantDto, (Owner) user);
             sendResponse(exchange, 201, gson.toJson(response), "application/json");
-        } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.err.println("JSON Parsing Error: " + e.getMessage()); e.printStackTrace();
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        }
+        catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
+            System.err.println("JSON Parsing Error: " + e.getMessage());
+            e.printStackTrace();
             sendErrorResponse(exchange, 400, "Invalid JSON input");
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (IOException e) {
-            System.err.println("IOException in createRestaurantAction: " + e.getMessage()); e.printStackTrace();
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
         } catch (Exception e) {
-            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage()); e.printStackTrace();
+            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage());
+            e.printStackTrace();
             sendErrorResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 
     private void getSellerRestaurantAction(HttpExchange exchange) {
         try {
-            String token_header = exchange.getRequestHeaders().getFirst("Authorization");
-            if (token_header == null || !token_header.startsWith("Bearer ")) {
-                sendErrorResponse(exchange, 401, "Unauthorized request"); return;
-            }
-            String token = token_header.substring(7);
-            User user = authController.requireLogin(token);
+            User user = getUserFromToken(exchange);
             if (!user.getRole().equals(Role.SELLER)) {
-                sendErrorResponse(exchange, 403, "Forbidden request"); return;
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
             }
             Owner seller = (Owner) user;
             Restaurant seller_restaurant = seller.getRestaurant();
             if (seller_restaurant == null) {
-                sendErrorResponse(exchange, 404, "Restaurant not found for this seller"); return;
+                sendErrorResponse(exchange, 404, "Restaurant not found for this seller");
+                return;
             }
             RestaurantDto.RegisterReponseRestaurantDto restaurantDto = new RestaurantDto.RegisterReponseRestaurantDto(
                     seller_restaurant.getId(), seller_restaurant.getTitle(), seller_restaurant.getAddress(),
                     seller_restaurant.getPhone_number(), seller_restaurant.getLogoBase64(),
                     seller_restaurant.getTax_fee(), seller_restaurant.getAdditional_fee()
             );
-            sendResponse(exchange, 200, gson.toJson(restaurantDto), "application/json");
-        } catch (IOException e) {
-            System.err.println("IOException in getSellerRestaurantAction: " + e.getMessage()); e.printStackTrace();
+            List<RestaurantDto.RegisterReponseRestaurantDto> list = new ArrayList<>();
+            list.add(restaurantDto);
+            sendResponse(exchange, 200, gson.toJson(list), "application/json");
+        }
+        catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        }
+        catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
         } catch (Exception e) {
-            System.err.println("Unexpected error in getSellerRestaurantAction: " + e.getMessage()); e.printStackTrace();
+            System.err.println("Unexpected error in getSellerRestaurantAction: " + e.getMessage());
+            e.printStackTrace();
             sendErrorResponse(exchange, 500, "Internal Server Error: ");
         }
     }
 
     private void updateRestaurantAction(HttpExchange exchange, String restaurantId) {
-        try {checkMediaType(exchange);
-            String token_header = exchange.getRequestHeaders().getFirst("Authorization");
-            if (token_header == null || !token_header.startsWith("Bearer ")) {
-                sendErrorResponse(exchange, 401, "Unauthorized request"); return;
-            }
-            String token = token_header.substring(7);
-            User user = authController.requireLogin(token);
+        try {
+            checkMediaType(exchange);
+            int restaurant_id = extractInteger(restaurantId);
+            User user = getUserFromToken(exchange);
             if (!user.getRole().equals(Role.SELLER)) {
-                sendErrorResponse(exchange, 403, "Forbidden request"); return;
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
             }
-            if (((Owner)user).getRestaurant() == null) {
-                sendErrorResponse(exchange,404,"Conflict occurred: Seller does not have a restaurant"); return;
+            if (((Owner) user).getRestaurant() == null || ((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Conflict occurred: Seller does not have a restaurant");
+                return;
             }
-//            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
-//                sendErrorResponse(exchange,409,"Conflict occurred: restaurant is still unregistered"); return;
-//            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
             String jsonBody = readRequestBody(exchange);
             if (jsonBody == null)
                 new InvalidInputException(400, "body is null");
             RestaurantDto.RegisterRestaurantDto restaurantDto = objectMapper.readValue(jsonBody, RestaurantDto.RegisterRestaurantDto.class);
-            RestaurantDto.RegisterReponseRestaurantDto response= restaurantController.editRestaurant(restaurantDto,(Owner)user);
+            RestaurantDto.RegisterReponseRestaurantDto response = restaurantController.editRestaurant(restaurantDto, (Owner) user);
             sendResponse(exchange, 200, gson.toJson(response), "application/json");
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.err.println("JSON Parsing Error: " + e.getMessage()); e.printStackTrace();
+            System.err.println("JSON Parsing Error: " + e.getMessage());
+            e.printStackTrace();
             sendErrorResponse(exchange, 400, "Invalid JSON input");
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (IOException e) {
-            System.err.println("IOException in createRestaurantAction: " + e.getMessage()); e.printStackTrace();
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
         } catch (Exception e) {
-            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage()); e.printStackTrace();
+            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage());
+            e.printStackTrace();
             sendErrorResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 
+    // TODO : conflict if a that item exist implemention status :false
     private void addRestaurantItemAction(HttpExchange exchange, String restaurantId) {
         try {
             System.out.println("Action: Add item to restaurant ID: " + restaurantId);
             // TODO: Implement logic for POST /restaurants/{id}/item
-            // - Auth (ensure user is owner of restaurantId)
-            // - checkMediaType(exchange);
-            // - String jsonBody = readRequestBody(exchange);
-            // - RestaurantDto.AddItemDto dto = objectMapper.readValue(jsonBody, ...);
-            // - restaurantController.addItemToRestaurant(Long.parseLong(restaurantId), dto, (Owner) user);
-            sendResponse(exchange, 201, gson.toJson(Map.of("message", "Item added to restaurant " + restaurantId + " (placeholder)")), "application/json");
-        } catch (Exception e) { }
+            checkMediaType(exchange);
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            String jsonBody = readRequestBody(exchange);
+            if (jsonBody == null) {
+                sendErrorResponse(exchange, 400, "body is empty");
+                return;
+            }
+            RestaurantDto.AddItemToRestaurantDto itemdto = objectMapper.readValue(jsonBody, RestaurantDto.AddItemToRestaurantDto.class);
+            RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.addItemTORestaurant(itemdto, ((Owner) user).getRestaurant());
+            sendResponse(exchange, 200, gson.toJson(response), "application/json");
+        } catch (AuthController.AuthenticationException | ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
+            System.err.println("JSON Parsing Error: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "Invalid JSON input");
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
+        } catch (Exception e) {
+            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+        }
     }
 
     private void updateRestaurantItemAction(HttpExchange exchange, String restaurantId, String itemId) {
         try {
             System.out.println("Action: Update item " + itemId + " for restaurant " + restaurantId);
             // TODO: Implement logic for PUT /restaurants/{id}/item/{item_id}
-            // - Auth (owner)
-            // - checkMediaType(exchange);
-            // - String jsonBody = readRequestBody(exchange);
-            // - RestaurantDto.UpdateItemDto dto = objectMapper.readValue(jsonBody, ...);
-            // - restaurantController.updateItemInRestaurant(Long.parseLong(restaurantId), Long.parseLong(itemId), dto, (Owner) user);
-            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Item " + itemId + " in restaurant " + restaurantId + " updated (placeholder)")), "application/json");
-        } catch (Exception e) { }
+            checkMediaType(exchange);
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            int item_id = extractInteger(itemId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            String jsonBody = readRequestBody(exchange);
+            if (jsonBody == null) {
+                sendErrorResponse(exchange, 400, "body is empty");
+                return;
+            }
+            RestaurantDto.AddItemToRestaurantDto itemdto = objectMapper.readValue(jsonBody, RestaurantDto.AddItemToRestaurantDto.class);
+            RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.editItemTORestaurant(itemdto, ((Owner) user).getRestaurant(), item_id);
+            sendResponse(exchange, 200, gson.toJson(response), "application/json");
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
+            System.err.println("JSON Parsing Error: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "Invalid JSON input");
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
+        } catch (Exception e) {
+            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+        }
     }
 
     private void deleteRestaurantItemAction(HttpExchange exchange, String restaurantId, String itemId) {
         try {
             System.out.println("Action: Delete item " + itemId + " for restaurant " + restaurantId);
             // TODO: Implement logic for DELETE /restaurants/{id}/item/{item_id}
-            // - Auth (owner)
-            // - restaurantController.deleteItemFromRestaurant(Long.parseLong(restaurantId), Long.parseLong(itemId), (Owner) user);
-            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Item " + itemId + " in restaurant " + restaurantId + " deleted (placeholder)")), "application/json"); // Or 204 No Content
-        } catch (Exception e) {  }
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            int item_id = extractInteger(itemId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            restaurantController.deleteItemfromRestaurant(((Owner) user).getRestaurant(), item_id);
+            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Food item removed successfully")), "application/json");
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
+            System.err.println("JSON Parsing Error: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "Invalid JSON input");
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
+        } catch (Exception e) {
+            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+        }
     }
 
     private void addRestaurantMenuAction(HttpExchange exchange, String restaurantId) {
         try {
             System.out.println("Action: Add menu to restaurant ID: " + restaurantId);
-            // TODO: Implement logic for POST /restaurants/{id}/menu
-            // - Auth (owner)
-            // - checkMediaType(exchange);
-            // - String jsonBody = readRequestBody(exchange); // e.g., { "title": "Lunch Menu" }
-            // - RestaurantDto.AddMenuDto dto = objectMapper.readValue(jsonBody, ...);
-            // - restaurantController.addMenuToRestaurant(Long.parseLong(restaurantId), dto, (Owner) user);
-            sendResponse(exchange, 201, gson.toJson(Map.of("message", "Menu added to restaurant " + restaurantId + " (placeholder)")), "application/json");
-        } catch (Exception e) { }
+            checkMediaType(exchange);
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            String title = objectMapper.readTree(readRequestBody(exchange)).get("title").asText();
+            if (title == null) {
+                throw new InvalidInputException(400, "title");
+            }
+            restaurantController.addMenoToRestaurant(((Owner) user).getRestaurant(), title);
+            sendResponse(exchange, 200, gson.toJson(Map.of("title", title)), "application/json");
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (ConflictException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
+        } catch (Exception e) {
+            System.err.println("Unexpected error in createRestaurat menu: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error: ");
+        }
     }
 
     private void deleteRestaurantMenuAction(HttpExchange exchange, String restaurantId, String title) {
         try {
             System.out.println("Action: Delete menu '" + title + "' for restaurant " + restaurantId);
-            // TODO: Implement logic for DELETE /restaurants/{id}/menu/{title}
-            // - Auth (owner)
-            // - restaurantController.deleteMenuFromRestaurant(Long.parseLong(restaurantId), title, (Owner) user);
-            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Menu '" + title + "' for restaurant " + restaurantId + " deleted (placeholder)")), "application/json"); // Or 204
-        } catch (Exception e) { }
+            User user = getUserFromToken(exchange);
+            if (title == null) {
+                throw new InvalidInputException(400, "title");
+            }
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            restaurantController.deleteMenoFromRestaurant(((Owner) user).getRestaurant(), title);
+            sendResponse(exchange, 200, gson.toJson(Map.of("message",
+                    "Food menu removed from restaurant successfully")), "application/json"); // Or 204
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (NotFoundException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error: ");
+        }
     }
 
     private void addItemToRestaurantMenuAction(HttpExchange exchange, String restaurantId, String title) {
         try {
             System.out.println("Action: Add item to menu '" + title + "' for restaurant " + restaurantId);
             // TODO: Implement logic for PUT /restaurants/{id}/menu/{title}
-            // - Auth (owner)
-            // - checkMediaType(exchange);
-            // - String jsonBody = readRequestBody(exchange); // e.g., { "item_id": 123 }
-            // - RestaurantDto.AddItemToMenuDto dto = objectMapper.readValue(jsonBody, ...);
-            // - restaurantController.addItemToMenu(Long.parseLong(restaurantId), title, dto.getItemId(), (Owner) user);
-            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Item added to menu '" + title + "' in restaurant " + restaurantId + " (placeholder)")), "application/json");
-        } catch (Exception e) { }
+            checkMediaType(exchange);
+            User user = getUserFromToken(exchange);
+            if (title == null) {
+                throw new InvalidInputException(400, "title");
+            }
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            if (((Owner) user).getRestaurant().getMenu(title) == null) {
+                sendErrorResponse(exchange, 404, "Menu not found");
+            }
+            String itemId = objectMapper.readTree(readRequestBody(exchange)).get("item_id").asText();
+            int item_id = extractInteger(itemId);
+            restaurantController.addAItemToMenu(((Owner) user).getRestaurant(), title, item_id);
+            sendResponse(exchange, 200, gson.toJson(Map.of("message",
+                    "Food item add to menu successfully")), "application/json");
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (NotFoundException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        } catch (ConflictException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error: ");
+        }
     }
 
     private void removeItemFromRestaurantMenuAction(HttpExchange exchange, String restaurantId, String title, String itemId) {
         try {
             System.out.println("Action: Remove item " + itemId + " from menu '" + title + "' for restaurant " + restaurantId);
             // TODO: Implement logic for DELETE /restaurants/{id}/menu/{title}/{item_id}
-            // - Auth (owner)
-            // - restaurantController.removeItemFromMenu(Long.parseLong(restaurantId), title, Long.parseLong(itemId), (Owner) user);
-            sendResponse(exchange, 200, gson.toJson(Map.of("message", "Item " + itemId + " from menu '" + title + "' in restaurant " + restaurantId + " removed (placeholder)")), "application/json"); // Or 204
-        } catch (Exception e) {  }
+            User user = getUserFromToken(exchange);
+            if (title == null) {
+                throw new InvalidInputException(400, "title");
+            }
+            if (!user.getRole().equals(Role.SELLER)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            int restaurant_id = extractInteger(restaurantId);
+            if (((Owner) user).getRestaurant().getId() != restaurant_id) {
+                sendErrorResponse(exchange, 404, "Resource not found");
+                return;
+            }
+            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            if (((Owner) user).getRestaurant().getMenu(title) == null) {
+                sendErrorResponse(exchange, 404, "Menu not found");
+            }
+            int item_id = extractInteger(itemId);
+            restaurantController.deleteAItemFromMenu(((Owner) user).getRestaurant(), title, item_id);
+            sendResponse(exchange, 200, gson.toJson(Map.of("message",
+                    "Item removed from restaurant menu successfully")), "application/json");
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (NotFoundException e) {
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        } catch (AuthController.AuthenticationException |ExpiredJwtException e) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, "error in reading json");
+        } catch (Exception e) {
+        }
     }
 
     private void listRestaurantOrdersAction(HttpExchange exchange, String restaurantId) {
@@ -346,12 +598,17 @@ public class RestaurantHandler implements HttpHandler {
             String query = exchange.getRequestURI().getQuery(); // Handle query params like status, search, user, courier
             System.out.println("Query params: " + (query != null ? query : "none"));
             // TODO: Implement logic for GET /restaurants/{id}/orders
+            Map<String, String> params = getQueryParmaters(query);
+            System.out.println(params);
             // - Auth (owner or specific roles)
             // - Parse query parameters for filtering
             // - List<Order> orders = restaurantController.getOrdersForRestaurant(Long.parseLong(restaurantId), queryParamsMap, (Owner) user);
             // - Map to DTO list
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "List of orders for restaurant " + restaurantId + " (placeholder)")), "application/json");
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            sendErrorResponse(exchange, 500, "Internal Server Error");
+        }
     }
 
     private void patchRestaurantOrderAction(HttpExchange exchange, String orderId) {
@@ -364,7 +621,8 @@ public class RestaurantHandler implements HttpHandler {
             // - RestaurantDto.PatchOrderDto dto = objectMapper.readValue(jsonBody, ...);
             // - restaurantController.patchOrderStatus(Long.parseLong(orderId), dto.getStatus(), user);
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "Order " + orderId + " patched (placeholder)")), "application/json");
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
     }
 
     // --- Helper Methods ---
@@ -390,6 +648,31 @@ public class RestaurantHandler implements HttpHandler {
         }
     }
 
+    private int extractInteger(String str) throws InvalidInputException {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(400, "Invalid id");
+        }
+    }
+
+    private HashMap<String ,String> getQueryParmaters(String query){
+        if (query == null || query.isEmpty()) {
+            return null;
+        }
+        HashMap<String ,String> result = new HashMap<>();
+        String[] queryArr = query.split("&");
+        for  (String queryParm : queryArr) {
+            if (!queryParm.isEmpty() || !queryParm.contains("=")) {
+                String[] keyVal = queryParm.split("=");
+                if (keyVal.length == 2) {
+                    result.put(keyVal[0], keyVal[1]);
+                }
+            }
+        }
+        return result;
+    }
+
     private void sendResponse(HttpExchange exchange, int statusCode, String responseBody, String contentType) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", contentType);
         byte[] responseBytes = responseBody.getBytes(java.nio.charset.StandardCharsets.UTF_8);
@@ -399,13 +682,25 @@ public class RestaurantHandler implements HttpHandler {
         }
     }
 
-    private void sendErrorResponse(HttpExchange exchange, int statusCode, String errorMessage)  {
+    private User getUserFromToken(HttpExchange exchange) throws AuthController.AuthenticationException {
+        String token_header = exchange.getRequestHeaders().getFirst("Authorization");
+        if (token_header == null || !token_header.startsWith("Bearer ")) {
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+            return null;
+        }
+        String token = token_header.substring(7);
+        return authController.requireLogin(token);
+    }
+
+    private void sendErrorResponse(HttpExchange exchange, int statusCode, String errorMessage) {
 
         // To ensure the errorMessage itself is a valid JSON string value if it contains quotes
         try {
             String errorMsgJson = gson.toJson(Map.of("error", errorMessage));
             sendResponse(exchange, statusCode, errorMsgJson, "application/json");
-        }catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
