@@ -1,18 +1,14 @@
 package model;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.gson.annotations.SerializedName;
 import enums.RestaurantCategory;
-import enums.RestaurantStatus;
-import exception.NotAcceptableException;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import enums.ApprovalStatus;   // Changed from RestaurantStatus
+import enums.OperationalStatus; // New enum
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,84 +20,77 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Embedded
-    private String  address;// human-readable address (not used for distance)
-    @Embedded
-    private Location location;// a coordinate system
-
-    @SerializedName("phone")
-    @Column (unique = true)
-    private String phone_number;
-
-    @SerializedName("name")
+    @Column(nullable = false)
     private String title;
 
-    @OneToOne
-    @JoinColumn(name = "owner_id")
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String address;
+
+    @Embedded
+    private Location location;
+
+    @Column(unique = true, nullable = false)
+    private String phoneNumber;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id", unique = true)
     private Owner owner;
 
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
 
     @Enumerated(EnumType.STRING)
-    private RestaurantStatus status;
+    @Column(name = "approval_status", nullable = false)
+    private ApprovalStatus approvalStatus = ApprovalStatus.WAITING; // Default for new restaurants
 
-    private int tax_fee;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "operational_status", nullable = false)
+    private OperationalStatus operationalStatus = OperationalStatus.CLOSED; // Default to closed
 
-    private int additional_fee;
-
+    private Integer taxFee;
+    private Integer additionalFee;
     private String logoBase64;
+    private Double averageRating = 0.0;
 
-    public Restaurant(String address, String phone_number, String title, Owner owner,int tax_fee,int additional_fee,String logoBase64)  {
-        //validateField(address, location, phone_number, title, owner, category);
-        this.address = address;
-        this.phone_number = phone_number;
+    public Restaurant() {}
+
+    public Restaurant(String title, String address, String phoneNumber, Owner owner, Integer taxFee, Integer additionalFee, String logoBase64) {
         this.title = title;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
         this.owner = owner;
-        this.status = RestaurantStatus.WAITING;
-        this.tax_fee = tax_fee;
-        this.additional_fee = additional_fee;
+        this.taxFee = taxFee;
+        this.additionalFee = additionalFee;
         this.logoBase64 = logoBase64;
-        Menu base = new Menu(this,"base");
-        menus.add(base);
+        this.approvalStatus = ApprovalStatus.WAITING;
+        this.operationalStatus = OperationalStatus.CLOSED;
     }
 
-    public Restaurant() { // used for testing
-        address = null;
-        location = new Location(0,0);
-    }
-
-    public void addMenu(Menu menu){
-        menus.add(menu);
-    }
-    public Menu getMenu(String title){
-        for (Menu menu : menus){
-            if (menu.getTitle().equals(title)){
+    public Menu getMenu(String title) {
+        if (this.menus == null || title == null) {
+            return null;
+        }
+        for (Menu menu : this.menus) {
+            if (title.equals(menu.getTitle())) {
                 return menu;
             }
         }
         return null;
     }
-    public void removeMenu(String title){
-        Iterator<Menu> iterator = menus.iterator();
-        while (iterator.hasNext()){
-            Menu menu = iterator.next();
-            if (menu.getTitle().equals(title)){
-                iterator.remove();
-            }
-        }
+
+    public void addMenu(Menu menu) {
+        this.menus.add(menu);
+        menu.setRestaurant(this);
     }
 
+    public void removeMenu(String menuTitle) {
+        if (this.menus == null || menuTitle == null) {
+            return;
+        }
+        this.menus.removeIf(menu -> menuTitle.equals(menu.getTitle()));
+    }
 
-
-//    public static void validateField(Address address, Location location, String phone_number, String title, Owner owner, String category) throws NotAcceptableException {
-//        if ((address == null || location == null || phone_number == null || title == null || owner == null) ||
-//                (!phone_number.matches("0\\d{10}")) ||
-//                (!title.matches("(?i)^[a-z]{1,20}$") ||
-//                        (RestaurantCategory.buildCategory(category) == null)))
-//            throw new NotAcceptableException("invalid field");
-//    }
 }

@@ -8,7 +8,8 @@ import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dto.RestaurantDto;
-import enums.RestaurantStatus;
+import enums.ApprovalStatus;
+import enums.OperationalStatus;
 import enums.Role;
 import exception.ConflictException;
 import exception.InvalidInputException;
@@ -225,8 +226,8 @@ public class RestaurantHandler implements HttpHandler {
             }
             RestaurantDto.RegisterReponseRestaurantDto restaurantDto = new RestaurantDto.RegisterReponseRestaurantDto(
                     seller_restaurant.getId(), seller_restaurant.getTitle(), seller_restaurant.getAddress(),
-                    seller_restaurant.getPhone_number(), seller_restaurant.getLogoBase64(),
-                    seller_restaurant.getTax_fee(), seller_restaurant.getAdditional_fee()
+                    seller_restaurant.getPhoneNumber(), seller_restaurant.getLogoBase64(),
+                    seller_restaurant.getTaxFee(), seller_restaurant.getAdditionalFee()
             );
             List<RestaurantDto.RegisterReponseRestaurantDto> list = new ArrayList<>();
             list.add(restaurantDto);
@@ -259,7 +260,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Conflict occurred: Seller does not have a restaurant");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
             sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -299,7 +300,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -345,7 +346,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -391,7 +392,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -436,7 +437,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -479,7 +480,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -520,7 +521,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -567,7 +568,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }

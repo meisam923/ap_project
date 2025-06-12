@@ -22,8 +22,6 @@ import util.JpaUtil;
 
 import java.util.*;
 
-//user dao is now not used anymore, instead we use dedicated daos for different user types
-
 public class RestaurantController {
     private static RestaurantRegisterService restaurantRegisterService;
     private static RestaurantDao restaurantDao;
@@ -49,8 +47,15 @@ public class RestaurantController {
         if (restaurantDao.findByPhone(restaurant.phone())!=null || userService.findByPhone(restaurant.phone())!=null ) {
             new AlreadyExistValueException(409, "phone");
         }
-        Restaurant newRestaurant = new Restaurant(restaurant.address(),restaurant.phone(),restaurant.name(),owner,restaurant.tax_fee(),restaurant.additional_fee(),restaurant.logaBase64());
-        owner.setRestaurant(newRestaurant);
+        Restaurant newRestaurant = new Restaurant(
+                restaurant.name(),
+                restaurant.address(),
+                restaurant.phone(),
+                owner,
+                restaurant.tax_fee(),
+                restaurant.additional_fee(),
+                restaurant.logaBase64()
+        );        owner.setRestaurant(newRestaurant);
         restaurantDao.save(newRestaurant);
         return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
     }
@@ -64,11 +69,11 @@ public class RestaurantController {
          if (restaurant.phone()== null || restaurant.phone().length()!=11 ) {
              throw new InvalidInputException(400, "phone");
          }
-         if (restaurant.phone().equals(owner.getRestaurant().getPhone_number()) && restaurantDao.findByPhone(restaurant.phone())!=null ) {
+         if (restaurant.phone().equals(owner.getRestaurant().getPhoneNumber()) && restaurantDao.findByPhone(restaurant.phone())!=null ) {
              new AlreadyExistValueException(409, "phone");
          }
          Restaurant res=owner.getRestaurant();
-         res.setPhone_number(restaurant.phone()); res.setAddress(restaurant.address()); res.setTitle(restaurant.name()); res.setAdditional_fee(restaurant.additional_fee()); res.setTax_fee(restaurant.tax_fee()); res.setLogoBase64(restaurant.logaBase64());
+         res.setPhoneNumber(restaurant.phone()); res.setAddress(restaurant.address()); res.setTitle(restaurant.name()); res.setAdditionalFee(restaurant.additional_fee()); res.setTaxFee(restaurant.tax_fee()); res.setLogoBase64(restaurant.logaBase64());
          restaurantDao.update(res);
          return new RestaurantDto.RegisterReponseRestaurantDto(res.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
 
@@ -252,7 +257,7 @@ public class RestaurantController {
             orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
                     order.getId(),
                     order.getDelivery_address(),
-                    order.getCustomer().getId(), // Handle potential null customer
+                    order.getCustomer().getId().intValue(),
                     order.getRestaurant().getId(),
                     order.getCoupon_id(),
                     itemIds,
@@ -261,10 +266,10 @@ public class RestaurantController {
                     order.getAdditional_fee(),
                     order.getCourier_fee(),
                     order.getPay_price(),
-                    order.getDeliveryman().getId(),
-                    order.getStatus().name(),
-                    order.getCreatedAt(),
-                    order.getUpdatedAt()
+                    (order.getDeliveryman() != null) ? order.getDeliveryman().getId().intValue() : null,
+                    (order.getStatus() != null) ? order.getStatus().name() : null,
+                    (order.getCreatedAt() != null) ? order.getCreatedAt().toString() : null,
+                    (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null
             ));
         }
         em.close();
