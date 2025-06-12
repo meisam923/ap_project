@@ -37,9 +37,9 @@ public class Order {
     @Column(name = "delivery_address")
     private String delivery_address;
 
-    @Column(name = "coupon_id")
-    private Integer coupon_id;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
 
     @OneToMany(
             cascade = CascadeType.ALL,

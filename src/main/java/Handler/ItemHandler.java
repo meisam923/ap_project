@@ -1,4 +1,3 @@
-// Create this new file: Handler/ItemHandler.java
 package Handler;
 
 import Controller.AuthController;
@@ -12,7 +11,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dto.ItemDto;
 import dto.UserDto;
-import model.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
