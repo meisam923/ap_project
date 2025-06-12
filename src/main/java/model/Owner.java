@@ -16,9 +16,11 @@ public class Owner extends User {
 
     public Owner() {
         super();
+        setRole(Role.SELLER);
     }
 
     public Owner(String fullName, String address, String phoneNumber, String email, String password, String profileImageBase64, String bankName, String accountNumber) {
         super(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+        setRole(Role.SELLER);
     }
 }

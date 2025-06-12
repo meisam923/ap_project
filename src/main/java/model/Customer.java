@@ -26,9 +26,11 @@ public class Customer extends User {
 
     public Customer() {
         super();
+        setRole(Role.BUYER);
     }
 
     public Customer(String fullName, String address, String phoneNumber, String email, String password, String profileImageBase64, String bankName, String accountNumber) {
         super(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+        setRole(Role.BUYER); 
     }
 }

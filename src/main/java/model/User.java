@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_role", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 public abstract class User {
 
     @Id
@@ -24,36 +24,28 @@ public abstract class User {
 
     @Column(unique = true, nullable = false, updatable = false)
     private String publicId = UUID.randomUUID().toString();
-
     private String fullName;
     private String address;
-
     @Column(unique = true, nullable = false)
     private String phoneNumber;
-
     @Column(unique = true)
     private String email;
-
     private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, updatable = false, insertable = false)
-    private Role role;
-
     private String profileImageBase64;
     private String bankName;
     private String accountNumber;
-
     @Column(nullable = false)
     private boolean isVerified = false;
-
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, insertable = false, updatable = false)
+    private Role role;
 
     public User() {}
 

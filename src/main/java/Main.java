@@ -68,7 +68,6 @@ public class Main {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         try {
             server.createContext("/auth", new AuthHandler());
-            // This is the corrected line. It maps /vendors to your new VendorHandler.
             server.createContext("/vendors", new VendorHandler());
         } catch (Exception e) {
             System.err.println("Main: Error creating Handlers: " + e.getMessage());

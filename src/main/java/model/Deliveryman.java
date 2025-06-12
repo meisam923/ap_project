@@ -22,9 +22,11 @@ public class Deliveryman extends User {
 
     public Deliveryman() {
         super();
+        setRole(Role.COURIER);
     }
 
     public Deliveryman(String fullName, String address, String phoneNumber, String email, String password, String profileImageBase64, String bankName, String accountNumber) {
         super(fullName, address, phoneNumber, email, password, profileImageBase64, bankName, accountNumber);
+        setRole(Role.COURIER);
     }
 }

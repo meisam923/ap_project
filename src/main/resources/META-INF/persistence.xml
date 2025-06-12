@@ -1,31 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
-             version="2.2">
-    <persistence-unit name="MyPU" transaction-type="RESOURCE_LOCAL">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
+             version="3.1">
 
+    <persistence-unit name="MyPU" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <!-- entity classes: -->
+        <!-- List all of your @Entity classes here -->
         <class>model.User</class>
         <class>model.Customer</class>
         <class>model.Owner</class>
         <class>model.Deliveryman</class>
         <class>model.Restaurant</class>
+        <class>model.Menu</class>
         <class>model.Item</class>
+        <class>model.Order</class>
+        <class>model.Review</class>
+        <class>model.RefreshToken</class>
+        <!-- Add any other entity classes as you create them -->
 
         <properties>
+            <!-- Database Connection Properties -->
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres"/>
             <property name="jakarta.persistence.jdbc.user" value="postgres"/>
-            <property name="jakarta.persistence.jdbc.password" value="newpassword"/>
+            <property name="jakarta.persistence.jdbc.password" value="YOUR_PASSWORD_HERE"/>
 
-
-            <property name="hibernate.dialect"
-                      value="org.hibernate.dialect.PostgreSQLDialect"/>
-            <property name="hibernate.hbm2ddl.auto"
-                      value="update"/>
-            <property name="hibernate.show_sql"
-                      value="true"/>
+            <!-- Hibernate Properties -->
+            <!-- Use 'update' for development. It updates the schema without dropping data. -->
+            <!-- Use 'create' or 'create-drop' to wipe and recreate the DB on startup. -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <!-- Optional: Show and format SQL in the console for debugging -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
         </properties>
+
     </persistence-unit>
 </persistence>
