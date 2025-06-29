@@ -1,5 +1,6 @@
 import Handler.AuthHandler;
 import Handler.ItemHandler;
+import Handler.OrderHandler; // Import the new OrderHandler
 import Handler.RestaurantHandler;
 import Handler.VendorHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -12,8 +13,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         // --- 1. Initialize Database Connection (JPA) ---
-        // This block runs first to ensure the database connection is ready before starting the server.
-        // It will throw an error and stop the app if the database connection fails.
         try {
             System.out.println("Main: Triggering JpaUtil static initializer...");
             Class.forName("util.JpaUtil"); // Ensures the static block in JpaUtil runs
@@ -29,8 +28,6 @@ public class Main {
         }
 
         // --- 2. Add a Shutdown Hook ---
-        // This ensures that when you stop the application (e.g., by pressing the stop button in IntelliJ),
-        // the database connection pool is closed gracefully.
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Main: Shutdown hook triggered. Closing resources...");
             JpaUtil.closeEntityManagerFactory();
@@ -42,11 +39,12 @@ public class Main {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
         try {
-            // Register all your handlers here. Each handler is responsible for a different base path.
-            server.createContext("/auth", new AuthHandler());           // For authentication endpoints
-            server.createContext("/vendors", new VendorHandler());         // For buyer-facing vendor/restaurant endpoints
-            server.createContext("/items", new ItemHandler());           // For buyer-facing item endpoints
-            server.createContext("/restaurants", new RestaurantHandler()); // For seller-facing restaurant management endpoints
+            // Register all your handlers here
+            server.createContext("/auth", new AuthHandler());           // For authentication
+            server.createContext("/restaurants", new RestaurantHandler()); // For seller-facing management
+            server.createContext("/vendors", new VendorHandler());         // For buyer-facing searching
+            server.createContext("/items", new ItemHandler());           // For buyer-facing searching
+            server.createContext("/orders", new OrderHandler());          // For buyer-facing order management
 
         } catch (Exception e) {
             System.err.println("Main: Error creating HTTP context handlers: " + e.getMessage());
@@ -64,6 +62,7 @@ public class Main {
         System.out.println("Restaurant endpoints (seller) at  http://localhost:" + port + "/restaurants/*");
         System.out.println("Vendor endpoints (buyer) at       http://localhost:" + port + "/vendors/*");
         System.out.println("Item endpoints (buyer) at         http://localhost:" + port + "/items/*");
+        System.out.println("Order endpoints (buyer) at        http://localhost:" + port + "/orders/*");
         System.out.println("=====================================================");
     }
 }

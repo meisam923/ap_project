@@ -4,6 +4,7 @@ import Services.RestaurantRegisterService;
 import Services.UserService;
 import dao.ItemDao;
 import dao.MenuDao;
+import dao.OwnerDao;
 import dao.RestaurantDao;
 
 import dto.RestaurantDto;
@@ -21,6 +22,7 @@ import observers.RestaurantObserver;
 import util.JpaUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RestaurantController {
     private static RestaurantRegisterService restaurantRegisterService;
@@ -28,13 +30,16 @@ public class RestaurantController {
     private static UserService userService;
     private static MenuDao menuDao=new MenuDao();
     private static ItemDao itemDao=new ItemDao();
+    private static OwnerDao ownerDao = new OwnerDao();
+
+
     public RestaurantController() {
         restaurantDao = new RestaurantDao();
         restaurantRegisterService =  RestaurantRegisterService.getInstance();
         userService = UserService.getInstance();
     }
 
-    public RestaurantDto.RegisterReponseRestaurantDto createRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws  InvalidInputException,Exception {
+    public RestaurantDto.RegisterReponseRestaurantDto createRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws  InvalidInputException, Exception {
         if (restaurant.name()== null) {
             throw new InvalidInputException(400, "name");
         }
@@ -44,8 +49,8 @@ public class RestaurantController {
         if (restaurant.phone()== null || restaurant.phone().length()!=11) {
             throw new InvalidInputException(400, "phone");
         }
-        if (restaurantDao.findByPhone(restaurant.phone())!=null || userService.findByPhone(restaurant.phone())!=null ) {
-            new AlreadyExistValueException(409, "phone");
+        if (restaurantDao.findByPhone(restaurant.phone())!=null || userService.findByPhone(restaurant.phone()).isPresent() ) {
+            throw new AlreadyExistValueException(409, "phone");
         }
         Restaurant newRestaurant = new Restaurant(
                 restaurant.name(),
@@ -55,8 +60,9 @@ public class RestaurantController {
                 restaurant.tax_fee(),
                 restaurant.additional_fee(),
                 restaurant.logaBase64()
-        );        owner.setRestaurant(newRestaurant);
-        restaurantDao.save(newRestaurant);
+        );
+        owner.setRestaurant(newRestaurant);
+        ownerDao.update(owner);
         return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
     }
      public RestaurantDto.RegisterReponseRestaurantDto editRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws InvalidInputException {
@@ -91,24 +97,18 @@ public class RestaurantController {
         restaurantDao.update(restaurant);
      }
 
-     public void deleteMenoFromRestaurant (Restaurant restaurant,String title) throws Exception {
-         Menu currentMenu = null;
-         Iterator<Menu> menuIterator = restaurant.getMenus().iterator();
-         while (menuIterator.hasNext()) {
-             currentMenu = menuIterator.next();
-             if (currentMenu.getTitle().equals(title)) {
-                 restaurant.removeMenu(title);
-                 menuDao.delete(currentMenu.getId());
-                 restaurantDao.update(restaurant);
-                 return ;
-             }
-             currentMenu=null;
+    public void deleteMenoFromRestaurant (Restaurant restaurant,String title) throws Exception {
+        Menu currentMenu = restaurant.getMenu(title);
+        if (currentMenu == null) {
+            throw new NotFoundException(404, "Menu");
+        }
 
-         }
-             if (currentMenu == null) {
-                 throw new NotFoundException(404, "Menu");
-             }
-     }
+        restaurant.removeMenu(title);
+
+        menuDao.deleteById(currentMenu.getId());
+
+        restaurantDao.update(restaurant);
+    }
 
      public RestaurantDto.AddItemToRestaurantResponseDto addItemTORestaurant(RestaurantDto.AddItemToRestaurantDto itemDto,Restaurant restaurant) throws Exception {
          if (itemDto.name()==null) {throw new InvalidInputException(400, "name");}
@@ -118,7 +118,10 @@ public class RestaurantController {
          for (String key:itemDto.keywords()) {
              if (key==null) {throw new InvalidInputException(400, "keywords");}
          }
-         Menu baseMenu =restaurant.getMenu("base");
+         Menu baseMenu = restaurant.getMenu("base");
+         if (baseMenu == null) {
+             baseMenu = new Menu(restaurant, "base");
+         }
          Item newItem=new Item(itemDto.name(),itemDto.description(),itemDto.price(),itemDto.supply(),itemDto.keywords(),itemDto.imageBase64());
          itemDao.save(newItem);
          baseMenu.addItem(newItem);
@@ -165,14 +168,16 @@ public class RestaurantController {
     }
 
     public void deleteItemfromRestaurant(Restaurant restaurant,int itemId) throws Exception {
-        Item item =itemDao.findById(itemId);
+        Item item = itemDao.findById(itemId);
         if (item == null) {throw new NotFoundException(404, "Item");}
-        if (restaurant.getId()!=item.getRestaurant().getId()) { throw new NotFoundException(404, "Menu");}
+        if (restaurant.getId() != item.getRestaurant().getId()) { throw new NotFoundException(404, "Item not found in this restaurant");}
+
         for (Menu menu:item.getMenus()) {
             menu.removeItem(item.getId());
             menuDao.update(menu);
         }
-        itemDao.delete(itemId);
+
+        itemDao.deleteById(itemId);
     }
     public void addAItemToMenu(Restaurant restaurant,String title,int itemID) throws Exception {
         Menu menu =restaurant.getMenu(title);
@@ -203,76 +208,83 @@ public class RestaurantController {
 
     public List<RestaurantDto.OrderResponseDto> getRestaurantOrders(HashMap<String, String> queryFilters, int restaurantId) throws Exception {
 
+        // Start building the database query
         StringBuilder jpqlString = new StringBuilder("SELECT o FROM Order o WHERE o.restaurant.id = :restaurantId");
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("restaurantId", restaurantId);
 
-        // 1. Filter by Status (assuming OrderStatus.fromString() handles normalization)
-        if (queryFilters.containsKey("status") && queryFilters.get("status") != null && !queryFilters.get("status").isEmpty()) {
-            String statustmp = queryFilters.get("status").trim().toUpperCase().replaceAll(" ", "_");
-                OrderStatus statusEnum = OrderStatus.fromString(statustmp);
+        // Add filters based on query parameters
+        if (queryFilters != null) {
+            if (queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
+                OrderStatus statusEnum = OrderStatus.fromString(queryFilters.get("status"));
                 jpqlString.append(" AND o.status = :status");
                 parameters.put("status", statusEnum);
-
-        }
-
-        if (queryFilters.containsKey("user") && queryFilters.get("user") != null && !queryFilters.get("user").isEmpty()) {
-            String userNameSearch = queryFilters.get("user").toLowerCase();
-            // Assuming your Customer entity has a field 'fullName'
-            jpqlString.append(" AND LOWER(o.customer.fullName) LIKE :customerFullName");
-            parameters.put("customerFullName", "%" + userNameSearch + "%");
-        }
-
-        if (queryFilters.containsKey("courier") && queryFilters.get("courier") != null && !queryFilters.get("courier").isEmpty()) {
-            String courierNameSearch = queryFilters.get("courier").toLowerCase();
-            jpqlString.append(" AND LOWER(o.deliveryman.fullName) LIKE :deliverymanFullName");
-            parameters.put("deliverymanFullName", "%" + courierNameSearch + "%");
-        }
-
-        if (queryFilters.containsKey("search") && queryFilters.get("search") != null && !queryFilters.get("search").isEmpty()) {
-            String itemTitleSearch = queryFilters.get("search").toLowerCase();
-            jpqlString.append(" AND EXISTS (SELECT 1 FROM o.itemQuantities itemEntry WHERE LOWER(KEY(itemEntry).title) LIKE :itemTitle)");
-            parameters.put("itemTitle", "%" + itemTitleSearch + "%");
-        }
-        EntityManager em= JpaUtil.getEntityManager();
-        EntityTransaction tx= em.getTransaction();
-        TypedQuery<Order> typedQuery = em.createQuery(jpqlString.toString(), Order.class);
-
-        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            typedQuery.setParameter(entry.getKey(), entry.getValue());
-        }
-
-        System.out.println("Executing JPQL: " + jpqlString.toString());
-        System.out.println("With parameters: " + parameters);
-
-        List<Order> orders = typedQuery.getResultList();
-        List<RestaurantDto.OrderResponseDto> orderResponseDtos = new ArrayList<>();
-
-        for (Order order : orders) {
-            List<Integer> itemIds = new ArrayList<>();
-            for (Item item : order.getItems()) {
-                itemIds.add(item.getId());
             }
-
-            orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
-                    order.getId(),
-                    order.getDelivery_address(),
-                    order.getCustomer().getId().intValue(),
-                    order.getRestaurant().getId(),
-                    order.getCoupon_id(),
-                    itemIds,
-                    order.getRaw_price(),
-                    order.getTax_fee(),
-                    order.getAdditional_fee(),
-                    order.getCourier_fee(),
-                    order.getPay_price(),
-                    (order.getDeliveryman() != null) ? order.getDeliveryman().getId().intValue() : null,
-                    (order.getStatus() != null) ? order.getStatus().name() : null,
-                    (order.getCreatedAt() != null) ? order.getCreatedAt().toString() : null,
-                    (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null
-            ));
+            if (queryFilters.containsKey("user") && !queryFilters.get("user").isEmpty()) {
+                jpqlString.append(" AND LOWER(o.customer.fullName) LIKE LOWER(:customerFullName)");
+                parameters.put("customerFullName", "%" + queryFilters.get("user") + "%");
+            }
+            if (queryFilters.containsKey("courier") && !queryFilters.get("courier").isEmpty()) {
+                jpqlString.append(" AND o.deliveryman IS NOT NULL AND LOWER(o.deliveryman.fullName) LIKE LOWER(:deliverymanFullName)");
+                parameters.put("deliverymanFullName", "%" + queryFilters.get("courier") + "%");
+            }
+            if (queryFilters.containsKey("search") && !queryFilters.get("search").isEmpty()) {
+                jpqlString.append(" AND EXISTS (SELECT 1 FROM o.items item WHERE LOWER(item.itemName) LIKE LOWER(:itemTitle))");
+                parameters.put("itemTitle", "%" + queryFilters.get("search") + "%");
+            }
         }
-        em.close();
-        return orderResponseDtos;
+
+        // Execute the query
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Order> typedQuery = em.createQuery(jpqlString.toString(), Order.class);
+            parameters.forEach(typedQuery::setParameter);
+            List<Order> orders = typedQuery.getResultList();
+
+            List<RestaurantDto.OrderResponseDto> orderResponseDtos = new ArrayList<>();
+
+            // Map the results to DTOs
+            for (Order order : orders) {
+                List<Integer> itemIds = order.getItems().stream()
+                        .map(OrderItem::getItemId)
+                        .collect(Collectors.toList());
+
+                orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
+                        order.getId().intValue(),
+                        order.getDeliveryAddress(),
+                        (order.getCustomer() != null) ? order.getCustomer().getId().intValue() : null,
+                        (order.getRestaurant() != null) ? order.getRestaurant().getId() : null,
+                        (order.getCoupon() != null) ? order.getCoupon().getId() : null,
+                        itemIds,
+                        order.getSubtotalPrice(),
+                        order.getTaxFee(),
+                        order.getAdditionalFee(),
+                        order.getDeliveryFee(),
+                        order.getTotalPrice(),
+                        (order.getDeliveryman() != null) ? order.getDeliveryman().getId().intValue() : null,
+                        (order.getStatus() != null) ? order.getStatus().name() : null,
+                        (order.getCreatedAt() != null) ? order.getCreatedAt().toString() : null,
+                        (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null
+                ));
+            }
+            return orderResponseDtos;
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public RestaurantDto.RegisterReponseRestaurantDto mapToRegisterResponseDto(Restaurant restaurant) {
+        if (restaurant == null) {
+            return null;
+        }
+        return new RestaurantDto.RegisterReponseRestaurantDto(
+                restaurant.getId(),
+                restaurant.getTitle(),
+                restaurant.getAddress(),
+                restaurant.getPhoneNumber(),
+                restaurant.getLogoBase64(),
+                restaurant.getTaxFee(),
+                restaurant.getAdditionalFee()
+        );
     }
 }
