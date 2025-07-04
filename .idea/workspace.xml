@@ -38,28 +38,28 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
+    &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;rezaj123&quot;
-  }
-}</component>
+    }
+    }</component>
   <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/meisam923/ap_project.git&quot;,
     &quot;accountId&quot;: &quot;e8491cc7-8b64-4ebe-b9bc-af0cce7314ec&quot;
-  }
-}</component>
+    }
+    }</component>
   <component name="HttpClientSelectedEnvironments">
     <file url="file://$USER_HOME$/AppData/Local/Temp/whats-new-dir/whats-new.http" environment="test" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
-  &quot;isMigrated&quot;: true
-}</component>
+    &quot;isMigrated&quot;: true
+    }</component>
   <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 8
-}</component>
+    &quot;customColor&quot;: &quot;&quot;,
+    &quot;associatedIndex&quot;: 8
+    }</component>
   <component name="ProjectId" id="2xcMpuZ8wzu3lyZrRW2lYorNjlO" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
