@@ -57,7 +57,10 @@ public class AuthController {
         }
 
         User user = userOpt.get();
+        System.out.println("DEBUG: Stored Password   = [" + user.getPassword() + "]");
+        System.out.println("DEBUG: Provided Password = [" + password + "]");
         if (!user.getPassword().equals(password)) {
+            System.err.println("DEBUG: Passwords do NOT match!");
             return Optional.empty();
         }
 

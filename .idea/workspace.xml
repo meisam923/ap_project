@@ -4,20 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="endpoint get order">
-      <change afterPath="$PROJECT_DIR$/.idea/jpa.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/CourierController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Handler/CourierHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/783d4c84-becb-439a-a8dd-8caa45855683.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/783d4c84-becb-439a-a8dd-8caa45855683.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/783d4c84-becb-439a-a8dd-8caa45855683/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/783d4c84-becb-439a-a8dd-8caa45855683/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/diff-generator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/diff-generator.xml" afterDir="false" />
+    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="@_@">
+      <change afterPath="$PROJECT_DIR$/src/main/java/DataSeeder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Controller/RestaurantController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controller/RestaurantController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Handler/RestaurantHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Handler/RestaurantHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controller/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dao/OrderDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/OrderDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/enums/OrderStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/enums/OrderStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Customer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/Deliveryman.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Deliveryman.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/Owner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Owner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/persistence.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/persistence.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,13 +69,15 @@
   "keyToString": {
     "Application.Main.executor": "Run",
     "Application.Unnamed.executor": "Run",
+
+    "Application.dataSeeder.executor": "Run",
     "HTTP Request.generated-requests | #1.executor": "Run",
+    "Maven.approject [org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "database.data.extractors.current.export.id": "SQL Inserts",
     "database.data.extractors.current.id": "SQL Inserts",
-    "git-widget-placeholder": "meisi",
+    "git-widget-placeholder": "setup2",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "C:/Users/USER/IdeaProjects/ap_project",
     "node.js.detected.package.eslint": "true",
@@ -89,7 +88,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settingsdialog.project.grazie",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -110,9 +109,25 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="dataSeeder" type="Application" factoryName="Application" singleton="false">
+      <envs>
+        <env name="my-very-secret-key" value="MySuperLongAndVerySecureSecretKeyForMyUberEatsApp1234567890!@#$%" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="DataSeeder" />
+      <module name="approject" />
+      <option name="VM_PARAMETERS" value="--add-opens=java.base/java.lang=ALL-UNNAMED " />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="generated-requests | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#1" runType="Run single request">
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Application.dataSeeder" />
+      <item itemvalue="HTTP Request.generated-requests | #1" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="HTTP Request.generated-requests | #1" />
@@ -122,8 +137,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.129" />
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.129" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26094.121" />
+        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-IU-251.26094.121" />
       </set>
     </attachedChunks>
   </component>
@@ -144,10 +159,7 @@
       <workItem from="1748329442899" duration="2645000" />
       <workItem from="1748779273878" duration="20137000" />
       <workItem from="1748892688035" duration="4258000" />
-      <workItem from="1749120182577" duration="18000" />
-      <workItem from="1749202388039" duration="412000" />
-      <workItem from="1749213720345" duration="1194000" />
-      <workItem from="1749214941930" duration="11254000" />
+      <workItem from="1749710866060" duration="4294000" />
     </task>
     <task id="LOCAL-00001" summary="all">
       <option name="closed" value="true" />
@@ -173,7 +185,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748337990578</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="@_@">
+      <option name="closed" value="true" />
+      <created>1749712795921</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1749712795921</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -182,7 +202,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="finally" />
     <MESSAGE value="all" />
-    <MESSAGE value="endpoint get order" />
-    <option name="LAST_COMMIT_MESSAGE" value="endpoint get order" />
+    <MESSAGE value="@_@" />
+    <option name="LAST_COMMIT_MESSAGE" value="@_@" />
   </component>
 </project>

@@ -170,10 +170,6 @@ public class UserService {
             owner.setAddress(newAddress);
             changed = true;
         }
-        if (newLocation != null && (owner.getLocation() == null || !newLocation.equals(owner.getLocation()))) {
-            owner.setLocation(newLocation);
-            changed = true;
-        }
         if (changed) ownerDao.update(owner);
         return changed;
     }
