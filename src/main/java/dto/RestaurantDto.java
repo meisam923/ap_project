@@ -59,7 +59,19 @@ public class RestaurantDto {
             @JsonProperty("created_at") String created_at,
             @JsonProperty("updated_at") String updated_at
     ) {}
+    public static record RestaurantSchemaDTO(
+            @JsonProperty("id") int id,
+            @JsonProperty("name") String name,
+            @JsonProperty("address") String address,
+            @JsonProperty("category") String category,
+            @JsonProperty("rating") Double rating,
+            @JsonProperty("logo_url") String logoUrl,
+            @JsonProperty("is_open") Boolean isOpen
+    ) {}
 
+    public record MessageResponseDTO(
+            @JsonProperty("message") String message
+    ) {}
 }
 /*
 {

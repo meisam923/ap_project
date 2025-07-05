@@ -165,6 +165,21 @@ public class CustomerDao implements IDao<Customer, Long> {
             em.close();
         }
     }
+    public Customer findByIdWithFavorites(Long id) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Customer> query = em.createQuery(
+                    "SELECT c FROM Customer c LEFT JOIN FETCH c.favoriteRestaurants WHERE c.id = :id",
+                    Customer.class
+            );
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            if (em != null) em.close();
+        }
+    }
 
 
 }

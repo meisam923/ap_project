@@ -1,8 +1,4 @@
-import Handler.AuthHandler;
-import Handler.ItemHandler;
-import Handler.OrderHandler; // Import the new OrderHandler
-import Handler.RestaurantHandler;
-import Handler.VendorHandler;
+import Handler.*;
 import com.sun.net.httpserver.HttpServer;
 import util.JpaUtil;
 
@@ -45,6 +41,8 @@ public class Main {
             server.createContext("/vendors", new VendorHandler());         // For buyer-facing searching
             server.createContext("/items", new ItemHandler());           // For buyer-facing searching
             server.createContext("/orders", new OrderHandler());          // For buyer-facing order management
+            server.createContext("/favorites", new FavoriteHandler());
+            server.createContext("/ratings", new RatingHandler());
 
         } catch (Exception e) {
             System.err.println("Main: Error creating HTTP context handlers: " + e.getMessage());
