@@ -4,18 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="added 3 new order endpoints next is favourite">
-      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/FavoriteController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/RatingController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Handler/FavoriteHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Handler/RatingHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dao/RatingDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dto/RatingDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dao/CustomerDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/CustomerDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dto/RestaurantDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dto/RestaurantDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/model/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Customer.java" afterDir="false" />
+    <list default="true" id="03b0fe1e-bfae-4e55-8f04-38aceb7db231" name="Changes" comment="favorite and rating added">
+      <change afterPath="$PROJECT_DIR$/src/main/java/dto/DeliveryDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dao/OrderDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/OrderDao.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +154,7 @@
       <workItem from="1749710866060" duration="4294000" />
       <workItem from="1751188293629" duration="5382000" />
       <workItem from="1751207809261" duration="5704000" />
-      <workItem from="1751726932155" duration="3431000" />
+      <workItem from="1751726932155" duration="3738000" />
     </task>
     <task id="LOCAL-00001" summary="all">
       <option name="closed" value="true" />
@@ -205,7 +196,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751213100471</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="favorite and rating added">
+      <option name="closed" value="true" />
+      <created>1751730422232</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1751730422232</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -216,6 +215,7 @@
     <MESSAGE value="all" />
     <MESSAGE value="@_@" />
     <MESSAGE value="added 3 new order endpoints next is favourite" />
-    <option name="LAST_COMMIT_MESSAGE" value="added 3 new order endpoints next is favourite" />
+    <MESSAGE value="favorite and rating added" />
+    <option name="LAST_COMMIT_MESSAGE" value="favorite and rating added" />
   </component>
 </project>

@@ -1,5 +1,6 @@
 package dao;
 
+import enums.OrderStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
@@ -120,6 +121,52 @@ public class OrderDao implements IDao<Order, Long> {
             if (tx != null && tx.isActive()) tx.rollback();
             e.printStackTrace();
             throw new RuntimeException("Database transaction failed", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public List<Order> findAvailableForDelivery() {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Order> query = em.createQuery(
+                    "SELECT o FROM Order o WHERE o.status = :status AND o.deliveryman IS NULL", Order.class);
+            query.setParameter("status", OrderStatus.FINDING_COURIER);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public List<Order> findHistoryForCourier(Long courierId, String searchFilter, String vendorFilter) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.deliveryman.id = :courierId");
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("courierId", courierId);
+
+            if (vendorFilter != null && !vendorFilter.isBlank()) {
+                jpql.append(" AND LOWER(o.restaurant.title) LIKE LOWER(:vendorName)");
+                parameters.put("vendorName", "%" + vendorFilter + "%");
+            }
+
+            if (searchFilter != null && !searchFilter.isBlank()) {
+                jpql.append(" AND EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE LOWER(:searchKeyword))");
+                parameters.put("searchKeyword", "%" + searchFilter + "%");
+            }
+
+            jpql.append(" ORDER BY o.createdAt DESC");
+
+            TypedQuery<Order> query = em.createQuery(jpql.toString(), Order.class);
+            parameters.forEach(query::setParameter);
+
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         } finally {
             if (em != null) em.close();
         }

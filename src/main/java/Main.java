@@ -43,6 +43,7 @@ public class Main {
             server.createContext("/orders", new OrderHandler());          // For buyer-facing order management
             server.createContext("/favorites", new FavoriteHandler());
             server.createContext("/ratings", new RatingHandler());
+            server.createContext("/deliveries", new DeliveryHandler());
 
         } catch (Exception e) {
             System.err.println("Main: Error creating HTTP context handlers: " + e.getMessage());
