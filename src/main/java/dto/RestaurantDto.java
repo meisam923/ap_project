@@ -49,17 +49,29 @@ public class RestaurantDto {
             @JsonProperty("vendor_id") int vendor_id,
             @JsonProperty("coupon_id") Integer coupon_id,
             @JsonProperty("item_ids") List<Integer> item_ids,
-            @JsonProperty("raw_price") int raw_price,
-            @JsonProperty("tax_fee") int tax_fee,
-            @JsonProperty("additional_fee") int additional_fee,
-            @JsonProperty("courier_fee") int courier_fee,
-            @JsonProperty("pay_price") int pay_price,
+            @JsonProperty("raw_price") java.math.BigDecimal raw_price,
+            @JsonProperty("tax_fee") java.math.BigDecimal tax_fee,
+            @JsonProperty("additional_fee") java.math.BigDecimal additional_fee,
+            @JsonProperty("courier_fee") java.math.BigDecimal courier_fee,
+            @JsonProperty("pay_price") java.math.BigDecimal pay_price,
             @JsonProperty("courier_id") Integer courier_id,
             @JsonProperty("status") String status,
             @JsonProperty("created_at") String created_at,
             @JsonProperty("updated_at") String updated_at
     ) {}
+    public static record RestaurantSchemaDTO(
+            @JsonProperty("id") int id,
+            @JsonProperty("name") String name,
+            @JsonProperty("address") String address,
+            @JsonProperty("category") String category,
+            @JsonProperty("rating") Double rating,
+            @JsonProperty("logo_url") String logoUrl,
+            @JsonProperty("is_open") Boolean isOpen
+    ) {}
 
+    public record MessageResponseDTO(
+            @JsonProperty("message") String message
+    ) {}
 }
 /*
 {

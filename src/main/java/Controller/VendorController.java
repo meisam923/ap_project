@@ -27,7 +27,7 @@ public class VendorController {
         );
 
         if (restaurantEntities == null || restaurantEntities.isEmpty()) {
-            return Collections.emptyList();
+                return Collections.emptyList();
         }
 
         return restaurantEntities.stream()

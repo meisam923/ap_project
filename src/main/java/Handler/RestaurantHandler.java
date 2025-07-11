@@ -2,6 +2,7 @@ package Handler;
 
 import Controller.AuthController;
 import Controller.RestaurantController;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -38,6 +39,7 @@ public class RestaurantHandler implements HttpHandler {
     private final RestaurantController restaurantController = new RestaurantController();
     private final Gson gson = new GsonBuilder().serializeNulls().create();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     private final List<Route> routes = new ArrayList<>();
 
@@ -293,45 +295,38 @@ public class RestaurantHandler implements HttpHandler {
     // TODO : conflict if a that item exist implemention status :false
     private void addRestaurantItemAction(HttpExchange exchange, String restaurantId) {
         try {
-            System.out.println("Action: Add item to restaurant ID: " + restaurantId);
-            // TODO: Implement logic for POST /restaurants/{id}/item
             checkMediaType(exchange);
             User user = getUserFromToken(exchange);
+            if (user == null) return;
+
             if (!user.getRole().equals(Role.SELLER)) {
-                sendErrorResponse(exchange, 403, "Forbidden request");
-                return;
+                sendErrorResponse(exchange, 403, "Forbidden request"); return;
             }
-            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
-                sendErrorResponse(exchange, 403, "Forbidden request");
-                return;
+            if (((Owner) user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
+                sendErrorResponse(exchange, 403, "Forbidden request"); return;
             }
             int restaurant_id = extractInteger(restaurantId);
             if (((Owner) user).getRestaurant().getId() != restaurant_id) {
-                sendErrorResponse(exchange, 404, "Resource not found");
-                return;
+                sendErrorResponse(exchange, 404, "Resource not found"); return;
             }
             String jsonBody = readRequestBody(exchange);
-            if (jsonBody == null) {
-                sendErrorResponse(exchange, 400, "body is empty");
-                return;
+            if (jsonBody == null || jsonBody.isEmpty()) {
+                sendErrorResponse(exchange, 400, "body is empty"); return;
             }
             RestaurantDto.AddItemToRestaurantDto itemdto = objectMapper.readValue(jsonBody, RestaurantDto.AddItemToRestaurantDto.class);
             RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.addItemTORestaurant(itemdto, ((Owner) user).getRestaurant());
-            sendResponse(exchange, 200, gson.toJson(response), "application/json");
+
+            String jsonResponse = objectMapper.writeValueAsString(response);
+            sendResponse(exchange, 200, jsonResponse, "application/json");
+
         } catch (AuthController.AuthenticationException | ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
-        } catch (JsonSyntaxException | com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.err.println("JSON Parsing Error: " + e.getMessage());
-            e.printStackTrace();
+        } catch (JsonProcessingException e) {
             sendErrorResponse(exchange, 400, "Invalid JSON input");
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-            sendErrorResponse(exchange, 400, "error in reading json");
         } catch (Exception e) {
-            System.err.println("Unexpected error in createRestaurantAction: " + e.getMessage());
+            System.err.println("Unexpected error in addRestaurantItemAction: " + e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }

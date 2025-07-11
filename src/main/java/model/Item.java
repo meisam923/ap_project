@@ -17,7 +17,6 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "items")
 public class Item {
 
@@ -80,17 +79,14 @@ public class Item {
         menus.add(menu);
     }
     public void removeFromMenu(int menuId) throws NotFoundException {
-        Iterator<Menu> iterator = menus.iterator();
-        Menu menu = null;
-        while (iterator.hasNext()) {
-            menu = iterator.next();
-            if (menu.getId() == menuId) {
-                iterator.remove();
-                return;
-            }
-            menu=null;
+        if (this.menus == null) {
+            throw new NotFoundException(404, "Menu not found in item.");
         }
-        if (menu==null){throw new NotFoundException(404, "Menu");}
+        boolean removed = this.menus.removeIf(menu -> menu.getId() == menuId);
+
+        if (!removed) {
+            throw new NotFoundException(404, "Menu with ID " + menuId + " not associated with this item.");
+        }
     }
 }
 
