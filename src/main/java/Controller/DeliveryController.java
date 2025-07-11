@@ -49,7 +49,6 @@ public class DeliveryController {
                     throw new ConflictException("Delivery already assigned to another courier.");
                 }
                 order.setDeliveryman(deliveryman);
-                order.setStatus(OrderStatus.ON_THE_WAY);
                 break;
 
             case "received":
@@ -75,7 +74,7 @@ public class DeliveryController {
             default:
                 throw new InvalidInputException("Invalid status action: '" + newStatusAction + "'. Must be one of: accepted, received, delivered.");
         }
-
+        order.updateStatus();
         orderDao.update(order);
         return mapOrderToSchemaDTO(order);
     }
