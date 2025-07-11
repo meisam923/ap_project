@@ -1,8 +1,8 @@
 # General compiled files and build output
-*.class                 # Java compiled class files
-target/                 # Standard Maven build output directory
-build/                  # Standard Gradle build output directory
-bin/                    # Common output directory for simpler projects
+*.class
+target/
+build/
+bin/
 
 # Package and archive files
 *.jar
@@ -14,16 +14,14 @@ bin/                    # Common output directory for simpler projects
 *.rar
 
 # Log files
-*.log                   # General log files
-hs_err_pid* # JVM crash logs
-replay_pid* # JVM replay logs
+*.log
+hs_err_pid*
+replay_pid*
 
-# Maven Wrapper files (if your project uses Maven Wrapper)
-!.mvn/wrapper/maven-wrapper.jar # Keep the wrapper JAR (it's part of the project setup)
+# Maven Wrapper files
+!.mvn/wrapper/maven-wrapper.jar
 
 # IDE-specific ignores (JetBrains - IntelliJ IDEA)
-# Note: Some of these .idea/ files *might* be committed if shared project settings are desired.
-# But for personal workspace settings, they should be ignored.
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/usage.statistics.xml
@@ -36,10 +34,15 @@ replay_pid* # JVM replay logs
 .idea/webServers.xml
 .idea/jsLibraryMappings.xml
 .idea/httpRequests/
-.idea/inspectionProfiles/profiles_settings.xml # Local inspection settings
-*.iws                    # Old IntelliJ workspace file
-*.iml                    # IntelliJ module file (often ignored if using Maven/Gradle)
-*.ipr                    # Old IntelliJ project file
+.idea/inspectionProfiles/profiles_settings.xml
+*.iws
+*.iml
+*.ipr
+# Decide if you want to track or ignore these specific .idea files:
+.idea/compiler.xml
+.idea/jarRepositories.xml
+# If your team shares these settings for consistent IDE setup, you might NOT ignore them.
+# If it's just you or your team doesn't care, then keeping these lines (to ignore them) is fine.
 
 # IDE-specific ignores (Eclipse)
 .apt_generated
@@ -56,24 +59,16 @@ replay_pid* # JVM replay logs
 /dist/
 /nbdist/
 /.nb-gradle/
-!**/src/main/**/build/ # Keep nested builds for specific cases if needed (from original)
-!**/src/test/**/build/  # Keep nested builds for specific cases if needed (from original)
+!**/src/main/**/build/
+!**/src/test/**/build/
 
 # IDE-specific ignores (VS Code)
 .vscode/
 
 # Operating System specific files
-.DS_Store               # macOS specific
-Thumbs.db               # Windows specific
+.DS_Store
+Thumbs.db
 
 # Other tool-specific ignores
-*.ctxt                  # BlueJ files
-.mtj.tmp/               # Mobile Tools for Java temporary files
-
-# Optional: If you *only* want to ignore .idea/workspace.xml and keep other .idea files:
-# Then replace all the specific .idea/ ignores above with just:
-# .idea/workspace.xml
-# This means that files like .idea/modules.xml, .idea/misc.xml, etc. would still be tracked.
-# For most teams, it's common to track modules.xml, misc.xml, vcs.xml for consistent project setup.
-# If you are the only developer or don't care about sharing IDE settings, ignoring the whole .idea/
-# (with the ! exclusions) is simpler.
+*.ctxt
+.mtj.tmp/
