@@ -8,6 +8,7 @@ import dao.OrderDao;
 import dao.RestaurantDao;
 
 import dto.RestaurantDto;
+import enums.OrderRestaurantStatus;
 import enums.OrderStatus;
 import exception.AlreadyExistValueException;
 import exception.ConflictException;
@@ -269,7 +270,7 @@ public class RestaurantController {
                     order.getCourier_fee(),
                     order.getPay_price(),
                     (order.getDeliveryman() != null) ? order.getDeliveryman().getId().intValue() : null,
-                    (order.getStatus() != null) ? order.getStatus().name() : null,
+                    (order.getStatus() != null) ? order.getStatus().name().toLowerCase() : null,
                     (order.getCreatedAt() != null) ? order.getCreatedAt().toString() : null,
                     (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null
             ));
@@ -286,11 +287,12 @@ public class RestaurantController {
         if (owner.getRestaurant().getId() != order.getRestaurant().getId()) {
             throw new NotFoundException(404,"Resource Not Found");
         }
-        OrderStatus orderStatusEnum = OrderStatus.fromString(status);
-        if (orderStatusEnum == order.getStatus()) {
+        OrderRestaurantStatus orderStatusEnum = OrderRestaurantStatus.fromString(status);
+        if (orderStatusEnum == order.getRestaurantStatus()) {
             throw new ConflictException(409);
         }
-        order.setStatus(orderStatusEnum);
+        order.setRestaurantStatus(orderStatusEnum);
+        order.updateStatus();
         orderDao.update(order);
     }
 }

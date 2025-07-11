@@ -10,7 +10,6 @@ public enum OrderStatus {
     FINDING_COURIER,
     ON_THE_WAY,
     COMPLETED;
-
     /**
      * Converts a string (potentially with spaces and different casing)
      * to an OrderStatus enum constant. It normalizes the input by
@@ -35,5 +34,9 @@ public enum OrderStatus {
             e.printStackTrace();
             throw new InvalidInputException(400, "Invalid status");
         }
+    }
+
+    public boolean equals(OrderStatus other) {
+        return this.ordinal() == other.ordinal();
     }
 }

@@ -2,27 +2,34 @@ package Handler;
 
 import Controller.AuthController;
 import Controller.CourierController;
-import Controller.RestaurantController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import dto.RestaurantDto;
 import enums.Role;
+import exception.DeliveryAssigendException;
 import exception.ForbiddenException;
+import exception.InvalidInputException;
+import exception.NotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
+import model.Deliveryman;
 import model.User;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CourierHandler {
+public class CourierHandler implements HttpHandler {
     private final AuthController authController = AuthController.getInstance();
     private final Gson gson = new GsonBuilder().serializeNulls().create();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -81,13 +88,17 @@ public class CourierHandler {
     }
 
 
-    private void getDeliveryHistoryAction(HttpExchange exchange) {
+    private void getDeliveryRequestAction(HttpExchange exchange) {
+        System.out.println("getDeliveryHistoryAction");
+        try{
         User user=getUserFromToken(exchange);
         if (!user.getRole().equals(Role.COURIER)) {
             sendErrorResponse(exchange, 403, "Forbidden request");
             return;
         }
-        try {
+        if (!user.isVerified()){
+            throw new ForbiddenException(403);
+        }
             List<RestaurantDto.OrderResponseDto> response=courierController.getAvailableDeliveryRequest();
             sendResponse(exchange,200,gson.toJson(response),"application/json");
         }
@@ -101,16 +112,87 @@ public class CourierHandler {
         }
         catch (Exception e){
             e.printStackTrace();
-            sendErrorResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+            sendErrorResponse(exchange, 500, "Internal server error");
         }
     }
 
-    private void getDeliveryRequestAction(HttpExchange exchange) {
+    private void getDeliveryHistoryAction(HttpExchange exchange) {
     }
 
     private void chengeOrderStatusAction(HttpExchange exchange, String order_id) {
+        try {
+            User user=getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.COURIER)) {
+                throw new ForbiddenException(403);
+            }
+            if (!user.isVerified()){
+                throw new ForbiddenException(403);
+            }
+            checkMediaType(exchange);
+            int orderId = extractInteger(order_id);
+            String status = objectMapper.readTree(readRequestBody(exchange)).get("status").asText();
+            RestaurantDto.OrderResponseDto response= courierController.changeOrderStatus((Deliveryman)  user, orderId, status);
+            HashMap<String , Object> map = new HashMap<>();
+            map.put("message", "Changed status successfully");
+            map.put("order", response);
+            sendResponse(exchange,200,gson.toJson(map),"application/json");
+
+        }
+        catch (DeliveryAssigendException e){
+            e.printStackTrace();
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        }
+        catch (NotFoundException e){
+            e.printStackTrace();
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        }
+        catch (InvalidInputException e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, e.getStatusCode(), e.getMessage());
+        }
+        catch (ForbiddenException e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
+        }
+        catch (AuthController.AuthenticationException | ExpiredJwtException e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 401, "Unauthorized request");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal server error");
+        }
     }
 
+    private int extractInteger(String str) throws InvalidInputException {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(400, "Invalid id");
+        }
+    }
+
+    private void checkMediaType(HttpExchange exchange) throws InvalidInputException {
+        String contentType = exchange.getRequestHeaders().getFirst("Content-Type");
+        if (contentType == null || !contentType.toLowerCase().startsWith("application/json")) {
+            throw new InvalidInputException(415, "Unsupported Media Type");
+        }
+    }
+
+    private String readRequestBody(HttpExchange exchange) throws IOException {
+        StringBuilder jsonBody = new StringBuilder();
+        try (InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), java.nio.charset.StandardCharsets.UTF_8);
+             BufferedReader reader = new BufferedReader(isr)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBody.append(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading request body: " + e.getMessage());
+            throw e;
+        }
+        return jsonBody.toString();
+    }
 
 
     private User getUserFromToken(HttpExchange exchange) throws AuthController.AuthenticationException {
