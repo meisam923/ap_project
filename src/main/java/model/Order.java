@@ -1,5 +1,7 @@
 package model;
 
+import enums.OrderDeliveryStatus;
+import enums.OrderRestaurantStatus;
 import enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -43,7 +45,8 @@ public class Order {
 
     @OneToMany(
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
     )
     private List<Item> Items = new ArrayList<>();
 
@@ -66,6 +69,14 @@ public class Order {
     @Column(name = "status", nullable = false)
     private OrderStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "restaurant_status", nullable = false)
+    private OrderRestaurantStatus restaurantStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_status", nullable = false)
+    private OrderDeliveryStatus deliveryStatus;
+
     @Column(name = "created_at", updatable = false)
     private String createdAt;
 
@@ -78,5 +89,40 @@ public class Order {
                  Restaurant restaurant) {
         this.customer = customer;
         this.restaurant = restaurant;
+        this.restaurantStatus=OrderRestaurantStatus.BASE;
+        this.deliveryStatus=OrderDeliveryStatus.BASE;
+    }
+
+    public void updateStatus(){
+        switch (this.restaurantStatus) {
+            case BASE:
+                this.status = OrderStatus.SUBMITTED;
+                this.deliveryStatus=OrderDeliveryStatus.BASE;
+                break;
+
+            case ACCEPTED:
+                this.status=OrderStatus.WAITING_VENDOR;
+                this.deliveryStatus=OrderDeliveryStatus.BASE;
+                break;
+
+            case REJECTED:
+                this.status=OrderStatus.CANCELLED;
+                this.deliveryStatus=OrderDeliveryStatus.BASE;
+                break;
+
+            case SERVED:
+                switch (this.deliveryStatus) {
+                    case BASE:
+                        this.status=OrderStatus.FINDING_COURIER;
+                        break;
+
+                    case DELIVERED:
+                        this.status=OrderStatus.COMPLETED;
+                        break;
+
+                    default:
+                        this.status=OrderStatus.ON_THE_WAY; // it may have some nuances//
+                }
+        }
     }
 }

@@ -40,6 +40,8 @@
 //    }
 //}
 
+import Handler.CourierHandler;
+import Handler.RestaurantHandler;
 import Handler.VendorHandler;
 import com.sun.net.httpserver.HttpServer;
 import Handler.AuthHandler;
@@ -69,6 +71,8 @@ public class Main {
         try {
             server.createContext("/auth", new AuthHandler());
             server.createContext("/vendors", new VendorHandler());
+            server.createContext("/restaurants", new RestaurantHandler());
+            server.createContext("/deliveries", new CourierHandler());
         } catch (Exception e) {
             System.err.println("Main: Error creating Handlers: " + e.getMessage());
             e.printStackTrace();
@@ -79,5 +83,7 @@ public class Main {
         System.out.println("Server is running on port " + port);
         System.out.println("Auth endpoints available at http://localhost:" + port + "/auth/*");
         System.out.println("Vendor endpoints available at http://localhost:" + port + "/vendors/*");
+        System.out.println("Restaurants endpoints available at http://localhost:" + port + "/auth/*");
+        System.out.println("Courier endpoints available at http://localhost:" + port + "/vendors/*");
     }
 }

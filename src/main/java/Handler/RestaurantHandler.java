@@ -614,7 +614,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
@@ -642,7 +642,7 @@ public class RestaurantHandler implements HttpHandler {
                 return;
             }
             int order_id = extractInteger(orderId);
-            if (((Owner)user).getRestaurant().getStatus().equals(RestaurantStatus.WAITING)) {
+            if (((Owner)user).getRestaurant().getApprovalStatus().equals(ApprovalStatus.WAITING)) {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
