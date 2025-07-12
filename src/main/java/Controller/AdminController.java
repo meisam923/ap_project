@@ -1,6 +1,7 @@
 package Controller;
 
 import dto.OrderDto;
+import dto.PaymentDto;
 import dto.UserDto;
 import enums.Role;
 import exception.ForbiddenException;
@@ -20,16 +21,17 @@ public class AdminController {
     AdminDao adminDao = new AdminDao();
     IDao<User, Long> userDao = new UserDao();
     OrderDao orderDao = new OrderDao();
+    TransactionDao transactionDao = new TransactionDao();
 
-    public List<UserDto.UserSchemaDTO> getAllUsers()throws Exception{
+    public List<UserDto.UserSchemaDTO> getAllUsers() throws Exception {
         List<User> users = new ArrayList<>();
         users.addAll(customerDao.getAll());
         users.addAll(ownerDao.getAll());
         users.addAll(deliverymanDao.getAll());
         UserDto.UserSchemaDTO userSchemaDTO;
-        UserDto.RegisterRequestDTO.BankInfoDTO  bankInfoForSchema = null;
+        UserDto.RegisterRequestDTO.BankInfoDTO bankInfoForSchema = null;
         List<UserDto.UserSchemaDTO> usersDTO = new ArrayList<>();
-        for(User user : users){
+        for (User user : users) {
             if (user.getBankName() != null || user.getAccountNumber() != null) {
                 bankInfoForSchema = new UserDto.RegisterRequestDTO.BankInfoDTO(user.getBankName(), user.getAccountNumber());
             }
@@ -50,29 +52,27 @@ public class AdminController {
 
     public void updateUserApprovalStatus(String userToUpdatePublicId, String newStatus) throws Exception {
         int id;
-        try{
+        try {
             id = Integer.parseInt(userToUpdatePublicId);
-        } catch (NumberFormatException e){
-            throw new InvalidInputException(400,"id");
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(400, "id");
         }
-        User user = userDao.findById((long)id);
+        User user = userDao.findById((long) id);
         if (user == null) {
-            throw new InvalidInputException(404,"user not found");
+            throw new InvalidInputException(404, "user not found");
         }
-        switch (newStatus){
+        switch (newStatus) {
             case "approved":
                 if (user.isVerified()) {
                     throw new ForbiddenException(403);
-                }
-                else  {
+                } else {
                     user.setVerified(true);
                 }
                 break;
             case "rejected":
                 if (user.isVerified()) {
                     user.setVerified(false);
-                }
-                else {
+                } else {
                     throw new ForbiddenException(403);
                 }
 
@@ -80,10 +80,11 @@ public class AdminController {
         userDao.update(user);
     }
 
-    public List <OrderDto.OrderSchemaDTO> getAllOrders(String searchFilter, String vendorFilter, String courierFilter, String customerFilter , String statusFilter) throws Exception{
-        List<Order> orders = orderDao.findHistoryForAdmin(searchFilter,vendorFilter,courierFilter,customerFilter,statusFilter);
+    public List<OrderDto.OrderSchemaDTO> getAllOrders(String searchFilter, String vendorFilter, String courierFilter, String customerFilter, String statusFilter) throws Exception {
+        List<Order> orders = orderDao.findHistoryForAdmin(searchFilter, vendorFilter, courierFilter, customerFilter, statusFilter);
         if (orders == null || orders.isEmpty()) {
-            return new ArrayList<>();}
+            return new ArrayList<>();
+        }
         List<OrderDto.OrderSchemaDTO> ordersDTO = new ArrayList<>();
         for (Order order : orders) {
             ordersDTO.add(mapOrderToSchemaDTO(order));
@@ -91,25 +92,38 @@ public class AdminController {
         return ordersDTO;
     }
 
+    public List<PaymentDto.TransactionSchemaDTO> getAllTransactions(String searchFilter, String userFilter, String methodFilter,  String statusFilter) throws Exception {
+        List<Transaction> transactions = transactionDao.findHistoryForAdmin(searchFilter, userFilter, methodFilter, statusFilter);
+        if (transactions == null || transactions.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<PaymentDto.TransactionSchemaDTO> transactionsDTO = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            transactionsDTO.add(mapTransactionToDto(transaction));
+        }
+        return transactionsDTO;
+    }
 
-    public Admin CheckAdminValidation (String token) throws Exception {
+
+    public Admin CheckAdminValidation(String token) throws Exception {
         String[] info = token.trim().split("_");
         int id;
-            try {
-                id= Integer.parseInt(info[0]);
-                Admin admin = adminDao.findById((long)id);
-                if (admin != null) {
-                    if (!admin.getPassword().equals(info[1])) {
-                        throw new AuthController.AuthenticationException("Unauthorized request");
-                    }
-                }else{
+        try {
+            id = Integer.parseInt(info[0]);
+            Admin admin = adminDao.findById((long) id);
+            if (admin != null) {
+                if (!admin.getPassword().equals(info[1])) {
                     throw new AuthController.AuthenticationException("Unauthorized request");
                 }
-                return admin;
-            } catch (NumberFormatException e) {
+            } else {
                 throw new AuthController.AuthenticationException("Unauthorized request");
             }
+            return admin;
+        } catch (NumberFormatException e) {
+            throw new AuthController.AuthenticationException("Unauthorized request");
         }
+    }
+
     private OrderDto.OrderSchemaDTO mapOrderToSchemaDTO(Order order) {
         if (order == null) return null;
         List<Integer> itemIds = new ArrayList<>();
@@ -125,6 +139,20 @@ public class AdminController {
                 order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt()
         );
     }
+    private PaymentDto.TransactionSchemaDTO mapTransactionToDto(Transaction tx) {
+        if (tx == null) return null;
+        return new PaymentDto.TransactionSchemaDTO(
+                tx.getId(),
+                (tx.getOrder() != null) ? tx.getOrder().getId() : null,
+                tx.getUser().getId(),
+                tx.getAmount(),
+                (tx.getMethod() != null) ? tx.getMethod().name() : null,
+                tx.getStatus().name(),
+                tx.getType().name(),
+                tx.getCreatedAt()
+        );
     }
+
+}
 
 

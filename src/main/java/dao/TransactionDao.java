@@ -3,12 +3,13 @@ package dao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
+import model.Order;
 import model.Transaction;
 import util.JpaUtil;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class TransactionDao {
     public void save(Transaction transaction) {
@@ -47,4 +48,50 @@ public class TransactionDao {
             if (em != null) em.close();
         }
     }
+
+    public List<Transaction> findHistoryForAdmin(String searchFilter, String userFilter,
+                                                 String methodFilter, String statusFilter) throws Exception {
+        EntityManager em = null;
+        try {
+            em = JpaUtil.getEntityManager();
+            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Transaction o ");
+            List<String> conditions = new ArrayList<>();
+            Map<String, Object> parameters = new HashMap<>();
+
+            if (userFilter != null && !userFilter.isBlank()) {
+                conditions.add("LOWER(o.user.fullName) LIKE LOWER(:userFilter)");
+                parameters.put("userFilter", "%" + userFilter + "%");
+            }
+            if (statusFilter != null && !statusFilter.isBlank()) {
+                conditions.add("LOWER(o.status) LIKE LOWER(:statusFilter)");
+                parameters.put("statusFilter", "%" + statusFilter + "%");
+            }
+            if (methodFilter != null && !methodFilter.isBlank()) {
+                conditions.add("LOWER(o.method) LIKE LOWER(:methodFilter)");
+                parameters.put("methodFilter", "%" + methodFilter + "%");
+            }
+
+            if (searchFilter != null && !searchFilter.isBlank()) {
+                jpql.append(" JOIN o.order ord ");
+                conditions.add("EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = ord AND LOWER(oi.itemName) LIKE LOWER(:searchFilter))");
+                parameters.put("searchFilter", "%" + searchFilter + "%");
+            }
+
+            if (!conditions.isEmpty()) {
+                jpql.append(" WHERE ").append(conditions.stream().collect(Collectors.joining(" AND ")));
+            }
+
+            jpql.append(" ORDER BY o.createdAt DESC");
+
+            TypedQuery<Transaction> query = em.createQuery(jpql.toString(), Transaction.class);
+            parameters.forEach(query::setParameter);
+
+            return query.getResultList();
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+
 }

@@ -10,6 +10,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dto.AdminDto;
 import dto.OrderDto;
+import dto.PaymentDto;
 import dto.UserDto;
 import exception.ForbiddenException;
 import exception.InvalidInputException;
@@ -163,7 +164,19 @@ public class AdminHandler implements HttpHandler {
     }
 
     private void handleViewFinancialTransactions(HttpExchange exchange) {
-        User adminUser = null;
+        try {
+            String query = exchange.getRequestURI().getQuery();
+            Map<String, String> params = parseQueryParams(query);
+            String searchFilter = params.get("search");
+            String userFilter = params.get("user");
+            String methodFilter = params.get("method");
+            String statusFilter = params.get("status");
+            List <PaymentDto.TransactionSchemaDTO> response = adminController.getAllTransactions(searchFilter, userFilter, methodFilter, statusFilter);
+            sendResponse(exchange, 200, response);
+        }catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange,500,new UserDto.ErrorResponseDTO("Internal server error"));
+        }
     }
 
     private void handleGetAllCoupons(HttpExchange exchange) {
