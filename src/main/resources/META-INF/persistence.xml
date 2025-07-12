@@ -15,6 +15,7 @@
         <class>model.Restaurant</class>
         <class>model.Menu</class>
         <class>model.Item</class>
+        <class>model.OrderItem</class>
         <class>model.Order</class>
         <class>model.Review</class>
         <class>model.RefreshToken</class>

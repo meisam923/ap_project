@@ -8,11 +8,9 @@ import jakarta.persistence.TypedQuery;
 import model.Order;
 import util.JpaUtil;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class OrderDao implements IDao<Order, Long> {
 
@@ -107,6 +105,57 @@ public class OrderDao implements IDao<Order, Long> {
             return Collections.emptyList();
         } finally {
             if (em != null) em.close();
+        }
+    }
+
+    public List<Order> findHistoryForAdmin(String searchFilter, String vendorFilter, String courierFilter,
+                                          String customerFilter, String statusFilter) throws Exception {
+        EntityManager em = null;
+        try {
+            em = JpaUtil.getEntityManager();
+            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items");
+            List<String> conditions = new ArrayList<>();
+            Map<String, Object> parameters = new HashMap<>();
+
+            if (vendorFilter != null && !vendorFilter.isBlank()) {
+                conditions.add("LOWER(o.restaurant.title) LIKE LOWER(:vendorFilter)");
+                parameters.put("vendorFilter", "%" + vendorFilter + "%");
+            }
+
+            if (courierFilter != null && !courierFilter.isBlank()) {
+                conditions.add("LOWER(o.deliveryman.fullName) LIKE LOWER(:courierFilter)");
+                parameters.put("courierFilter", "%" + courierFilter + "%");
+            }
+
+            if (customerFilter != null && !customerFilter.isBlank()) {
+                conditions.add("LOWER(o.customer.fullName) LIKE LOWER(:customerFilter)");
+                parameters.put("customerFilter", "%" + customerFilter + "%");
+            }
+
+            if (statusFilter != null && !statusFilter.isBlank()) {
+                conditions.add("LOWER(STR (o.status)) LIKE LOWER(:statusFilter)");
+                parameters.put("statusFilter", "%" + statusFilter + "%"); // Add wildcards for 'contains' check
+            }
+
+            if (searchFilter != null && !searchFilter.isBlank()) {
+                conditions.add("EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE LOWER(:searchFilter))");
+                parameters.put("searchFilter", "%" + searchFilter + "%");
+            }
+
+            if (!conditions.isEmpty()) {
+                jpql.append(" WHERE ").append(conditions.stream().collect(Collectors.joining(" AND ")));
+            }
+
+            jpql.append(" ORDER BY o.createdAt DESC");
+
+            TypedQuery<Order> query = em.createQuery(jpql.toString(), Order.class);
+            parameters.forEach(query::setParameter);
+
+            return query.getResultList();
+        } finally {
+            if (em != null) {
+                em.close();
+            }
         }
     }
 

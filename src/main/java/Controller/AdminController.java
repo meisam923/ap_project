@@ -1,16 +1,17 @@
 package Controller;
 
+import dto.OrderDto;
 import dto.UserDto;
 import enums.Role;
 import exception.ForbiddenException;
 import exception.InvalidInputException;
 import jakarta.persistence.Id;
-import model.Admin;
-import model.User;
+import model.*;
 import dao.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AdminController {
     CustomerDao customerDao = new CustomerDao();
@@ -18,6 +19,7 @@ public class AdminController {
     OwnerDao ownerDao = new OwnerDao();
     AdminDao adminDao = new AdminDao();
     IDao<User, Long> userDao = new UserDao();
+    OrderDao orderDao = new OrderDao();
 
     public List<UserDto.UserSchemaDTO> getAllUsers()throws Exception{
         List<User> users = new ArrayList<>();
@@ -78,6 +80,17 @@ public class AdminController {
         userDao.update(user);
     }
 
+    public List <OrderDto.OrderSchemaDTO> getAllOrders(String searchFilter, String vendorFilter, String courierFilter, String customerFilter , String statusFilter) throws Exception{
+        List<Order> orders = orderDao.findHistoryForAdmin(searchFilter,vendorFilter,courierFilter,customerFilter,statusFilter);
+        if (orders == null || orders.isEmpty()) {
+            return new ArrayList<>();}
+        List<OrderDto.OrderSchemaDTO> ordersDTO = new ArrayList<>();
+        for (Order order : orders) {
+            ordersDTO.add(mapOrderToSchemaDTO(order));
+        }
+        return ordersDTO;
+    }
+
 
     public Admin CheckAdminValidation (String token) throws Exception {
         String[] info = token.trim().split("_");
@@ -97,6 +110,21 @@ public class AdminController {
                 throw new AuthController.AuthenticationException("Unauthorized request");
             }
         }
-
+    private OrderDto.OrderSchemaDTO mapOrderToSchemaDTO(Order order) {
+        if (order == null) return null;
+        List<Integer> itemIds = new ArrayList<>();
+        for (OrderItem item : order.getItems()) {
+            itemIds.add(item.getItemId());
+        }
+        return new OrderDto.OrderSchemaDTO(
+                order.getId(), order.getDeliveryAddress(), order.getCustomer().getId(),
+                order.getRestaurant().getId(), (order.getCoupon() != null) ? order.getCoupon().getId() : null,
+                itemIds, order.getSubtotalPrice(), order.getTaxFee(), order.getDeliveryFee(),
+                order.getAdditionalFee(), order.getTotalPrice(),
+                (order.getDeliveryman() != null) ? order.getDeliveryman().getId() : null,
+                order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt()
+        );
     }
+    }
+
 

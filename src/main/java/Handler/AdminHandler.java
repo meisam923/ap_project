@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dto.AdminDto;
+import dto.OrderDto;
 import dto.UserDto;
 import exception.ForbiddenException;
 import exception.InvalidInputException;
@@ -21,7 +22,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -143,7 +146,20 @@ public class AdminHandler implements HttpHandler {
     }
 
     private void handleViewAllOrders(HttpExchange exchange) {
-        User adminUser = null;
+        try {
+            String query = exchange.getRequestURI().getQuery();
+            Map<String, String> params = parseQueryParams(query);
+            String searchFilter = params.get("search");
+            String vendorFilter = params.get("vendor");
+            String courierFilter = params.get("courier");
+            String customerFilter = params.get("customer");
+            String statusFilter = params.get("status");
+            List <OrderDto.OrderSchemaDTO> response = adminController.getAllOrders(searchFilter, vendorFilter, courierFilter, customerFilter, statusFilter);
+            sendResponse(exchange, 200, response);
+        }catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange,500,new UserDto.ErrorResponseDTO("Internal server error"));
+        }
     }
 
     private void handleViewFinancialTransactions(HttpExchange exchange) {
@@ -211,5 +227,14 @@ public class AdminHandler implements HttpHandler {
             while ((line = reader.readLine()) != null) jsonBody.append(line);
         }
         return jsonBody.toString();
+    }
+    private Map<String, String> parseQueryParams(String query) {
+        Map<String, String> params = new HashMap<>();
+        if (query == null || query.isEmpty()) return params;
+        for (String param : query.split("&")) {
+            String[] pair = param.split("=", 2);
+            if (pair.length > 1 && !pair[1].isEmpty()) params.put(pair[0], pair[1]);
+        }
+        return params;
     }
 }
