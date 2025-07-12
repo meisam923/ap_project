@@ -8,12 +8,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import dto.AdminDto;
-import dto.OrderDto;
-import dto.PaymentDto;
-import dto.UserDto;
+import dto.*;
 import exception.ForbiddenException;
 import exception.InvalidInputException;
+import exception.NotFoundException;
 import model.Admin;
 import model.User;
 
@@ -130,10 +128,10 @@ public class AdminHandler implements HttpHandler {
             checkMediaType(exchange);
             String body = readRequestBody(exchange);
             AdminDto.UpdateUserStatusRequestDTO updateDto = objectMapper.readValue(body, AdminDto.UpdateUserStatusRequestDTO.class);
-            if (updateDto.status()==null || updateDto.status().equals("")) {
-                throw new InvalidInputException(400,"Status");
+            if (updateDto.status() == null || updateDto.status().equals("")) {
+                throw new InvalidInputException(400, "Status");
             }
-            adminController.updateUserApprovalStatus(id,updateDto.status());
+            adminController.updateUserApprovalStatus(id, updateDto.status());
             sendResponse(exchange, 200, new UserDto.ErrorResponseDTO("Status updated"));
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatusCode(), new UserDto.ErrorResponseDTO(e.getMessage()));
@@ -155,11 +153,11 @@ public class AdminHandler implements HttpHandler {
             String courierFilter = params.get("courier");
             String customerFilter = params.get("customer");
             String statusFilter = params.get("status");
-            List <OrderDto.OrderSchemaDTO> response = adminController.getAllOrders(searchFilter, vendorFilter, courierFilter, customerFilter, statusFilter);
+            List<OrderDto.OrderSchemaDTO> response = adminController.getAllOrders(searchFilter, vendorFilter, courierFilter, customerFilter, statusFilter);
             sendResponse(exchange, 200, response);
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            sendErrorResponse(exchange,500,new UserDto.ErrorResponseDTO("Internal server error"));
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
         }
     }
 
@@ -171,27 +169,83 @@ public class AdminHandler implements HttpHandler {
             String userFilter = params.get("user");
             String methodFilter = params.get("method");
             String statusFilter = params.get("status");
-            List <PaymentDto.TransactionSchemaDTO> response = adminController.getAllTransactions(searchFilter, userFilter, methodFilter, statusFilter);
+            List<PaymentDto.TransactionSchemaDTO> response = adminController.getAllTransactions(searchFilter, userFilter, methodFilter, statusFilter);
             sendResponse(exchange, 200, response);
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            sendErrorResponse(exchange,500,new UserDto.ErrorResponseDTO("Internal server error"));
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
         }
     }
 
     private void handleGetAllCoupons(HttpExchange exchange) {
+        try {
+            sendResponse(exchange, 200, adminController.getAllCoupons());
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
+        }
+
     }
 
     private void handleCreateCoupon(HttpExchange exchange) {
+        try {
+            checkMediaType(exchange);
+            String body = readRequestBody(exchange);
+            if (body == null || body.isEmpty()) {
+                throw new InvalidInputException(400, "Body");
+            }
+            CouponDto.CouponInputSchemaDTO couponDto = objectMapper.readValue(body, CouponDto.CouponInputSchemaDTO.class);
+            sendResponse(exchange, 200, adminController.createCoupon(couponDto));
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatusCode(), new UserDto.ErrorResponseDTO(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
+        }
     }
 
     private void handleDeleteCoupons(HttpExchange exchange, String id) {
+        try {
+            int ID = Integer.parseInt(id);
+            adminController.deleteCoupon(ID);
+            sendResponse(exchange, 200, new UserDto.ErrorResponseDTO("Coupon deleted"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Coupon not found"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
+        }
     }
 
     private void handleUpdateCoupons(HttpExchange exchange, String id) {
+        try {
+            checkMediaType(exchange);
+            int ID = Integer.parseInt(id);
+            String body = readRequestBody(exchange);
+            if (body == null || body.isEmpty()) {
+                throw new InvalidInputException(400, "Body");
+            }
+            CouponDto.CouponInputSchemaDTO couponDto = objectMapper.readValue(body, CouponDto.CouponInputSchemaDTO.class);
+            sendResponse(exchange, 200, adminController.updateCoupon(couponDto, ID));
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatusCode(), new UserDto.ErrorResponseDTO(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
+        }
     }
 
-    private void handleGetCouponsDetails(HttpExchange exchang, String id) {
+    private void handleGetCouponsDetails(HttpExchange exchange, String id) {
+        try {
+            int ID = Integer.parseInt(id);
+            sendResponse(exchange, 200, adminController.getCouponDetails(ID));
+        } catch (NotFoundException e) {
+            sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
+        }
     }
 
     private Admin getUserFromToken(HttpExchange exchange) throws Exception {
@@ -241,6 +295,7 @@ public class AdminHandler implements HttpHandler {
         }
         return jsonBody.toString();
     }
+
     private Map<String, String> parseQueryParams(String query) {
         Map<String, String> params = new HashMap<>();
         if (query == null || query.isEmpty()) return params;

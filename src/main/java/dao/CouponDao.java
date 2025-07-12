@@ -99,9 +99,9 @@ public class CouponDao implements IDao<Coupon, Integer> {
             action.accept(em);
             tx.commit();
         } catch (Exception e) {
-            if (tx != null && tx.isActive()) tx.rollback();
+            if (tx != null && tx.isActive()){ tx.rollback();
             e.printStackTrace();
-            throw new RuntimeException("Database transaction failed", e);
+            throw new RuntimeException("Database transaction failed", e);}
         } finally {
             if (em != null) em.close();
         }

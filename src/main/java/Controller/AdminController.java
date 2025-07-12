@@ -1,11 +1,14 @@
 package Controller;
 
+import dto.CouponDto;
 import dto.OrderDto;
 import dto.PaymentDto;
 import dto.UserDto;
+import enums.CouponType;
 import enums.Role;
 import exception.ForbiddenException;
 import exception.InvalidInputException;
+import exception.NotFoundException;
 import jakarta.persistence.Id;
 import model.*;
 import dao.*;
@@ -22,6 +25,7 @@ public class AdminController {
     IDao<User, Long> userDao = new UserDao();
     OrderDao orderDao = new OrderDao();
     TransactionDao transactionDao = new TransactionDao();
+    CouponDao couponDao = new CouponDao();
 
     public List<UserDto.UserSchemaDTO> getAllUsers() throws Exception {
         List<User> users = new ArrayList<>();
@@ -92,7 +96,7 @@ public class AdminController {
         return ordersDTO;
     }
 
-    public List<PaymentDto.TransactionSchemaDTO> getAllTransactions(String searchFilter, String userFilter, String methodFilter,  String statusFilter) throws Exception {
+    public List<PaymentDto.TransactionSchemaDTO> getAllTransactions(String searchFilter, String userFilter, String methodFilter, String statusFilter) throws Exception {
         List<Transaction> transactions = transactionDao.findHistoryForAdmin(searchFilter, userFilter, methodFilter, statusFilter);
         if (transactions == null || transactions.isEmpty()) {
             return new ArrayList<>();
@@ -104,6 +108,58 @@ public class AdminController {
         return transactionsDTO;
     }
 
+    public List<CouponDto.CouponSchemaDTO> getAllCoupons() {
+        List<Coupon> coupons = couponDao.getAll();
+        if (coupons == null || coupons.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<CouponDto.CouponSchemaDTO> couponsDTO = new ArrayList<>();
+        for (Coupon coupon : coupons) {
+            couponsDTO.add(mapCouponToSchemaDto(coupon));
+        }
+        return couponsDTO;
+    }
+
+    public CouponDto.CouponSchemaDTO createCoupon(CouponDto.CouponInputSchemaDTO couponDto) throws Exception {
+        checkCouponInfo(couponDto);
+        Coupon coupon = new Coupon(couponDto.couponCode(), CouponType.valueOf(couponDto.type().toUpperCase()), couponDto.value(), couponDto.minPrice(), couponDto.userCount(), couponDto.startDate(), couponDto.endDate());
+        couponDao.save(coupon);
+        return mapCouponToSchemaDto(coupon);
+    }
+
+    public CouponDto.CouponSchemaDTO updateCoupon(CouponDto.CouponInputSchemaDTO couponDto, int id) throws Exception {
+        Coupon coupon = couponDao.findById(id);
+        if (coupon == null) {
+            throw new NotFoundException(404, "coupon not found");
+        }
+        checkCouponInfo(couponDto);
+        coupon.setCouponCode(couponDto.couponCode());
+        coupon.setType(CouponType.valueOf(couponDto.type().toUpperCase()));
+        coupon.setValue(couponDto.value());
+        coupon.setMinPrice(couponDto.minPrice());
+        coupon.setUserCount(couponDto.userCount());
+        coupon.setStartDate(couponDto.startDate());
+        coupon.setEndDate(couponDto.endDate());
+        couponDao.update(coupon);
+        return mapCouponToSchemaDto(coupon);
+    }
+
+    public void deleteCoupon(int id) throws Exception {
+        Coupon coupon = couponDao.findById(id);
+        if (coupon == null) {
+            throw new NotFoundException(404, "coupon not found");
+        }
+        couponDao.delete(coupon);
+        return;
+    }
+
+    public CouponDto.CouponSchemaDTO getCouponDetails(int id) throws Exception {
+        Coupon coupon = couponDao.findById(id);
+        if (coupon == null) {
+            throw new NotFoundException(404, "coupon not found");
+        }
+        return mapCouponToSchemaDto(coupon);
+    }
 
     public Admin CheckAdminValidation(String token) throws Exception {
         String[] info = token.trim().split("_");
@@ -139,6 +195,7 @@ public class AdminController {
                 order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt()
         );
     }
+
     private PaymentDto.TransactionSchemaDTO mapTransactionToDto(Transaction tx) {
         if (tx == null) return null;
         return new PaymentDto.TransactionSchemaDTO(
@@ -151,6 +208,39 @@ public class AdminController {
                 tx.getType().name(),
                 tx.getCreatedAt()
         );
+    }
+
+    private CouponDto.CouponSchemaDTO mapCouponToSchemaDto(Coupon cp) {
+        if (cp == null) return null;
+        return new CouponDto.CouponSchemaDTO(cp.getId(),
+                cp.getCouponCode(),
+                cp.getType().name(),
+                cp.getValue(),
+                cp.getMinPrice(),
+                cp.getUserCount(),
+                cp.getStartDate(),
+                cp.getEndDate());
+    }
+
+    private void checkCouponInfo(CouponDto.CouponInputSchemaDTO couponDto) throws Exception {
+        if (couponDto.couponCode() == null || couponDto.couponCode().isEmpty()) {
+            throw new InvalidInputException(400, "couponCode");
+        }
+        if (!(couponDto.type().toUpperCase().equals("FIXED") || couponDto.type().toUpperCase().equals("PERCENT"))) {
+            throw new InvalidInputException(400, "couponType");
+        }
+        if (couponDto.value().doubleValue() <= 0) {
+            throw new InvalidInputException(400, "value");
+        }
+        if (couponDto.minPrice() <= 0) {
+            throw new InvalidInputException(400, "minPrice");
+        }
+        if (couponDto.userCount() <= 0) {
+            throw new InvalidInputException(400, "userCount");
+        }
+        if (couponDto.startDate().isAfter(couponDto.endDate())) {
+            throw new InvalidInputException(400, "Date");
+        }
     }
 
 }
