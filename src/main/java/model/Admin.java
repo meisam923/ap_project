@@ -10,19 +10,24 @@ import java.util.ArrayList;
 @Getter
 @Setter
 @Entity
-public class Admin {
-
+public class Admin{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Enumerated(EnumType.STRING)
-    private Role role = Role.ADMIN;
+    private long Id;
+    private String password;
 
-    private ArrayList<Long> notRegisteredRestaurantIds =new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, insertable = false, updatable = false)
+    private Role role = Role.ADMIN;
+    private ArrayList<Long> notRegisteredRestaurantIds = new ArrayList<>();
+
+    public Admin() {
+    }
 
     public void registerRestaurant(long id) {
         notRegisteredRestaurantIds.add(id);
     }
+
     public void removeRestaurant(long id) {
         notRegisteredRestaurantIds.remove(id);
     }

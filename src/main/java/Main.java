@@ -47,6 +47,7 @@ public class Main {
             server.createContext("/wallet", new PaymentHandler());
             server.createContext("/payment", new PaymentHandler());
             server.createContext("/transactions", new PaymentHandler());
+            server.createContext("/admin", new AdminHandler());
 
 
         } catch (Exception e) {

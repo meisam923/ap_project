@@ -4,7 +4,7 @@
     <root id="1">
       <DateStyle>mdy</DateStyle>
       <ServerVersion>15.13</ServerVersion>
-      <StartupTime>1752135197</StartupTime>
+      <StartupTime>1752295765</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -4291,8 +4291,8 @@ false Zulu
       <OwnerName>meisam</OwnerName>
     </sequence>
     <table id="271" parent="261" name="admin">
-      <ObjectId>16385</ObjectId>
-      <StateNumber>728</StateNumber>
+      <ObjectId>17216</ObjectId>
+      <StateNumber>1129</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>meisam</OwnerName>
     </table>
@@ -4375,72 +4375,79 @@ false Zulu
       <OwnerName>meisam</OwnerName>
     </table>
     <table id="285" parent="261" name="users">
-      <ObjectId>16730</ObjectId>
-      <StateNumber>821</StateNumber>
+      <ObjectId>17336</ObjectId>
+      <StateNumber>1123</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>meisam</OwnerName>
     </table>
     <check id="286" parent="271" name="admin_role_check">
       <ColNames>role</ColNames>
-      <ObjectId>16389</ObjectId>
+      <ObjectId>17220</ObjectId>
       <Predicate>(role)::text = ANY ((ARRAY[&apos;ADMIN&apos;::character varying, &apos;COURIER&apos;::character varying, &apos;BUYER&apos;::character varying, &apos;SELLER&apos;::character varying])::text[])</Predicate>
-      <StateNumber>728</StateNumber>
+      <StateNumber>1039</StateNumber>
     </check>
     <column id="287" parent="271" name="id">
       <DefaultExpression>nextval(&apos;admin_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>728</StateNumber>
+      <StateNumber>1039</StateNumber>
       <StoredType>bigint|0s</StoredType>
+      <SequenceId>17215</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="288" parent="271" name="role">
+    <column id="288" parent="271" name="notregisteredrestaurantids">
       <Position>2</Position>
-      <StateNumber>728</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="289" parent="271" name="notregisteredrestaurantids">
-      <Position>3</Position>
-      <StateNumber>728</StateNumber>
+      <StateNumber>1039</StateNumber>
       <StoredType>bytea|0s</StoredType>
       <TypeId>17</TypeId>
     </column>
-    <index id="290" parent="271" name="admin_pkey">
+    <column id="289" parent="271" name="role">
+      <Position>3</Position>
+      <StateNumber>1039</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="290" parent="271" name="password">
+      <Position>4</Position>
+      <StateNumber>1129</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="291" parent="271" name="admin_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16392</ObjectId>
+      <ObjectId>17223</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>728</StateNumber>
+      <StateNumber>1039</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="291" parent="271" name="admin_pkey">
+    <key id="292" parent="271" name="admin_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16393</ObjectId>
+      <ObjectId>17224</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>728</StateNumber>
-      <UnderlyingIndexId>16392</UnderlyingIndexId>
+      <StateNumber>1039</StateNumber>
+      <UnderlyingIndexId>17223</UnderlyingIndexId>
     </key>
-    <column id="292" parent="272" name="coupon_percentage">
+    <column id="293" parent="272" name="coupon_percentage">
       <Position>1</Position>
       <StateNumber>729</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="293" parent="272" name="menu_id">
+    <column id="294" parent="272" name="menu_id">
       <Position>2</Position>
       <StateNumber>729</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="294" parent="272" name="customer_id">
+    <column id="295" parent="272" name="customer_id">
       <Position>3</Position>
       <StateNumber>729</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="295" parent="272" name="id">
+    <column id="296" parent="272" name="id">
       <DefaultExpression>nextval(&apos;carts_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
@@ -4448,27 +4455,27 @@ false Zulu
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="296" parent="272" name="coupon_code">
+    <column id="297" parent="272" name="coupon_code">
       <Position>5</Position>
       <StateNumber>729</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <foreign-key id="297" parent="272" name="fk2qi4qbji2h06869i6d9yxhw4q">
+    <foreign-key id="298" parent="272" name="fk2qi4qbji2h06869i6d9yxhw4q">
       <ColNames>menu_id</ColNames>
       <ObjectId>16514</ObjectId>
       <StateNumber>744</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16427</RefTableId>
     </foreign-key>
-    <foreign-key id="298" parent="272" name="fk99i1rh5nm7r3f1b3wdcuq5h57">
+    <foreign-key id="299" parent="272" name="fk99i1rh5nm7r3f1b3wdcuq5h57">
       <ColNames>customer_id</ColNames>
       <ObjectId>16509</ObjectId>
       <StateNumber>743</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16495</RefTableId>
     </foreign-key>
-    <index id="299" parent="272" name="carts_menu_id_key">
+    <index id="300" parent="272" name="carts_menu_id_key">
       <ColNames>menu_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16401</ObjectId>
@@ -4476,7 +4483,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="300" parent="272" name="carts_customer_id_key">
+    <index id="301" parent="272" name="carts_customer_id_key">
       <ColNames>customer_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16403</ObjectId>
@@ -4484,7 +4491,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="301" parent="272" name="carts_pkey">
+    <index id="302" parent="272" name="carts_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16399</ObjectId>
@@ -4493,54 +4500,54 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="302" parent="272" name="carts_pkey">
+    <key id="303" parent="272" name="carts_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16400</ObjectId>
       <Primary>1</Primary>
       <StateNumber>729</StateNumber>
       <UnderlyingIndexId>16399</UnderlyingIndexId>
     </key>
-    <key id="303" parent="272" name="carts_menu_id_key">
+    <key id="304" parent="272" name="carts_menu_id_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16402</ObjectId>
       <StateNumber>729</StateNumber>
       <UnderlyingIndexId>16401</UnderlyingIndexId>
     </key>
-    <key id="304" parent="272" name="carts_customer_id_key">
+    <key id="305" parent="272" name="carts_customer_id_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16404</ObjectId>
       <StateNumber>729</StateNumber>
       <UnderlyingIndexId>16403</UnderlyingIndexId>
     </key>
-    <column id="305" parent="273" name="items_id">
+    <column id="306" parent="273" name="items_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>730</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="306" parent="273" name="cart_id">
+    <column id="307" parent="273" name="cart_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>730</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <foreign-key id="307" parent="273" name="fk39ncvmof12ougovqd0dngg7qy">
+    <foreign-key id="308" parent="273" name="fk39ncvmof12ougovqd0dngg7qy">
       <ColNames>items_id</ColNames>
       <ObjectId>16519</ObjectId>
       <StateNumber>745</StateNumber>
       <RefKeyColPositions>3</RefKeyColPositions>
       <RefTableId>16417</RefTableId>
     </foreign-key>
-    <foreign-key id="308" parent="273" name="fkp0mhn6tpn0xd1s7q2swb5wbq4">
+    <foreign-key id="309" parent="273" name="fkp0mhn6tpn0xd1s7q2swb5wbq4">
       <ColNames>cart_id</ColNames>
       <ObjectId>16524</ObjectId>
       <StateNumber>746</StateNumber>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16395</RefTableId>
     </foreign-key>
-    <index id="309" parent="273" name="carts_items_items_id_key">
+    <index id="310" parent="273" name="carts_items_items_id_key">
       <ColNames>items_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16408</ObjectId>
@@ -4548,80 +4555,80 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="310" parent="273" name="carts_items_items_id_key">
+    <key id="311" parent="273" name="carts_items_items_id_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16409</ObjectId>
       <StateNumber>730</StateNumber>
       <UnderlyingIndexId>16408</UnderlyingIndexId>
     </key>
-    <column id="311" parent="274" name="favoriterestaurants_id">
+    <column id="312" parent="274" name="favoriterestaurants_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>731</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="312" parent="274" name="customer_id">
+    <column id="313" parent="274" name="customer_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>731</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <foreign-key id="313" parent="274" name="fk7a8m0e29w50rucl9i426roo3n">
+    <foreign-key id="314" parent="274" name="fk7a8m0e29w50rucl9i426roo3n">
       <ColNames>favoriterestaurants_id</ColNames>
       <ObjectId>16529</ObjectId>
       <StateNumber>747</StateNumber>
       <RefKeyColPositions>3</RefKeyColPositions>
       <RefTableId>16463</RefTableId>
     </foreign-key>
-    <foreign-key id="314" parent="274" name="fkgsrov6n5oy3j79yssyw29c9hs">
+    <foreign-key id="315" parent="274" name="fkgsrov6n5oy3j79yssyw29c9hs">
       <ColNames>customer_id</ColNames>
       <ObjectId>16534</ObjectId>
       <StateNumber>748</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16495</RefTableId>
     </foreign-key>
-    <column id="315" parent="275" name="item_id">
+    <column id="316" parent="275" name="item_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>732</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="316" parent="275" name="hashtag">
+    <column id="317" parent="275" name="hashtag">
       <Position>2</Position>
       <StateNumber>732</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <foreign-key id="317" parent="275" name="fk2jl1xiicji0m2ycl1dc4jnycn">
+    <foreign-key id="318" parent="275" name="fk2jl1xiicji0m2ycl1dc4jnycn">
       <ColNames>item_id</ColNames>
       <ObjectId>16539</ObjectId>
       <StateNumber>749</StateNumber>
       <RefKeyColPositions>3</RefKeyColPositions>
       <RefTableId>16417</RefTableId>
     </foreign-key>
-    <check id="318" parent="276" name="items_category_check">
+    <check id="319" parent="276" name="items_category_check">
       <ColNames>category</ColNames>
       <ObjectId>16421</ObjectId>
       <Predicate>(category)::text = ANY ((ARRAY[&apos;IRANIAN&apos;::character varying, &apos;FAST_FOOD&apos;::character varying, &apos;PIZZA&apos;::character varying, &apos;BURGER&apos;::character varying, &apos;SANDWICH&apos;::character varying, &apos;KEBAB&apos;::character varying, &apos;SEAFOOD&apos;::character varying, &apos;VEGETARIAN&apos;::character varying, &apos;ASIAN&apos;::character varying, &apos;ITALIAN&apos;::character varying, &apos;DESSERT&apos;::character varying, &apos;BREAKFAST&apos;::character varying, &apos;SALAD&apos;::character varying, &apos;DRINK&apos;::character varying, &apos;SNACK&apos;::character varying])::text[])</Predicate>
       <StateNumber>733</StateNumber>
     </check>
-    <column id="319" parent="276" name="count">
+    <column id="320" parent="276" name="count">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>733</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="320" parent="276" name="discount_percentage">
+    <column id="321" parent="276" name="discount_percentage">
       <Position>2</Position>
       <StateNumber>733</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="321" parent="276" name="id">
+    <column id="322" parent="276" name="id">
       <DefaultExpression>nextval(&apos;items_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
@@ -4629,37 +4636,37 @@ false Zulu
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="322" parent="276" name="price">
+    <column id="323" parent="276" name="price">
       <Position>4</Position>
       <StateNumber>733</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="323" parent="276" name="category">
+    <column id="324" parent="276" name="category">
       <Position>5</Position>
       <StateNumber>733</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="324" parent="276" name="description">
+    <column id="325" parent="276" name="description">
       <Position>6</Position>
       <StateNumber>733</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="325" parent="276" name="title">
+    <column id="326" parent="276" name="title">
       <Position>7</Position>
       <StateNumber>733</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="326" parent="276" name="imagebase64">
+    <column id="327" parent="276" name="imagebase64">
       <Position>8</Position>
       <StateNumber>733</StateNumber>
       <StoredType>oid|0s</StoredType>
       <TypeId>26</TypeId>
     </column>
-    <index id="327" parent="276" name="items_pkey">
+    <index id="328" parent="276" name="items_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16424</ObjectId>
@@ -4668,14 +4675,14 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="328" parent="276" name="items_pkey">
+    <key id="329" parent="276" name="items_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16425</ObjectId>
       <Primary>1</Primary>
       <StateNumber>733</StateNumber>
       <UnderlyingIndexId>16424</UnderlyingIndexId>
     </key>
-    <column id="329" parent="277" name="id">
+    <column id="330" parent="277" name="id">
       <DefaultExpression>nextval(&apos;menu_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4683,27 +4690,27 @@ false Zulu
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="330" parent="277" name="restaurant_id">
+    <column id="331" parent="277" name="restaurant_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>734</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="331" parent="277" name="title">
+    <column id="332" parent="277" name="title">
       <Position>3</Position>
       <StateNumber>734</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <foreign-key id="332" parent="277" name="fkapqgp9kegauaknwmnfp808vbe">
+    <foreign-key id="333" parent="277" name="fkapqgp9kegauaknwmnfp808vbe">
       <ColNames>restaurant_id</ColNames>
       <ObjectId>16544</ObjectId>
       <StateNumber>750</StateNumber>
       <RefKeyColPositions>3</RefKeyColPositions>
       <RefTableId>16463</RefTableId>
     </foreign-key>
-    <index id="333" parent="277" name="menu_pkey">
+    <index id="334" parent="277" name="menu_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16431</ObjectId>
@@ -4712,68 +4719,68 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="334" parent="277" name="menu_pkey">
+    <key id="335" parent="277" name="menu_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16432</ObjectId>
       <Primary>1</Primary>
       <StateNumber>734</StateNumber>
       <UnderlyingIndexId>16431</UnderlyingIndexId>
     </key>
-    <column id="335" parent="278" name="item_id">
+    <column id="336" parent="278" name="item_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>735</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="336" parent="278" name="menu_id">
+    <column id="337" parent="278" name="menu_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>735</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="337" parent="278" name="fkgf49jgkrdusy3jl3m5ymqwk61">
+    <foreign-key id="338" parent="278" name="fkgf49jgkrdusy3jl3m5ymqwk61">
       <ColNames>item_id</ColNames>
       <ObjectId>16549</ObjectId>
       <StateNumber>751</StateNumber>
       <RefKeyColPositions>3</RefKeyColPositions>
       <RefTableId>16417</RefTableId>
     </foreign-key>
-    <foreign-key id="338" parent="278" name="fkbqvctsc63omvj5j2lv6b7ey2u">
+    <foreign-key id="339" parent="278" name="fkbqvctsc63omvj5j2lv6b7ey2u">
       <ColNames>menu_id</ColNames>
       <ObjectId>16554</ObjectId>
       <StateNumber>752</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16427</RefTableId>
     </foreign-key>
-    <check id="339" parent="279" name="orders_status_check">
+    <check id="340" parent="279" name="orders_status_check">
       <ColNames>status</ColNames>
       <ObjectId>16441</ObjectId>
       <Predicate>(status)::text = ANY ((ARRAY[&apos;SUBMITTED&apos;::character varying, &apos;UNPAID_AND_CANCELLED&apos;::character varying, &apos;WAITING_VENDOR&apos;::character varying, &apos;CANCELLED&apos;::character varying, &apos;FINDING_COURIER&apos;::character varying, &apos;ON_THE_WAY&apos;::character varying, &apos;COMPLETED&apos;::character varying])::text[])</Predicate>
       <StateNumber>736</StateNumber>
     </check>
-    <column id="340" parent="279" name="additional_fee">
+    <column id="341" parent="279" name="additional_fee">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>736</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="341" parent="279" name="coupon_id">
+    <column id="342" parent="279" name="coupon_id">
       <Position>2</Position>
       <StateNumber>736</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="342" parent="279" name="courier_fee">
+    <column id="343" parent="279" name="courier_fee">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>736</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="343" parent="279" name="id">
+    <column id="344" parent="279" name="id">
       <DefaultExpression>nextval(&apos;orders_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
@@ -4781,107 +4788,107 @@ false Zulu
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="344" parent="279" name="pay_price">
+    <column id="345" parent="279" name="pay_price">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>736</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="345" parent="279" name="raw_price">
+    <column id="346" parent="279" name="raw_price">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>736</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="346" parent="279" name="restaurant_id">
+    <column id="347" parent="279" name="restaurant_id">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>736</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="347" parent="279" name="tax_fee">
+    <column id="348" parent="279" name="tax_fee">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>736</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="348" parent="279" name="cart_id">
+    <column id="349" parent="279" name="cart_id">
       <Position>9</Position>
       <StateNumber>736</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="349" parent="279" name="customer_id">
+    <column id="350" parent="279" name="customer_id">
       <NotNull>1</NotNull>
       <Position>10</Position>
       <StateNumber>736</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="350" parent="279" name="deliveryman_id">
+    <column id="351" parent="279" name="deliveryman_id">
       <Position>11</Position>
       <StateNumber>736</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="351" parent="279" name="created_at">
+    <column id="352" parent="279" name="created_at">
       <Position>12</Position>
       <StateNumber>736</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="352" parent="279" name="delivery_address">
+    <column id="353" parent="279" name="delivery_address">
       <Position>13</Position>
       <StateNumber>736</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="353" parent="279" name="status">
+    <column id="354" parent="279" name="status">
       <NotNull>1</NotNull>
       <Position>14</Position>
       <StateNumber>736</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="354" parent="279" name="updated_at">
+    <column id="355" parent="279" name="updated_at">
       <Position>15</Position>
       <StateNumber>736</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <foreign-key id="355" parent="279" name="fk2m9qulf12xm537bku3jnrrbup">
+    <foreign-key id="356" parent="279" name="fk2m9qulf12xm537bku3jnrrbup">
       <ColNames>restaurant_id</ColNames>
       <ObjectId>16574</ObjectId>
       <StateNumber>756</StateNumber>
       <RefKeyColPositions>3</RefKeyColPositions>
       <RefTableId>16463</RefTableId>
     </foreign-key>
-    <foreign-key id="356" parent="279" name="fk594fgx8wpklcf3t41jq3grhlh">
+    <foreign-key id="357" parent="279" name="fk594fgx8wpklcf3t41jq3grhlh">
       <ColNames>cart_id</ColNames>
       <ObjectId>16559</ObjectId>
       <StateNumber>753</StateNumber>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16395</RefTableId>
     </foreign-key>
-    <foreign-key id="357" parent="279" name="fksjfs85qf6vmcurlx43cnc16gy">
+    <foreign-key id="358" parent="279" name="fksjfs85qf6vmcurlx43cnc16gy">
       <ColNames>customer_id</ColNames>
       <ObjectId>16564</ObjectId>
       <StateNumber>754</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16495</RefTableId>
     </foreign-key>
-    <foreign-key id="358" parent="279" name="fkg91n5pjegmnw6mkishp2v4035">
+    <foreign-key id="359" parent="279" name="fkg91n5pjegmnw6mkishp2v4035">
       <ColNames>deliveryman_id</ColNames>
       <ObjectId>16569</ObjectId>
       <StateNumber>755</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16495</RefTableId>
     </foreign-key>
-    <index id="359" parent="279" name="orders_pkey">
+    <index id="360" parent="279" name="orders_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16444</ObjectId>
@@ -4890,7 +4897,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="360" parent="279" name="orders_cart_id_key">
+    <index id="361" parent="279" name="orders_cart_id_key">
       <ColNames>cart_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16446</ObjectId>
@@ -4898,48 +4905,48 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="361" parent="279" name="orders_pkey">
+    <key id="362" parent="279" name="orders_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16445</ObjectId>
       <Primary>1</Primary>
       <StateNumber>736</StateNumber>
       <UnderlyingIndexId>16444</UnderlyingIndexId>
     </key>
-    <key id="362" parent="279" name="orders_cart_id_key">
+    <key id="363" parent="279" name="orders_cart_id_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16447</ObjectId>
       <StateNumber>736</StateNumber>
       <UnderlyingIndexId>16446</UnderlyingIndexId>
     </key>
-    <column id="363" parent="280" name="items_id">
+    <column id="364" parent="280" name="items_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>737</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="364" parent="280" name="order_id">
+    <column id="365" parent="280" name="order_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>737</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="365" parent="280" name="fk5s8cl3jtlggssp3i4dwut4odc">
+    <foreign-key id="366" parent="280" name="fk5s8cl3jtlggssp3i4dwut4odc">
       <ColNames>items_id</ColNames>
       <ObjectId>16579</ObjectId>
       <StateNumber>757</StateNumber>
       <RefKeyColPositions>3</RefKeyColPositions>
       <RefTableId>16417</RefTableId>
     </foreign-key>
-    <foreign-key id="366" parent="280" name="fk9coqfvhsenbgib62h4aenq324">
+    <foreign-key id="367" parent="280" name="fk9coqfvhsenbgib62h4aenq324">
       <ColNames>order_id</ColNames>
       <ObjectId>16584</ObjectId>
       <StateNumber>758</StateNumber>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16437</RefTableId>
     </foreign-key>
-    <index id="367" parent="280" name="orders_items_items_id_key">
+    <index id="368" parent="280" name="orders_items_items_id_key">
       <ColNames>items_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16451</ObjectId>
@@ -4947,26 +4954,26 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="368" parent="280" name="orders_items_items_id_key">
+    <key id="369" parent="280" name="orders_items_items_id_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16452</ObjectId>
       <StateNumber>737</StateNumber>
       <UnderlyingIndexId>16451</UnderlyingIndexId>
     </key>
-    <column id="369" parent="281" name="createdat">
+    <column id="370" parent="281" name="createdat">
       <Position>1</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp(6)|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="370" parent="281" name="expiresat">
+    <column id="371" parent="281" name="expiresat">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp(6)|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="371" parent="281" name="id">
+    <column id="372" parent="281" name="id">
       <DefaultExpression>nextval(&apos;refreshtoken_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
@@ -4974,27 +4981,27 @@ false Zulu
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="372" parent="281" name="user_id">
+    <column id="373" parent="281" name="user_id">
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="373" parent="281" name="token">
+    <column id="374" parent="281" name="token">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <foreign-key id="374" parent="281" name="fkguj4yi7nx097sx1fux4j7x7hn">
+    <foreign-key id="375" parent="281" name="fkguj4yi7nx097sx1fux4j7x7hn">
       <ColNames>user_id</ColNames>
       <ObjectId>16589</ObjectId>
       <StateNumber>759</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16495</RefTableId>
     </foreign-key>
-    <index id="375" parent="281" name="refreshtoken_pkey">
+    <index id="376" parent="281" name="refreshtoken_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16458</ObjectId>
@@ -5003,7 +5010,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="376" parent="281" name="refreshtoken_token_key">
+    <index id="377" parent="281" name="refreshtoken_token_key">
       <ColNames>token</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16460</ObjectId>
@@ -5014,50 +5021,50 @@ false Zulu
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="377" parent="281" name="refreshtoken_pkey">
+    <key id="378" parent="281" name="refreshtoken_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16459</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16458</UnderlyingIndexId>
     </key>
-    <key id="378" parent="281" name="refreshtoken_token_key">
+    <key id="379" parent="281" name="refreshtoken_token_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16461</ObjectId>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16460</UnderlyingIndexId>
     </key>
-    <check id="379" parent="282" name="restaurants_approval_status_check">
+    <check id="380" parent="282" name="restaurants_approval_status_check">
       <ColNames>approval_status</ColNames>
       <ObjectId>16467</ObjectId>
       <Predicate>(approval_status)::text = ANY ((ARRAY[&apos;WAITING&apos;::character varying, &apos;REGISTERED&apos;::character varying, &apos;REJECTED&apos;::character varying, &apos;SUSPENDED&apos;::character varying])::text[])</Predicate>
       <StateNumber>739</StateNumber>
     </check>
-    <check id="380" parent="282" name="restaurants_category_check">
+    <check id="381" parent="282" name="restaurants_category_check">
       <ColNames>category</ColNames>
       <ObjectId>16468</ObjectId>
       <Predicate>(category)::text = ANY ((ARRAY[&apos;FAST_FOOD&apos;::character varying, &apos;CAFE&apos;::character varying, &apos;TRADITIONAL&apos;::character varying, &apos;BREAKFAST&apos;::character varying, &apos;SEAFOOD&apos;::character varying, &apos;ITALIAN&apos;::character varying])::text[])</Predicate>
       <StateNumber>739</StateNumber>
     </check>
-    <check id="381" parent="282" name="restaurants_operational_status_check">
+    <check id="382" parent="282" name="restaurants_operational_status_check">
       <ColNames>operational_status</ColNames>
       <ObjectId>16469</ObjectId>
       <Predicate>(operational_status)::text = ANY ((ARRAY[&apos;OPEN&apos;::character varying, &apos;CLOSED&apos;::character varying])::text[])</Predicate>
       <StateNumber>739</StateNumber>
     </check>
-    <column id="382" parent="282" name="additionalfee">
+    <column id="383" parent="282" name="additionalfee">
       <Position>1</Position>
       <StateNumber>739</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="383" parent="282" name="averagerating">
+    <column id="384" parent="282" name="averagerating">
       <Position>2</Position>
       <StateNumber>739</StateNumber>
       <StoredType>double precision|0s</StoredType>
       <TypeId>701</TypeId>
     </column>
-    <column id="384" parent="282" name="id">
+    <column id="385" parent="282" name="id">
       <DefaultExpression>nextval(&apos;restaurants_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
@@ -5065,86 +5072,86 @@ false Zulu
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="385" parent="282" name="latitude">
+    <column id="386" parent="282" name="latitude">
       <Position>4</Position>
       <StateNumber>739</StateNumber>
       <StoredType>double precision|0s</StoredType>
       <TypeId>701</TypeId>
     </column>
-    <column id="386" parent="282" name="longitude">
+    <column id="387" parent="282" name="longitude">
       <Position>5</Position>
       <StateNumber>739</StateNumber>
       <StoredType>double precision|0s</StoredType>
       <TypeId>701</TypeId>
     </column>
-    <column id="387" parent="282" name="taxfee">
+    <column id="388" parent="282" name="taxfee">
       <Position>6</Position>
       <StateNumber>739</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="388" parent="282" name="owner_id">
+    <column id="389" parent="282" name="owner_id">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>739</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="389" parent="282" name="address">
+    <column id="390" parent="282" name="address">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>739</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="390" parent="282" name="approval_status">
+    <column id="391" parent="282" name="approval_status">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StateNumber>739</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="391" parent="282" name="category">
+    <column id="392" parent="282" name="category">
       <Position>10</Position>
       <StateNumber>739</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="392" parent="282" name="logobase64">
+    <column id="393" parent="282" name="logobase64">
       <Position>11</Position>
       <StateNumber>739</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="393" parent="282" name="operational_status">
+    <column id="394" parent="282" name="operational_status">
       <NotNull>1</NotNull>
       <Position>12</Position>
       <StateNumber>739</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="394" parent="282" name="phonenumber">
+    <column id="395" parent="282" name="phonenumber">
       <NotNull>1</NotNull>
       <Position>13</Position>
       <StateNumber>739</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="395" parent="282" name="title">
+    <column id="396" parent="282" name="title">
       <NotNull>1</NotNull>
       <Position>14</Position>
       <StateNumber>739</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <foreign-key id="396" parent="282" name="fkp5mmmypepihvmkdb83qwugr4d">
+    <foreign-key id="397" parent="282" name="fkp5mmmypepihvmkdb83qwugr4d">
       <ColNames>owner_id</ColNames>
       <ObjectId>16594</ObjectId>
       <StateNumber>760</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16495</RefTableId>
     </foreign-key>
-    <index id="397" parent="282" name="restaurants_pkey">
+    <index id="398" parent="282" name="restaurants_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16472</ObjectId>
@@ -5153,7 +5160,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="398" parent="282" name="restaurants_owner_id_key">
+    <index id="399" parent="282" name="restaurants_owner_id_key">
       <ColNames>owner_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16474</ObjectId>
@@ -5161,7 +5168,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="399" parent="282" name="restaurants_phonenumber_key">
+    <index id="400" parent="282" name="restaurants_phonenumber_key">
       <ColNames>phonenumber</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16476</ObjectId>
@@ -5172,73 +5179,73 @@ false Zulu
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="400" parent="282" name="restaurants_pkey">
+    <key id="401" parent="282" name="restaurants_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16473</ObjectId>
       <Primary>1</Primary>
       <StateNumber>739</StateNumber>
       <UnderlyingIndexId>16472</UnderlyingIndexId>
     </key>
-    <key id="401" parent="282" name="restaurants_owner_id_key">
+    <key id="402" parent="282" name="restaurants_owner_id_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16475</ObjectId>
       <StateNumber>739</StateNumber>
       <UnderlyingIndexId>16474</UnderlyingIndexId>
     </key>
-    <key id="402" parent="282" name="restaurants_phonenumber_key">
+    <key id="403" parent="282" name="restaurants_phonenumber_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16477</ObjectId>
       <StateNumber>739</StateNumber>
       <UnderlyingIndexId>16476</UnderlyingIndexId>
     </key>
-    <column id="403" parent="283" name="review_id">
+    <column id="404" parent="283" name="review_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>740</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="404" parent="283" name="image_base64">
+    <column id="405" parent="283" name="image_base64">
       <Position>2</Position>
       <StateNumber>740</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <foreign-key id="405" parent="283" name="fk3aayo5bjciyemf3bvvt987hkr">
+    <foreign-key id="406" parent="283" name="fk3aayo5bjciyemf3bvvt987hkr">
       <ColNames>review_id</ColNames>
       <ObjectId>16599</ObjectId>
       <StateNumber>761</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16484</RefTableId>
     </foreign-key>
-    <column id="406" parent="284" name="order_id">
+    <column id="407" parent="284" name="order_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>741</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="407" parent="284" name="rating">
+    <column id="408" parent="284" name="rating">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>741</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="408" parent="284" name="author_user_id">
+    <column id="409" parent="284" name="author_user_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>741</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="409" parent="284" name="createdat">
+    <column id="410" parent="284" name="createdat">
       <Position>4</Position>
       <StateNumber>741</StateNumber>
       <StoredType>timestamp(6)|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="410" parent="284" name="id">
+    <column id="411" parent="284" name="id">
       <DefaultExpression>nextval(&apos;reviews_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>5</Position>
@@ -5246,33 +5253,33 @@ false Zulu
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="411" parent="284" name="updatedat">
+    <column id="412" parent="284" name="updatedat">
       <Position>6</Position>
       <StateNumber>741</StateNumber>
       <StoredType>timestamp(6)|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="412" parent="284" name="comment">
+    <column id="413" parent="284" name="comment">
       <Position>7</Position>
       <StateNumber>741</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <foreign-key id="413" parent="284" name="fkqwgq1lxgahsxdspnwqfac6sv6">
+    <foreign-key id="414" parent="284" name="fkqwgq1lxgahsxdspnwqfac6sv6">
       <ColNames>order_id</ColNames>
       <ObjectId>16609</ObjectId>
       <StateNumber>763</StateNumber>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16437</RefTableId>
     </foreign-key>
-    <foreign-key id="414" parent="284" name="fk4feejolpi7u3j1ev7b494dhk8">
+    <foreign-key id="415" parent="284" name="fk4feejolpi7u3j1ev7b494dhk8">
       <ColNames>author_user_id</ColNames>
       <ObjectId>16604</ObjectId>
       <StateNumber>762</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
       <RefTableId>16495</RefTableId>
     </foreign-key>
-    <index id="415" parent="284" name="reviews_order_id_key">
+    <index id="416" parent="284" name="reviews_order_id_key">
       <ColNames>order_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16492</ObjectId>
@@ -5280,7 +5287,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="416" parent="284" name="reviews_pkey">
+    <index id="417" parent="284" name="reviews_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16490</ObjectId>
@@ -5289,190 +5296,197 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="417" parent="284" name="reviews_pkey">
+    <key id="418" parent="284" name="reviews_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16491</ObjectId>
       <Primary>1</Primary>
       <StateNumber>741</StateNumber>
       <UnderlyingIndexId>16490</UnderlyingIndexId>
     </key>
-    <key id="418" parent="284" name="reviews_order_id_key">
+    <key id="419" parent="284" name="reviews_order_id_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16493</ObjectId>
       <StateNumber>741</StateNumber>
       <UnderlyingIndexId>16492</UnderlyingIndexId>
     </key>
-    <column id="419" parent="285" name="isverified">
+    <column id="420" parent="285" name="role">
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>boolean|0s</StoredType>
-      <TypeId>16</TypeId>
-    </column>
-    <column id="420" parent="285" name="latitude">
-      <Position>2</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>double precision|0s</StoredType>
-      <TypeId>701</TypeId>
-    </column>
-    <column id="421" parent="285" name="longitude">
-      <Position>3</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>double precision|0s</StoredType>
-      <TypeId>701</TypeId>
-    </column>
-    <column id="422" parent="285" name="createdat">
-      <NotNull>1</NotNull>
-      <Position>4</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>timestamp(6)|0s</StoredType>
-      <TypeId>1114</TypeId>
-    </column>
-    <column id="423" parent="285" name="id">
-      <DefaultExpression>nextval(&apos;users_id_seq&apos;::regclass)</DefaultExpression>
-      <NotNull>1</NotNull>
-      <Position>5</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>bigint|0s</StoredType>
-      <SequenceId>16729</SequenceId>
-      <TypeId>20</TypeId>
-    </column>
-    <column id="424" parent="285" name="updatedat">
-      <NotNull>1</NotNull>
-      <Position>6</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>timestamp(6)|0s</StoredType>
-      <TypeId>1114</TypeId>
-    </column>
-    <column id="425" parent="285" name="role">
-      <NotNull>1</NotNull>
-      <Position>7</Position>
-      <StateNumber>820</StateNumber>
+      <StateNumber>1055</StateNumber>
       <StoredType>varchar(31)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="426" parent="285" name="accountnumber">
+    <column id="421" parent="285" name="id">
+      <DefaultExpression>nextval(&apos;users_id_seq&apos;::regclass)</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <SequenceId>17335</SequenceId>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="422" parent="285" name="accountnumber">
+      <Position>3</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="423" parent="285" name="address">
+      <Position>4</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="424" parent="285" name="bankname">
+      <Position>5</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="425" parent="285" name="createdat">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>timestamp(6)|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <column id="426" parent="285" name="email">
+      <Position>7</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="427" parent="285" name="fullname">
       <Position>8</Position>
-      <StateNumber>820</StateNumber>
+      <StateNumber>1055</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="427" parent="285" name="address">
+    <column id="428" parent="285" name="isverified">
+      <NotNull>1</NotNull>
       <Position>9</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
+      <StateNumber>1055</StateNumber>
+      <StoredType>boolean|0s</StoredType>
+      <TypeId>16</TypeId>
     </column>
-    <column id="428" parent="285" name="bankname">
+    <column id="429" parent="285" name="password">
       <Position>10</Position>
-      <StateNumber>820</StateNumber>
+      <StateNumber>1055</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="429" parent="285" name="email">
+    <column id="430" parent="285" name="phonenumber">
+      <NotNull>1</NotNull>
       <Position>11</Position>
-      <StateNumber>820</StateNumber>
+      <StateNumber>1055</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="430" parent="285" name="fullname">
+    <column id="431" parent="285" name="profileimagebase64">
       <Position>12</Position>
-      <StateNumber>820</StateNumber>
+      <StateNumber>1055</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="431" parent="285" name="password">
+    <column id="432" parent="285" name="publicid">
+      <NotNull>1</NotNull>
       <Position>13</Position>
-      <StateNumber>820</StateNumber>
+      <StateNumber>1055</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="432" parent="285" name="phonenumber">
+    <column id="433" parent="285" name="updatedat">
       <NotNull>1</NotNull>
       <Position>14</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
+      <StateNumber>1055</StateNumber>
+      <StoredType>timestamp(6)|0s</StoredType>
+      <TypeId>1114</TypeId>
     </column>
-    <column id="433" parent="285" name="profileimagebase64">
-      <Position>15</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="434" parent="285" name="publicid">
+    <column id="434" parent="285" name="walletbalance">
       <NotNull>1</NotNull>
-      <Position>16</Position>
-      <StateNumber>820</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
+      <Position>15</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>numeric(10,2 digit)|0s</StoredType>
+      <TypeId>1700</TypeId>
     </column>
-    <index id="435" parent="285" name="users_pkey">
+    <column id="435" parent="285" name="latitude">
+      <Position>16</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>double precision|0s</StoredType>
+      <TypeId>701</TypeId>
+    </column>
+    <column id="436" parent="285" name="longitude">
+      <Position>17</Position>
+      <StateNumber>1055</StateNumber>
+      <StoredType>double precision|0s</StoredType>
+      <TypeId>701</TypeId>
+    </column>
+    <column id="437" parent="285" name="notregisteredrestaurantids">
+      <Position>18</Position>
+      <StateNumber>1123</StateNumber>
+      <StoredType>bytea|0s</StoredType>
+      <TypeId>17</TypeId>
+    </column>
+    <index id="438" parent="285" name="users_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16736</ObjectId>
+      <ObjectId>17342</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>820</StateNumber>
+      <StateNumber>1055</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="436" parent="285" name="users_email_key">
+    <index id="439" parent="285" name="uk_6dotkott2kjsp8vw4d0m25fb7">
       <ColNames>email</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16738</ObjectId>
-      <StateNumber>820</StateNumber>
+      <ObjectId>17360</ObjectId>
+      <StateNumber>1073</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="437" parent="285" name="users_phonenumber_key">
+    <index id="440" parent="285" name="uk_kwds03ohobcd8p6eowkw0f5bm">
       <ColNames>phonenumber</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16740</ObjectId>
-      <StateNumber>820</StateNumber>
+      <ObjectId>17362</ObjectId>
+      <StateNumber>1075</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="438" parent="285" name="users_publicid_key">
+    <index id="441" parent="285" name="uk_kttmtvpigshld3og466g7mcj3">
       <ColNames>publicid</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16742</ObjectId>
-      <StateNumber>820</StateNumber>
+      <ObjectId>17364</ObjectId>
+      <StateNumber>1077</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="439" parent="285" name="users_pkey">
+    <key id="442" parent="285" name="users_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16737</ObjectId>
+      <ObjectId>17343</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>820</StateNumber>
-      <UnderlyingIndexId>16736</UnderlyingIndexId>
+      <StateNumber>1055</StateNumber>
+      <UnderlyingIndexId>17342</UnderlyingIndexId>
     </key>
-    <key id="440" parent="285" name="users_email_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16739</ObjectId>
-      <StateNumber>820</StateNumber>
-      <UnderlyingIndexId>16738</UnderlyingIndexId>
+    <key id="443" parent="285" name="uk_6dotkott2kjsp8vw4d0m25fb7">
+      <ObjectId>17361</ObjectId>
+      <StateNumber>1073</StateNumber>
+      <UnderlyingIndexId>17360</UnderlyingIndexId>
     </key>
-    <key id="441" parent="285" name="users_phonenumber_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16741</ObjectId>
-      <StateNumber>820</StateNumber>
-      <UnderlyingIndexId>16740</UnderlyingIndexId>
+    <key id="444" parent="285" name="uk_kwds03ohobcd8p6eowkw0f5bm">
+      <ObjectId>17363</ObjectId>
+      <StateNumber>1075</StateNumber>
+      <UnderlyingIndexId>17362</UnderlyingIndexId>
     </key>
-    <key id="442" parent="285" name="users_publicid_key">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16743</ObjectId>
-      <StateNumber>820</StateNumber>
-      <UnderlyingIndexId>16742</UnderlyingIndexId>
+    <key id="445" parent="285" name="uk_kttmtvpigshld3og466g7mcj3">
+      <ObjectId>17365</ObjectId>
+      <StateNumber>1077</StateNumber>
+      <UnderlyingIndexId>17364</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>

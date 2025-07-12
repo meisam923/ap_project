@@ -47,7 +47,7 @@ public class RestaurantHandler implements HttpHandler {
     }
 
     public RestaurantHandler() {
-        // === Routes STRICTLY from your OpenAPI Specification ===
+        // === Routes
 
         // POST /restaurants
         routes.add(new Route("POST", Pattern.compile("^/restaurants$"), (exchange, matcher) ->
