@@ -18,8 +18,8 @@ public class DeliveryController {
     private final OrderDao orderDao = new OrderDao();
 
     public List<OrderDto.OrderSchemaDTO> getAvailableDeliveries(User courier) {
-        if (courier.getRole() != Role.COURIER) {
-            throw new SecurityException("Forbidden: Only couriers can view available deliveries.");
+        if (courier.getRole() != Role.COURIER || !courier.isVerified()) {
+            throw new SecurityException("Forbidden: Only verified couriers can view available deliveries.");
         }
         List<Order> availableOrders = orderDao.findAvailableForDelivery();
         return availableOrders.stream()
@@ -28,8 +28,8 @@ public class DeliveryController {
     }
 
     public OrderDto.OrderSchemaDTO updateDeliveryStatus(Long orderId, String newStatusAction, User courier) {
-        if (!(courier instanceof Deliveryman)) {
-            throw new SecurityException("Forbidden: Only couriers can update delivery status.");
+        if (!(courier instanceof Deliveryman) || !courier.isVerified()) {
+            throw new SecurityException("Forbidden: Only verified couriers can update delivery status.");
         }
         Deliveryman deliveryman = (Deliveryman) courier;
 
@@ -80,8 +80,8 @@ public class DeliveryController {
     }
 
     public List<OrderDto.OrderSchemaDTO> getDeliveryHistory(User courier, String searchFilter, String vendorFilter) {
-        if (courier.getRole() != Role.COURIER) {
-            throw new SecurityException("Forbidden: Only couriers can view delivery history.");
+        if (courier.getRole() != Role.COURIER || !courier.isVerified()) {
+            throw new SecurityException("Forbidden: Only verified couriers can view delivery history.");
         }
         List<Order> orders = orderDao.findHistoryForCourier(courier.getId(), searchFilter, vendorFilter);
         return orders.stream()

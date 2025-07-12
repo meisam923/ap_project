@@ -67,6 +67,12 @@ public class Main {
         System.out.println("Vendor endpoints (buyer) at       http://localhost:" + port + "/vendors/*");
         System.out.println("Item endpoints (buyer) at         http://localhost:" + port + "/items/*");
         System.out.println("Order endpoints (buyer) at        http://localhost:" + port + "/orders/*");
+        System.out.println("Favorites endpoints at       http://localhost:" + port + "/favorites/*");
+        System.out.println("Deliveries endpoints at         http://localhost:" + port + "/deliveries/*");
+        System.out.println("Wallet endpoints at        http://localhost:" + port + "/Wallet/*");
+        System.out.println("Payments endpoints at         http://localhost:" + port + "/payments/*");
+        System.out.println("Transactions endpoints at         http://localhost:" + port + "/transactions/*");
+        System.out.println("Admin endpoints at         http://localhost:" + port + "/admin/*");
         System.out.println("=====================================================");
     }
 }
