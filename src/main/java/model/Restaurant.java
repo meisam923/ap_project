@@ -52,6 +52,7 @@ public class Restaurant {
 
     private Integer taxFee;
     private Integer additionalFee;
+    @Column(columnDefinition = "TEXT")
     private String logoBase64;
     private Double averageRating = 0.0;
 

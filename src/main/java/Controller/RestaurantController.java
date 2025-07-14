@@ -54,6 +54,9 @@ public class RestaurantController {
         if (restaurantDao.findByPhone(restaurant.phone())!=null || userService.findByPhone(restaurant.phone()).isPresent() ) {
             throw new AlreadyExistValueException(409, "phone");
         }
+        if (restaurant.tax_fee() <0 || restaurant.additional_fee() <0){
+            throw new InvalidInputException(400, "fee");
+        }
         Restaurant newRestaurant = new Restaurant(
                 restaurant.name(),
                 restaurant.address(),

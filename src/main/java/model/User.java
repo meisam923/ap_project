@@ -35,6 +35,7 @@ public abstract class User {
     @Column(unique = true)
     private String email;
     private String password;
+    @Column(columnDefinition = "TEXT")
     private String profileImageBase64;
     private String bankName;
     private String accountNumber;
