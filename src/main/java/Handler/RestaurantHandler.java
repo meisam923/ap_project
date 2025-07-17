@@ -216,7 +216,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Restaurant not found for this seller");
                 return;
             }
-            RestaurantDto.RegisterReponseRestaurantDto restaurantDto = new RestaurantDto.RegisterReponseRestaurantDto(seller_restaurant.getId(), seller_restaurant.getTitle(), seller_restaurant.getAddress(), seller_restaurant.getPhoneNumber(), seller_restaurant.getLogoBase64(), seller_restaurant.getTaxFee(), seller_restaurant.getAdditionalFee());
+            RestaurantDto.RegisterReponseRestaurantDto restaurantDto = new RestaurantDto.RegisterReponseRestaurantDto(seller_restaurant.getId(), seller_restaurant.getTitle(), seller_restaurant.getAddress(), seller_restaurant.getPhoneNumber(), seller_restaurant.getLogoBase64(), seller_restaurant.getTaxFee(), seller_restaurant.getAdditionalFee(),seller_restaurant.getApprovalStatus().name().toUpperCase());
             List<RestaurantDto.RegisterReponseRestaurantDto> list = new ArrayList<>();
             list.add(restaurantDto);
             sendResponse(exchange, 200, gson.toJson(list), "application/json");

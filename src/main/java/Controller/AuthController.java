@@ -220,16 +220,21 @@ public class AuthController {
     }
 
     public @NotNull User requireLogin(String token) throws AuthenticationException {
-        if (token == null || token.isBlank()) {
-            throw new AuthenticationException("Authentication token not provided.");
-        }
-        UserPayload payload = JwtUtil.verifyToken(token);
-        if (payload == null) {
-            throw new AuthenticationException("Invalid or expired token payload.");
-        }
+        try {
+            if (token == null || token.isBlank()) {
+                throw new AuthenticationException("Authentication token not provided.");
+            }
+            UserPayload payload = JwtUtil.verifyToken(token);
+            if (payload == null) {
+                throw new AuthenticationException("Invalid or expired token payload.");
+            }
 
-        return userService.findByPublicId(payload.getPublicId())
-                .orElseThrow(() -> new AuthenticationException("User not found for token, or token has been invalidated."));
+            return userService.findByPublicId(payload.getPublicId())
+                    .orElseThrow(() -> new AuthenticationException("User not found for token, or token has been invalidated."));
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new AuthenticationException("Invalid token provided.");
+        }
     }
 
     public void registerLoginObserver(LoginObserver obs) {

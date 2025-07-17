@@ -21,7 +21,8 @@ public class RestaurantDto {
             @JsonProperty("phone") String phone,
             @JsonProperty("logoBase64") String logaBase64,
             @JsonProperty("tax_fee") int tax_fee,
-            @JsonProperty("additional_fee") int additional_fee
+            @JsonProperty("additional_fee") int additional_fee,
+            @JsonProperty("approvalStatus") String approvalStatus
     ){}
     public record AddItemToRestaurantDto(
             @JsonProperty("name") String name,

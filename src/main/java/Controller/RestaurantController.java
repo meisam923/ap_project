@@ -68,7 +68,7 @@ public class RestaurantController {
         );
         owner.setRestaurant(newRestaurant);
         ownerDao.update(owner);
-        return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
+        return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee(),newRestaurant.getApprovalStatus().name().toUpperCase());
     }
     public RestaurantDto.RegisterReponseRestaurantDto editRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws InvalidInputException {
         if (restaurant.name()== null) {
@@ -84,10 +84,13 @@ public class RestaurantController {
         if (restaurant.phone().equals(owner.getRestaurant().getPhoneNumber()) && restaurantDao.findByPhone(restaurant.phone())!=null ) {
             new AlreadyExistValueException(409, "phone");
         }
+        if (restaurant.tax_fee() <0 || restaurant.additional_fee() <0){
+            throw new InvalidInputException(400, "fee");
+        }
         Restaurant res=owner.getRestaurant();
         res.setPhoneNumber(restaurant.phone()); res.setAddress(restaurant.address()); res.setTitle(restaurant.name()); res.setAdditionalFee(restaurant.additional_fee()); res.setTaxFee(restaurant.tax_fee()); res.setLogoBase64(restaurant.logaBase64());
         restaurantDao.update(res);
-        return new RestaurantDto.RegisterReponseRestaurantDto(res.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee());
+        return new RestaurantDto.RegisterReponseRestaurantDto(res.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee(),res.getApprovalStatus().name().toUpperCase());
 
     }
 
@@ -290,7 +293,8 @@ public class RestaurantController {
                 restaurant.getPhoneNumber(),
                 restaurant.getLogoBase64(),
                 restaurant.getTaxFee(),
-                restaurant.getAdditionalFee()
+                restaurant.getAdditionalFee(),
+                restaurant.getApprovalStatus().name().toUpperCase()
         );
     }
     public void changeOrderStatus(Owner owner,String status,long orderId) throws Exception {
