@@ -39,7 +39,7 @@ public class FavoriteController {
                 .collect(Collectors.toList());
     }
 
-    public void addFavorite(User user, int restaurantId) throws NotFoundException {
+    public void addFavorite(User user, int restaurantId) throws Exception {
         if (!(user instanceof Customer)) {
             throw new SecurityException("Forbidden: Only buyers can add favorites.");
         }

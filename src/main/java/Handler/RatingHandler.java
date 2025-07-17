@@ -86,7 +86,7 @@ public class RatingHandler implements HttpHandler {
         }
     }
 
-    private void handleSubmitRating(HttpExchange exchange, User user) throws IOException {
+    private void handleSubmitRating(HttpExchange exchange, User user) throws Exception {
         String body = readRequestBody(exchange);
         RatingDto.SubmitRatingRequestDTO requestDto = objectMapper.readValue(body, RatingDto.SubmitRatingRequestDTO.class);
         RatingDto.RatingSchemaDTO responseDto = ratingController.submitRating(requestDto, user);
@@ -110,11 +110,15 @@ public class RatingHandler implements HttpHandler {
     private void handleUpdateRating(HttpExchange exchange, long ratingId, User user) throws IOException {
         String body = readRequestBody(exchange);
         RatingDto.UpdateRatingRequestDTO requestDto = objectMapper.readValue(body, RatingDto.UpdateRatingRequestDTO.class);
-        RatingDto.RatingSchemaDTO responseDto = ratingController.updateRating(ratingId, requestDto, user);
-        sendResponse(exchange, 200, responseDto);
+        try {
+            RatingDto.RatingSchemaDTO responseDto = ratingController.updateRating(ratingId, requestDto, user);
+            sendResponse(exchange, 200, responseDto);
+        }catch (Exception e) {
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error"));
+        }
     }
 
-    private void handleDeleteRating(HttpExchange exchange, long ratingId, User user) throws IOException {
+    private void handleDeleteRating(HttpExchange exchange, long ratingId, User user) throws Exception {
         ratingController.deleteRating(ratingId, user);
         sendResponse(exchange, 200, new UserDto.MessageResponseDTO("Rating deleted successfully."));
     }

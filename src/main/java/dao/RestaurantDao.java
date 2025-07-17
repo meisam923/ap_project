@@ -20,25 +20,31 @@ public class RestaurantDao {
             tx.begin();
             em.persist(restaurant);
             tx.commit();
-        } finally {
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        finally {
             em.close();
         }
     }
 
-    public Restaurant findById(Long id) {
+    public Restaurant findById(Long id) throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
         Restaurant restaurant = null;
         try {
             restaurant = em.find(Restaurant.class, id);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
+            throw e;
+        }
+        finally {
             em.close();
         }
         return restaurant;
     }
 
-    public void update(Restaurant restaurant) {
+    public void update(Restaurant restaurant) throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -46,14 +52,14 @@ public class RestaurantDao {
             em.merge(restaurant);
             tx.commit();
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
             e.printStackTrace();
-        } finally {
+            throw e;
+        } {
             em.close();
         }
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(Long id)throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -65,7 +71,7 @@ public class RestaurantDao {
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            throw e;
         } finally {
             em.close();
         }

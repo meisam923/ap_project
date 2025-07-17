@@ -77,7 +77,7 @@ public class FavoriteHandler implements HttpHandler {
         sendResponse(exchange, 200, favorites);
     }
 
-    private void handleAddFavorite(HttpExchange exchange, User user, int restaurantId) throws IOException, NotFoundException {
+    private void handleAddFavorite(HttpExchange exchange, User user, int restaurantId) throws Exception, NotFoundException {
         favoriteController.addFavorite(user, restaurantId);
         sendResponse(exchange, 200, new UserDto.MessageResponseDTO("Restaurant added to favorites."));
     }

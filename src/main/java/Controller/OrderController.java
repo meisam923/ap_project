@@ -23,7 +23,7 @@ public class OrderController {
     private final ItemDao itemDao = new ItemDao();
     private final CouponDao couponDao = new CouponDao();
 
-    public Optional<OrderDto.OrderSchemaDTO> submitOrder(OrderDto.SubmitOrderRequestDTO orderDto, User user) {
+    public Optional<OrderDto.OrderSchemaDTO> submitOrder(OrderDto.SubmitOrderRequestDTO orderDto, User user) throws Exception {
         if (!(user instanceof Customer)) {
             throw new SecurityException("Forbidden: Only buyers can submit orders.");
         }

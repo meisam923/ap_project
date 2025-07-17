@@ -13,6 +13,7 @@ import dto.RestaurantDto;
 import enums.ApprovalStatus;
 import enums.OperationalStatus;
 import enums.Role;
+import exception.AlreadyExistValueException;
 import exception.ConflictException;
 import exception.InvalidInputException;
 import exception.NotFoundException;
@@ -190,7 +191,11 @@ public class RestaurantHandler implements HttpHandler {
             System.err.println("JSON Parsing Error: " + e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 400, "Invalid JSON input");
-        } catch (InvalidInputException e) {
+        }catch (AlreadyExistValueException e){
+            e.printStackTrace();
+            sendErrorResponse(exchange, 409, "PhoneNumber already exists");
+        }
+        catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -261,7 +266,11 @@ public class RestaurantHandler implements HttpHandler {
             System.err.println("JSON Parsing Error: " + e.getMessage());
             e.printStackTrace();
             sendErrorResponse(exchange, 400, "Invalid JSON input");
-        } catch (InvalidInputException e) {
+        }catch (AlreadyExistValueException e){
+            e.printStackTrace();
+            sendErrorResponse(exchange, 409, "PhoneNumber already exists");
+        }
+        catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (IOException e) {
             System.err.println(e.getMessage());

@@ -36,7 +36,7 @@ public class VendorController {
     }
 
 
-    public VendorDto.VendorMenuResponseDTO getVendorMenuForBuyer(Long vendorId) {
+    public VendorDto.VendorMenuResponseDTO getVendorMenuForBuyer(Long vendorId) throws Exception {
         Restaurant restaurant = restaurantDao.findById(vendorId);
 
         if (restaurant == null || restaurant.getApprovalStatus() != ApprovalStatus.REGISTERED) {

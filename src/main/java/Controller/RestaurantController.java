@@ -70,7 +70,8 @@ public class RestaurantController {
         ownerDao.update(owner);
         return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee(),newRestaurant.getApprovalStatus().name().toUpperCase());
     }
-    public RestaurantDto.RegisterReponseRestaurantDto editRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws InvalidInputException {
+    public RestaurantDto.RegisterReponseRestaurantDto editRestaurant(RestaurantDto.RegisterRestaurantDto restaurant,Owner owner) throws Exception {
+        System.out.println(restaurant.phone()+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         if (restaurant.name()== null) {
             throw new InvalidInputException(400, "name");
 
@@ -81,8 +82,8 @@ public class RestaurantController {
         if (restaurant.phone()== null || restaurant.phone().length()!=11 ) {
             throw new InvalidInputException(400, "phone");
         }
-        if (restaurant.phone().equals(owner.getRestaurant().getPhoneNumber()) && restaurantDao.findByPhone(restaurant.phone())!=null ) {
-            new AlreadyExistValueException(409, "phone");
+        if (restaurantDao.findByPhone(restaurant.phone())!=null || userService.findByPhone(restaurant.phone()).isPresent() ) {
+           throw new AlreadyExistValueException(409, "phone");
         }
         if (restaurant.tax_fee() <0 || restaurant.additional_fee() <0){
             throw new InvalidInputException(400, "fee");

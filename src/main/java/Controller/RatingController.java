@@ -22,7 +22,7 @@ public class RatingController {
     private final OrderDao orderDao = new OrderDao();
     private final RestaurantDao restaurantDao = new RestaurantDao();
 
-    public RatingDto.RatingSchemaDTO submitRating(RatingDto.SubmitRatingRequestDTO ratingDto, User user) {
+    public RatingDto.RatingSchemaDTO submitRating(RatingDto.SubmitRatingRequestDTO ratingDto, User user) throws Exception {
         Order order = orderDao.findById(ratingDto.orderId());
         if (order == null) {
             throw new NotFoundException("Order with ID " + ratingDto.orderId() + " not found.");
@@ -68,7 +68,7 @@ public class RatingController {
         return Optional.ofNullable(mapReviewToDto(review));
     }
 
-    public RatingDto.RatingSchemaDTO updateRating(Long ratingId, RatingDto.UpdateRatingRequestDTO dto, User user) {
+    public RatingDto.RatingSchemaDTO updateRating(Long ratingId, RatingDto.UpdateRatingRequestDTO dto, User user) throws Exception {
         Review review = ratingDao.findById(ratingId);
         if (review == null) {
             throw new NotFoundException("Rating with ID " + ratingId + " not found.");
@@ -87,7 +87,7 @@ public class RatingController {
         return mapReviewToDto(review);
     }
 
-    public void deleteRating(Long ratingId, User user) {
+    public void deleteRating(Long ratingId, User user) throws Exception {
         Review review = ratingDao.findById(ratingId);
         if (review == null) {
             throw new NotFoundException("Rating with ID " + ratingId + " not found.");
@@ -101,7 +101,7 @@ public class RatingController {
         updateRestaurantAverageRating(restaurantToUpdate);
     }
 
-    private void updateRestaurantAverageRating(Restaurant restaurant) {
+    private void updateRestaurantAverageRating(Restaurant restaurant) throws Exception {
         List<Review> reviews = ratingDao.findAllByRestaurantId(restaurant.getId());
 
         double newAverage = reviews.stream()
