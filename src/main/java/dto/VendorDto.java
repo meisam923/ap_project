@@ -40,6 +40,6 @@ public class VendorDto {
     public record VendorMenuResponseDTO(
             @JsonProperty("vendor") RestaurantSchemaDTO vendor,
             @JsonProperty("menu_titles") List<String> menuTitles,
-            Map<String, List<FoodItemSchemaDTO>> menus
+            @JsonProperty("menu_title") Map<String, List<FoodItemSchemaDTO>> menus
     ) {}
 }
