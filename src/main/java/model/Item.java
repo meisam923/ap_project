@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static jakarta.persistence.FetchType.*;
+
 @Setter
 @Getter
 @Entity
@@ -29,9 +31,9 @@ public class Item {
     private String description;
     private int count;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "item_hashtags", joinColumns = @JoinColumn(name = "item_id"))
-    @Column(name = "hashtag" )
+    @Column(name = "hashtag")
     private List<String> hashtags = new ArrayList<>();
     @Lob
     private String imageBase64;

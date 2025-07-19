@@ -4,11 +4,13 @@ import dao.RestaurantDao;
 import dto.VendorDto;
 import enums.ApprovalStatus;
 import enums.OperationalStatus;
+import model.Item;
+import model.Menu;
 import model.Restaurant;
 import model.User;
 
-import java.util.Collections;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class VendorController {
@@ -38,7 +40,7 @@ public class VendorController {
 
     public VendorDto.VendorMenuResponseDTO getVendorMenuForBuyer(Long vendorId) throws Exception {
         Restaurant restaurant = restaurantDao.findById(vendorId);
-
+        System.out.println("we are here" + restaurant.getId());
         if (restaurant == null || restaurant.getApprovalStatus() != ApprovalStatus.REGISTERED) {
             return null;
         }
@@ -61,12 +63,24 @@ public class VendorController {
                 category,
                 restaurant.getAverageRating(),
                 restaurant.getLogoBase64(),
-                isOpen
+                isOpen,
+                restaurant.getTaxFee(),
+                restaurant.getAdditionalFee(),
+                restaurant.getPhoneNumber()
         );
     }
 
     private VendorDto.VendorMenuResponseDTO buildMenuResponseDTO(Restaurant restaurant) {
-        // TODO: Implement the actual logic to fetch menus and items
-        return new VendorDto.VendorMenuResponseDTO(mapRestaurantToSchemaDTO(restaurant), List.of("Sample Menu"), Collections.emptyMap());
+        List<String> menusTitle =new ArrayList<>();
+        HashMap<String, List<VendorDto.FoodItemSchemaDTO>> mapMenuToItems = new HashMap<>();
+        for (Menu menu : restaurant.getMenus()) {
+            menusTitle.add(menu.getTitle());
+            List<VendorDto.FoodItemSchemaDTO> items = new ArrayList<>();
+            for (Item item : menu.getItems()) {
+                items.add(new VendorDto.FoodItemSchemaDTO(item.getId(),item.getTitle(),item.getImageBase64(),item.getDescription(),menu.getRestaurant().getId(),item.getPrice().getPrice(),item.getCount(),item.getHashtags()));
+            }
+            mapMenuToItems.put(menu.getTitle(),items);
+        }
+        return new VendorDto.VendorMenuResponseDTO(mapRestaurantToSchemaDTO(restaurant), menusTitle, mapMenuToItems);
     }
 }

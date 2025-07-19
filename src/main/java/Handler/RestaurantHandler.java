@@ -18,6 +18,7 @@ import exception.ConflictException;
 import exception.InvalidInputException;
 import exception.NotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.transaction.Transactional;
 import model.Owner;
 import model.Restaurant;
 import model.User;

@@ -20,16 +20,21 @@ public class VendorDto {
             @JsonProperty("address") String address,
             @JsonProperty("category") String category,
             @JsonProperty("rating") Double rating,
-            @JsonProperty("logo_url") String logoUrl,
-            @JsonProperty("is_open") Boolean isOpen
+            @JsonProperty("logoBase64") String logoUrl,
+            @JsonProperty("is_open") Boolean isOpen,
+            @JsonProperty("tax_fee") int tax_fee,
+            @JsonProperty("additional_fee") int additional_fee,
+            @JsonProperty("phone") String phone
     ) {}
-
     public record FoodItemSchemaDTO(
             @JsonProperty("id") int id,
             @JsonProperty("name") String name,
+            @JsonProperty("imageBase64") String imageUrl,
             @JsonProperty("description") String description,
-            @JsonProperty("price") BigDecimal price,
-            @JsonProperty("image_url") String imageUrl
+            @JsonProperty("vendor_id") int vendorId,
+            @JsonProperty("price") long price,
+            @JsonProperty("supply") int supply,
+            @JsonProperty("keywords")  List<String> keywords
     ) {}
 
     public record VendorMenuResponseDTO(

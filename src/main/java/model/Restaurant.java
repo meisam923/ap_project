@@ -36,7 +36,7 @@ public class Restaurant {
     @JoinColumn(name = "owner_id", unique = true)
     private Owner owner;
 
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
     private List<Menu> menus = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -68,6 +68,8 @@ public class Restaurant {
         this.logoBase64 = logoBase64;
         this.approvalStatus = ApprovalStatus.WAITING;
         this.operationalStatus = OperationalStatus.CLOSED;
+        Menu base= new Menu(this,"Base");
+        menus.add(base);
     }
 
     public Menu getMenu(String title) {
