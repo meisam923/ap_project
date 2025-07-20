@@ -29,19 +29,25 @@ public class RestaurantDao {
         }
     }
 
-    public Restaurant findById(Long id) throws Exception {
+    public Restaurant findById(Long id) {
         EntityManager em = JpaUtil.getEntityManager();
-        Restaurant restaurant = null;
         try {
-            restaurant = em.find(Restaurant.class, id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+            TypedQuery<Restaurant> query = em.createQuery(
+                    "SELECT r FROM Restaurant r " +
+                            "LEFT JOIN FETCH r.menus m " +
+                            "LEFT JOIN FETCH m.items " +
+                            "WHERE r.id = :id",
+                    Restaurant.class
+            );
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            if (em != null) {
+                em.close();
+            }
         }
-        finally {
-            em.close();
-        }
-        return restaurant;
     }
 
     public void update(Restaurant restaurant) throws Exception {
@@ -107,7 +113,7 @@ public class RestaurantDao {
         }
     }
 
-    public List<Restaurant> findVendors(String searchTerm, List<String> keywords, ApprovalStatus approvalStatus, OperationalStatus operationalStatus) {
+    public List<Restaurant> findVendors(String searchTerm, List<String> keywords, Double minRating, ApprovalStatus approvalStatus, OperationalStatus operationalStatus) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
             StringBuilder jpqlBuilder = new StringBuilder("SELECT DISTINCT r FROM Restaurant r WHERE 1=1");
@@ -143,6 +149,11 @@ public class RestaurantDao {
                     parameters.put(paramName, "%" + keywords.get(i).toLowerCase() + "%");
                 }
                 jpqlBuilder.append(" )");
+            }
+
+            if (minRating != null && minRating > 0) {
+                jpqlBuilder.append(" AND r.averageRating >= :minRating");
+                parameters.put("minRating", minRating);
             }
 
             jpqlBuilder.append(" ORDER BY r.title ASC");

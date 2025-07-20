@@ -20,10 +20,12 @@ public class VendorController {
     public List<VendorDto.RestaurantSchemaDTO> listVendorsForBuyer(VendorDto.VendorListRequestDTO filterDto) {
         String searchTerm = (filterDto != null) ? filterDto.search() : null;
         List<String> keywords = (filterDto != null) ? filterDto.keywords() : null;
+        Double minRating = (filterDto != null) ? filterDto.minRating() : null;
 
         List<Restaurant> restaurantEntities = restaurantDao.findVendors(
                 searchTerm,
                 keywords,
+                minRating,
                 ApprovalStatus.REGISTERED,
                 OperationalStatus.OPEN
         );

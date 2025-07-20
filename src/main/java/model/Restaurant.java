@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -36,8 +38,8 @@ public class Restaurant {
     @JoinColumn(name = "owner_id", unique = true)
     private Owner owner;
 
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
-    private List<Menu> menus = new ArrayList<>();
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Menu> menus = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private RestaurantCategory category;

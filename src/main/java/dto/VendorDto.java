@@ -11,7 +11,8 @@ public class VendorDto {
 
     public record VendorListRequestDTO(
             @JsonProperty("search") String search,
-            @JsonProperty("keywords") List<String> keywords
+            @JsonProperty("keywords") List<String> keywords,
+            @JsonProperty("min_rating") Double minRating
     ) {}
 
     public record RestaurantSchemaDTO(

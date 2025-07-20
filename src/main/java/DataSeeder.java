@@ -2,20 +2,14 @@
 import dao.CustomerDao;
 import dao.DeliverymanDao;
 import dao.OwnerDao;
-import enums.ApprovalStatus;
-import enums.OperationalStatus;
 import enums.RestaurantCategory;
+import enums.Role;
 import model.*;
 import util.JpaUtil;
+import util.TestDataBuilder;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A standalone class to populate the database with a complete set of test data.
- * Run the main method once to seed the database.
- */
 public class DataSeeder {
 
     private static final OwnerDao ownerDao = new OwnerDao();
@@ -23,80 +17,79 @@ public class DataSeeder {
     private static final DeliverymanDao deliverymanDao = new DeliverymanDao();
 
     public static void main(String[] args) {
-        // Ensure the EntityManagerFactory is initialized before we start
         try {
             Class.forName("util.JpaUtil");
             System.out.println("JPA Initialized for Seeding.");
         } catch (ClassNotFoundException e) {
-            System.err.println("Could not find JpaUtil. Make sure it's in the classpath.");
-            e.printStackTrace();
-            return;
+            e.printStackTrace(); return;
         }
 
-        System.out.println("Seeding database with initial data for order testing...");
+        System.out.println("Seeding database with comprehensive data set...");
 
         try {
-            // --- 1. Create a Seller and their Restaurant ---
-            createAndSaveOwnerWithRestaurant(
-                    "Chef Antoine", "09888888888", "antoine@bistro.com",
-                    "Antoine's Bistro", RestaurantCategory.TRADITIONAL, 4.7
-            );
+            // --- USERS ---
+            System.out.println("Creating users...");
+            Owner seller1 = (Owner) new TestDataBuilder.UserBuilder().withRole(Role.SELLER).withName("Chef Antoine").withPhone("09888888888").withEmail("antoine@bistro.com").withBankInfo("Bistro Bank", "ACC1").build();
+            Owner seller2 = (Owner) new TestDataBuilder.UserBuilder().withRole(Role.SELLER).withName("Jane Austen").withPhone("09888888882").withEmail("jane@cafe.com").withBankInfo("Cafe Bank", "ACC2").build();
+            Owner seller3 = (Owner) new TestDataBuilder.UserBuilder().withRole(Role.SELLER).withName("Captain Ahab").withPhone("09888888884").withEmail("ahab@squid.com").withBankInfo("Whaler's Credit", "ACC3").build();
+            Owner seller4 = (Owner) new TestDataBuilder.UserBuilder().withRole(Role.SELLER).withName("Al Paca").withPhone("09888888886").withEmail("al@burrito.com").withBankInfo("Farm Bank", "ACC4").build();
 
-            // --- 2. Create a Buyer ---
-            Customer customer = new Customer(
-                    "Test Buyer Emily", "456 Customer Way", "09112223344", "emily@example.com",
-                    "password123", null, "Personal Bank", "ACC123"
-            );
-            customerDao.save(customer);
-            System.out.println("-> Created Buyer: Test Buyer Emily");
+            Customer buyer1 = (Customer) new TestDataBuilder.UserBuilder().withRole(Role.BUYER).withName("Test Buyer Emily").withPhone("09112223344").withEmail("emily@example.com").build();
+            Customer buyer2 = (Customer) new TestDataBuilder.UserBuilder().withRole(Role.BUYER).withName("John Doe").withPhone("09112223355").withEmail("john@example.com").build();
 
-            // --- 3. Create a Courier ---
-            Deliveryman deliveryman = new Deliveryman(
-                    "Speedy Dave", "789 Delivery Drive", "09333334444", "dave@delivery.com",
-                    "password123", null, "Courier Credit", "CRD456"
-            );
-            deliverymanDao.save(deliveryman);
-            System.out.println("-> Created Courier: Speedy Dave");
+            Deliveryman courier1 = (Deliveryman) new TestDataBuilder.UserBuilder().withRole(Role.COURIER).withName("Speedy Dave").withPhone("09333334444").withEmail("dave@delivery.com").withBankInfo("Courier Credit", "ACC5").build();
+            User admin1 = new TestDataBuilder.UserBuilder().withRole(Role.ADMIN).withName("Site Admin").withPhone("09000000000").withEmail("admin@app.com").build();
 
-            System.out.println("\nDatabase seeding complete! You can now start your main server.");
+            // --- ITEMS ---
+            System.out.println("Creating items...");
+            Item steak = new TestDataBuilder.ItemBuilder().withTitle("Steak Frites").withPrice(25).withStock(50).withKeywords(List.of("beef", "classic")).build();
+            Item soup = new TestDataBuilder.ItemBuilder().withTitle("French Onion Soup").withPrice(9).withStock(100).withKeywords(List.of("soup", "starter")).build();
+            Item latte = new TestDataBuilder.ItemBuilder().withTitle("Latte").withPrice(5).withStock(200).withKeywords(List.of("coffee", "drink")).build();
+            Item scone = new TestDataBuilder.ItemBuilder().withTitle("Scone").withPrice(4).withStock(80).withKeywords(List.of("pastry", "snack")).build();
+            Item fishAndChips = new TestDataBuilder.ItemBuilder().withTitle("Fish and Chips").withPrice(18).withStock(40).withKeywords(List.of("fried", "seafood")).build();
+            Item clamChowder = new TestDataBuilder.ItemBuilder().withTitle("Clam Chowder").withPrice(9).withStock(60).withKeywords(List.of("soup", "seafood")).build();
+            Item burrito = new TestDataBuilder.ItemBuilder().withTitle("The Classic Burrito").withPrice(12).withStock(150).withKeywords(List.of("breakfast", "spicy")).build();
+
+            // --- RESTAURANTS & MENUS ---
+            System.out.println("Creating restaurants and menus...");
+            Restaurant bistro = new TestDataBuilder.RestaurantBuilder().withOwner(seller1).withTitle("Antoine's Bistro").withCategory(RestaurantCategory.TRADITIONAL).withAverageRating(4.7).isApproved().isOpen().build();
+            Menu bistroMenu = new TestDataBuilder.MenuBuilder().withTitle("Main Menu").withItem(steak).withItem(soup).build(bistro);
+            bistro.addMenu(bistroMenu);
+            seller1.setRestaurant(bistro);
+
+            Restaurant cafe = new TestDataBuilder.RestaurantBuilder().withOwner(seller2).withTitle("The Reading Nook Cafe").withCategory(RestaurantCategory.CAFE).withAverageRating(4.9).isApproved().isOpen().build();
+            Menu cafeMenu = new TestDataBuilder.MenuBuilder().withTitle("Beverages & Snacks").withItem(latte).withItem(scone).build(cafe);
+            cafe.addMenu(cafeMenu);
+            seller2.setRestaurant(cafe);
+
+            Restaurant seafoodShack = new TestDataBuilder.RestaurantBuilder().withOwner(seller3).withTitle("The Salty Squid").withCategory(RestaurantCategory.SEAFOOD).withAverageRating(4.2).isApproved().isOpen().build();
+            Menu seafoodMenu = new TestDataBuilder.MenuBuilder().withTitle("Catch of the Day").withItem(fishAndChips).withItem(clamChowder).build(seafoodShack);
+            seafoodShack.addMenu(seafoodMenu);
+            seller3.setRestaurant(seafoodShack);
+
+            Restaurant burritoBarn = new TestDataBuilder.RestaurantBuilder().withOwner(seller4).withTitle("The Burrito Barn").withCategory(RestaurantCategory.BREAKFAST).withAverageRating(4.8).build(); // Stays in WAITING status
+            Menu burritoMenu = new TestDataBuilder.MenuBuilder().withTitle("Breakfast").withItem(burrito).build(burritoBarn);
+            burritoBarn.addMenu(burritoMenu);
+            seller4.setRestaurant(burritoBarn);
+
+            // --- SAVE TO DB ---
+            System.out.println("Saving all entities to the database...");
+            ownerDao.save(seller1);
+            ownerDao.save(seller2);
+            ownerDao.save(seller3);
+            ownerDao.save(seller4);
+            customerDao.save(buyer1);
+            customerDao.save(buyer2);
+            deliverymanDao.save(courier1);
+            customerDao.save((Customer) admin1); // Save the admin (as a Customer type for simplicity)
+
+            System.out.println("\nDatabase seeding complete!");
 
         } catch (Exception e) {
             System.err.println("An error occurred during database seeding:");
             e.printStackTrace();
         } finally {
-            // Close the factory to terminate the seeder application
             JpaUtil.closeEntityManagerFactory();
         }
-    }
-
-    private static void createAndSaveOwnerWithRestaurant(
-            String ownerName, String ownerPhone, String ownerEmail,
-            String restaurantTitle, RestaurantCategory restaurantCategory, double rating) throws Exception {
-
-        Owner owner = new Owner(ownerName, "Restaurant Address for " + ownerName, ownerPhone, ownerEmail, "password123", null, "Default Bank", "Default Account");
-
-        Restaurant restaurant = new Restaurant(restaurantTitle, owner.getAddress(), "09" + ownerPhone.substring(2), owner, 10, 5, null);
-        restaurant.setCategory(restaurantCategory);
-        restaurant.setApprovalStatus(ApprovalStatus.REGISTERED); // Approved
-        restaurant.setOperationalStatus(OperationalStatus.OPEN);     // Open for business
-        restaurant.setAverageRating(rating);
-
-        owner.setRestaurant(restaurant); // This link is crucial
-
-        Menu mainMenu = new Menu(restaurant, "Main Menu");
-
-        Item item1 = new Item("Steak Frites", "Classic steak and fries.", 25, 50, new ArrayList<>(List.of("beef", "main", "classic")), null);
-        item1.addToMenu(mainMenu);
-        mainMenu.addItem(item1);
-
-        Item item2 = new Item("French Onion Soup", "Rich and savory onion soup.", 9, 100, new ArrayList<>(List.of("soup", "starter")), null);
-        item2.addToMenu(mainMenu);
-        mainMenu.addItem(item2);
-
-        restaurant.addMenu(mainMenu);
-
-        // Saving the owner will cascade and save the restaurant, menu, and items
-        ownerDao.save(owner);
-        System.out.println("-> Created Seller: " + ownerName + " and Restaurant: " + restaurantTitle);
     }
 }

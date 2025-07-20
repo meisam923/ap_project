@@ -75,9 +75,13 @@ public class VendorHandler implements HttpHandler {
     private void handleListVendors(HttpExchange exchange, User user) throws IOException {
         try {
             String body = readRequestBody(exchange);
+
+            // --- THIS IS THE FIX ---
+            // The constructor now correctly provides three null arguments for the default case.
             VendorDto.VendorListRequestDTO filterDto = (body == null || body.isEmpty())
-                    ? new VendorDto.VendorListRequestDTO(null, null)
+                    ? new VendorDto.VendorListRequestDTO(null, null, null)
                     : objectMapper.readValue(body, VendorDto.VendorListRequestDTO.class);
+            // --- END OF FIX ---
 
             List<VendorDto.RestaurantSchemaDTO> vendors = vendorController.listVendorsForBuyer(filterDto);
             sendResponse(exchange, 200, vendors);

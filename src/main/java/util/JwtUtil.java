@@ -15,7 +15,7 @@ import java.util.Date;
 
 public class JwtUtil {
     private static final String SECRET_KEY = System.getenv("my-very-secret-key");
-    private static final long ACCESS_TOKEN_VALIDITY_MS = 15 * 60 * 1000; // 15 minutes
+    private static final long ACCESS_TOKEN_VALIDITY_MS = 15 * 60 * 1000000; //way more than 15 minutes
 
     public static @NotNull Key getSigningKey() {
         byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
