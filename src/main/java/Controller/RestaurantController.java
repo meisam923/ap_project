@@ -82,7 +82,9 @@ public class RestaurantController {
         if (restaurant.phone()== null || restaurant.phone().length()!=11 ) {
             throw new InvalidInputException(400, "phone");
         }
-        if (restaurantDao.findByPhone(restaurant.phone())!=null || userService.findByPhone(restaurant.phone()).isPresent() ) {
+        if (!restaurant.phone().equals(owner.getRestaurant().getPhoneNumber()) &&
+                (restaurantDao.findByPhone(restaurant.phone()) != null ||
+                        userService.findByPhone(restaurant.phone()).isPresent())) {
            throw new AlreadyExistValueException(409, "phone");
         }
         if (restaurant.tax_fee() <0 || restaurant.additional_fee() <0){
@@ -128,9 +130,9 @@ public class RestaurantController {
         for (String key:itemDto.keywords()) {
             if (key==null) {throw new InvalidInputException(400, "keywords");}
         }
-        Menu baseMenu = restaurant.getMenu("base");
+        Menu baseMenu = restaurant.getMenu("Base");
         if (baseMenu == null) {
-            baseMenu = new Menu(restaurant, "base");
+            baseMenu = new Menu(restaurant, "Base");
         }
         Item newItem=new Item(itemDto.name(),itemDto.description(),itemDto.price(),itemDto.supply(),itemDto.keywords(),itemDto.imageBase64());
         itemDao.save(newItem);
@@ -274,7 +276,8 @@ public class RestaurantController {
                         (order.getDeliveryman() != null) ? order.getDeliveryman().getId().intValue() : null,
                         (order.getStatus() != null) ? order.getStatus().name() : null,
                         (order.getCreatedAt() != null) ? order.getCreatedAt().toString() : null,
-                        (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null
+                        (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null,
+                        new RestaurantDto.ReviewDto(order.getReview().getId(),order.getReview().getRating(),order.getReview().getComment(),order.getReview().getImagesBase64(),order.getReview().getCreatedAt())
                 ));
             }
             return orderResponseDtos;

@@ -1,6 +1,8 @@
 package model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import exception.NotFoundException;
 import jakarta.persistence.*;
@@ -13,13 +15,13 @@ import lombok.Setter;
 public class Menu {
 
     private String title;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     @JoinTable(
             name = "menu_items",
             joinColumns = @JoinColumn(name = "menu_id"),
             inverseJoinColumns = @JoinColumn(name = "item_id")
     )
-    private Set<Item> items = new HashSet<>();
+    private List<Item> items = new ArrayList<>();
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "restaurant_id")

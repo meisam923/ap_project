@@ -2,6 +2,7 @@ package dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class RestaurantDto {
             @JsonProperty("name") String name,
             @JsonProperty("address") String address,
             @JsonProperty("phone") String phone,
-            @JsonProperty("logoBase64") String logaBase64,
+            @JsonProperty("logoBase64") String logoBase64,
             @JsonProperty("tax_fee") int tax_fee,
             @JsonProperty("additional_fee") int additional_fee,
             @JsonProperty("approvalStatus") String approvalStatus
@@ -58,7 +59,8 @@ public class RestaurantDto {
             @JsonProperty("courier_id") Integer courier_id,
             @JsonProperty("status") String status,
             @JsonProperty("created_at") String created_at,
-            @JsonProperty("updated_at") String updated_at
+            @JsonProperty("updated_at") String updated_at,
+            @JsonProperty("review") ReviewDto review
     ) {}
     public static record RestaurantSchemaDTO(
             @JsonProperty("id") int id,
@@ -73,15 +75,11 @@ public class RestaurantDto {
     public record MessageResponseDTO(
             @JsonProperty("message") String message
     ) {}
+    public record ReviewDto(
+            @JsonProperty("id") long id,
+            @JsonProperty("rating") Integer rating,//1-5
+            @JsonProperty("comment") String comment,
+            @JsonProperty("base64Images") List<String> base64Images,
+            @JsonProperty("createdAt") LocalDateTime createdAt
+            ){}
 }
-/*
-{
-  "name": "string",
-  "imageBase64": "string",
-  "description": "string",
-  "price": 0,
-  "supply": 0,
-  "keywords": [
-    "string"
-  ]
-}*/
