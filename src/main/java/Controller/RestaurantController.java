@@ -228,9 +228,9 @@ public class RestaurantController {
         // Add filters based on query parameters
         if (queryFilters != null) {
             if (queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
-                OrderStatus statusEnum = OrderStatus.fromString(queryFilters.get("status"));
-                jpqlString.append(" AND o.status = :status");
-                parameters.put("status", statusEnum);
+                OrderRestaurantStatus statusEnum = OrderRestaurantStatus.fromString(queryFilters.get("status"));
+                jpqlString.append(" AND o.restaurantStatus = :restaurantStatus");
+                parameters.put("restaurantStatus", statusEnum);
             }
             if (queryFilters.containsKey("user") && !queryFilters.get("user").isEmpty()) {
                 jpqlString.append(" AND LOWER(o.customer.fullName) LIKE LOWER(:customerFullName)");
@@ -257,17 +257,17 @@ public class RestaurantController {
 
             // Map the results to DTOs
             for (Order order : orders) {
-                List<Integer> itemIds = order.getItems().stream()
-                        .map(OrderItem::getItemId)
-                        .collect(Collectors.toList());
-
+                List<RestaurantDto.OrderItemDto> items = new ArrayList<>();
+                for (OrderItem item : order.getItems()) {
+                    items.add(new RestaurantDto.OrderItemDto(item.getItemId(),item.getItemName(),item.getPricePerItem(),item.getTotalPriceForItem(),item.getQuantity()));
+                }
                 orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
                         order.getId().intValue(),
                         order.getDeliveryAddress(),
                         (order.getCustomer() != null) ? order.getCustomer().getId().intValue() : null,
                         (order.getRestaurant() != null) ? order.getRestaurant().getId() : null,
                         (order.getCoupon() != null) ? order.getCoupon().getId() : null,
-                        itemIds,
+                        items,
                         order.getSubtotalPrice(),
                         order.getTaxFee(),
                         order.getAdditionalFee(),
@@ -277,7 +277,8 @@ public class RestaurantController {
                         (order.getStatus() != null) ? order.getStatus().name() : null,
                         (order.getCreatedAt() != null) ? order.getCreatedAt().toString() : null,
                         (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null,
-                        new RestaurantDto.ReviewDto(order.getReview().getId(),order.getReview().getRating(),order.getReview().getComment(),order.getReview().getImagesBase64(),order.getReview().getCreatedAt())
+                        order.getRestaurantStatus().name(),
+                        order.getReview()!=null ? new RestaurantDto.ReviewDto(order.getReview().getId(),order.getReview().getRating(),order.getReview().getComment(),order.getReview().getImagesBase64(),order.getReview().getCreatedAt().toString()):null
                 ));
             }
             return orderResponseDtos;

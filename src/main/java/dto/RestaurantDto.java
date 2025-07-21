@@ -1,7 +1,9 @@
 package dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +52,7 @@ public class RestaurantDto {
             @JsonProperty("customer_id") int customer_id,
             @JsonProperty("vendor_id") int vendor_id,
             @JsonProperty("coupon_id") Integer coupon_id,
-            @JsonProperty("item_ids") List<Integer> item_ids,
+            @JsonProperty("order_items") List<OrderItemDto> items,
             @JsonProperty("raw_price") java.math.BigDecimal raw_price,
             @JsonProperty("tax_fee") java.math.BigDecimal tax_fee,
             @JsonProperty("additional_fee") java.math.BigDecimal additional_fee,
@@ -60,6 +62,7 @@ public class RestaurantDto {
             @JsonProperty("status") String status,
             @JsonProperty("created_at") String created_at,
             @JsonProperty("updated_at") String updated_at,
+            @JsonProperty("restaurantStatus")  String restaurantStatus,
             @JsonProperty("review") ReviewDto review
     ) {}
     public static record RestaurantSchemaDTO(
@@ -80,6 +83,13 @@ public class RestaurantDto {
             @JsonProperty("rating") Integer rating,//1-5
             @JsonProperty("comment") String comment,
             @JsonProperty("base64Images") List<String> base64Images,
-            @JsonProperty("createdAt") LocalDateTime createdAt
+            @JsonProperty("createdAt") String createdAt
             ){}
+    public record OrderItemDto(
+            @JsonProperty("id") int id,
+            @JsonProperty("name") String name,
+            @JsonProperty("price_per_item") BigDecimal pricePerItem,
+            @JsonProperty("total_price") BigDecimal totalPriceForItem,
+            @JsonProperty("quantity") int quantity
+    ){}
 }
