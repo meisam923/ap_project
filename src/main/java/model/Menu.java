@@ -15,7 +15,7 @@ import lombok.Setter;
 public class Menu {
 
     private String title;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     @JoinTable(
             name = "menu_items",
             joinColumns = @JoinColumn(name = "menu_id"),
