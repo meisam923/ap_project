@@ -63,9 +63,9 @@ public class RestaurantDto {
             @JsonProperty("created_at") String created_at,
             @JsonProperty("updated_at") String updated_at,
             @JsonProperty("restaurantStatus")  String restaurantStatus,
-            @JsonProperty("review") ReviewDto review
+            @JsonProperty("review") ReviewDto reviewDto
     ) {}
-    public static record RestaurantSchemaDTO(
+    public record RestaurantSchemaDTO(
             @JsonProperty("id") int id,
             @JsonProperty("name") String name,
             @JsonProperty("address") String address,
@@ -79,7 +79,7 @@ public class RestaurantDto {
             @JsonProperty("message") String message
     ) {}
     public record ReviewDto(
-            @JsonProperty("id") long id,
+            @JsonProperty("review_id") long id,
             @JsonProperty("rating") Integer rating,//1-5
             @JsonProperty("comment") String comment,
             @JsonProperty("base64Images") List<String> base64Images,

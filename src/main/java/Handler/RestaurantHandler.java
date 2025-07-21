@@ -13,10 +13,7 @@ import dto.RestaurantDto;
 import enums.ApprovalStatus;
 import enums.OperationalStatus;
 import enums.Role;
-import exception.AlreadyExistValueException;
-import exception.ConflictException;
-import exception.InvalidInputException;
-import exception.NotFoundException;
+import exception.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.transaction.Transactional;
 import model.Owner;
@@ -310,7 +307,7 @@ public class RestaurantHandler implements HttpHandler {
                 return;
             }
             RestaurantDto.AddItemToRestaurantDto itemdto = objectMapper.readValue(jsonBody, RestaurantDto.AddItemToRestaurantDto.class);
-            RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.addItemTORestaurant(itemdto, ((Owner) user).getRestaurant());
+            RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.addItemTORestaurant(itemdto, ((Owner) user).getRestaurant().getId());
 
             String jsonResponse = objectMapper.writeValueAsString(response);
             sendResponse(exchange, 200, jsonResponse, "application/json");
@@ -354,7 +351,7 @@ public class RestaurantHandler implements HttpHandler {
                 return;
             }
             RestaurantDto.AddItemToRestaurantDto itemdto = objectMapper.readValue(jsonBody, RestaurantDto.AddItemToRestaurantDto.class);
-            RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.editItemTORestaurant(itemdto, ((Owner) user).getRestaurant(), item_id);
+            RestaurantDto.AddItemToRestaurantResponseDto response = restaurantController.editItemTORestaurant(itemdto, ((Owner) user).getRestaurant().getId(), item_id);
             sendResponse(exchange, 200, gson.toJson(response), "application/json");
         } catch (AuthController.AuthenticationException | ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
@@ -394,7 +391,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 404, "Resource not found");
                 return;
             }
-            restaurantController.deleteItemfromRestaurant(((Owner) user).getRestaurant(), item_id);
+            restaurantController.deleteItemfromRestaurant(((Owner) user).getRestaurant().getId(), item_id);
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "Food item removed successfully")), "application/json");
         } catch (AuthController.AuthenticationException | ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
@@ -439,7 +436,7 @@ public class RestaurantHandler implements HttpHandler {
             if (title == null) {
                 throw new InvalidInputException(400, "title");
             }
-            restaurantController.addMenoToRestaurant(((Owner) user).getRestaurant(), title);
+            restaurantController.addMenoToRestaurant(((Owner) user).getRestaurant().getId(), title);
             sendResponse(exchange, 200, gson.toJson(Map.of("title", title)), "application/json");
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
@@ -478,13 +475,16 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
-            restaurantController.deleteMenoFromRestaurant(((Owner) user).getRestaurant(), title);
+            restaurantController.deleteMenoFromRestaurant(((Owner) user).getRestaurant().getId(), title);
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "Food menu removed from restaurant successfully")), "application/json"); // Or 204
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
         } catch (NotFoundException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
-        } catch (AuthController.AuthenticationException | ExpiredJwtException e) {
+        }catch (ForbiddenException e){
+            sendErrorResponse(exchange, 403, "Forbidden request");
+        }
+        catch (AuthController.AuthenticationException | ExpiredJwtException e) {
             sendErrorResponse(exchange, 401, "Unauthorized request");
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -518,12 +518,9 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
-            if (((Owner) user).getRestaurant().getMenu(title) == null) {
-                sendErrorResponse(exchange, 404, "Menu not found");
-            }
             String itemId = objectMapper.readTree(readRequestBody(exchange)).get("item_id").asText();
             int item_id = extractInteger(itemId);
-            restaurantController.addAItemToMenu(((Owner) user).getRestaurant(), title, item_id);
+            restaurantController.addAItemToMenu(((Owner) user).getRestaurant().getId(), title, item_id);
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "Food item add to menu successfully")), "application/json");
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());
@@ -564,11 +561,8 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
-            if (((Owner) user).getRestaurant().getMenu(title) == null) {
-                sendErrorResponse(exchange, 404, "Menu not found");
-            }
             int item_id = extractInteger(itemId);
-            restaurantController.deleteAItemFromMenu(((Owner) user).getRestaurant(), title, item_id);
+            restaurantController.deleteAItemFromMenu(((Owner) user).getRestaurant().getId(), title, item_id);
             sendResponse(exchange, 200, gson.toJson(Map.of("message", "Item removed from restaurant menu successfully")), "application/json");
         } catch (InvalidInputException e) {
             sendErrorResponse(exchange, e.getStatus_code(), e.getMessage());

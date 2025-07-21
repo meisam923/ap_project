@@ -33,8 +33,7 @@ public class Review {
     @Column(nullable = false)
     private Integer rating; // 1-5
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
+    @Column(name="comment",columnDefinition = "TEXT")
     private String comment;
 
     @ElementCollection(fetch = FetchType.LAZY)

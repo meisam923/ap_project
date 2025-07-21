@@ -87,10 +87,16 @@ public class RestaurantDao {
         Restaurant restaurant = null;
         try {
             TypedQuery<Restaurant> query = em.createQuery(
-                    "SELECT r FROM Restaurant r WHERE r.owner.id = :ownerId", Restaurant.class);
+                    "SELECT r FROM Restaurant r " +
+                            "LEFT JOIN FETCH r.menus m " +
+                            "LEFT JOIN FETCH m.items " +  // Optional: if you need menu items too
+                            "WHERE r.owner.id = :ownerId",
+                    Restaurant.class
+            );
             query.setParameter("ownerId", ownerId);
             restaurant = query.getSingleResult();
         } catch (NoResultException e) {
+            e.printStackTrace();
             System.out.println("No restaurant found for owner id: " + ownerId);
         } catch (Exception e) {
             e.printStackTrace();
