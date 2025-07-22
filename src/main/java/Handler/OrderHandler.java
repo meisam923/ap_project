@@ -31,9 +31,7 @@ public class OrderHandler implements HttpHandler {
     private final OrderController orderController = new OrderController();
     private final ObjectMapper objectMapper;
 
-    // Regex to match paths like /orders/123
     private final Pattern orderIdPattern = Pattern.compile("^/orders/(\\d+)$");
-    // Regex to match /orders/history
     private final Pattern orderHistoryPattern = Pattern.compile("^/orders/history$");
 
     public OrderHandler() {
@@ -49,14 +47,10 @@ public class OrderHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
 
         try {
-            // All order endpoints require authentication first
             String token = getJwtToken(exchange);
-            if (token == null) {
-                return; // Error response was already sent by getJwtToken
-            }
+            if (token == null) return;
             User authenticatedUser = authController.requireLogin(token);
 
-            // --- Routing Logic ---
             if (method.equals("POST") && path.equals("/orders")) {
                 handleSubmitOrder(exchange, authenticatedUser);
             } else if (method.equals("GET")) {
@@ -75,6 +69,7 @@ public class OrderHandler implements HttpHandler {
                 sendErrorResponse(exchange, 405, new UserDto.ErrorResponseDTO("Method Not Allowed"));
             }
         } catch (AuthController.AuthenticationException e) {
+            e.printStackTrace();
             sendErrorResponse(exchange, 401, new UserDto.ErrorResponseDTO("Unauthorized: " + e.getMessage()));
         } catch (Exception e) {
             System.err.println("Unhandled error in OrderHandler: " + e.getMessage());
@@ -97,34 +92,29 @@ public class OrderHandler implements HttpHandler {
             Optional<OrderDto.OrderSchemaDTO> createdOrderOpt = orderController.submitOrder(requestDto, user);
 
             if (createdOrderOpt.isPresent()) {
-                sendResponse(exchange, 200, createdOrderOpt.get()); // OpenAPI says 200, but 201 Created is also common
+                sendResponse(exchange, 200, createdOrderOpt.get());
             } else {
-                // This would happen if submitOrder returned an empty optional for a non-exceptional failure
                 sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Failed to create order due to an internal issue."));
             }
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
             sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Invalid JSON format: " + e.getOriginalMessage()));
-        } catch (IllegalArgumentException e) { // For validation errors from the controller
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Invalid Input: " + e.getMessage()));
-        } catch (SecurityException e) { // For authorization errors from the controller
+        } catch (SecurityException e) {
+            e.printStackTrace();
             sendErrorResponse(exchange, 403, new UserDto.ErrorResponseDTO("Forbidden: " + e.getMessage()));
         } catch (Exception e) {
             System.err.println("Error submitting order: " + e.getMessage());
             e.printStackTrace();
-            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error while submitting order."));
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error while submitting order: " + e.getMessage()));
         }
     }
 
     private void handleGetOrderDetails(HttpExchange exchange, String orderIdStr, User user) throws IOException {
-        long orderId;
         try {
-            orderId = Long.parseLong(orderIdStr);
-        } catch (NumberFormatException e) {
-            sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Invalid Order ID format. Must be a number."));
-            return;
-        }
-
-        try {
+            long orderId = Long.parseLong(orderIdStr);
             Optional<OrderDto.OrderSchemaDTO> orderDtoOpt = orderController.getOrderDetails(orderId, user);
 
             if (orderDtoOpt.isPresent()) {
@@ -132,7 +122,11 @@ public class OrderHandler implements HttpHandler {
             } else {
                 sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Order not found."));
             }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Invalid Order ID format. Must be a number."));
         } catch (SecurityException e) {
+            e.printStackTrace();
             sendErrorResponse(exchange, 403, new UserDto.ErrorResponseDTO(e.getMessage()));
         } catch (Exception e) {
             System.err.println("Error getting order details: " + e.getMessage());
@@ -145,10 +139,8 @@ public class OrderHandler implements HttpHandler {
         try {
             String query = exchange.getRequestURI().getQuery();
             Map<String, String> queryParams = parseQueryParams(query);
-
             String searchFilter = queryParams.get("search");
             String vendorFilter = queryParams.get("vendor");
-
             List<OrderDto.OrderSchemaDTO> history = orderController.getOrderHistory(user, searchFilter, vendorFilter);
             sendResponse(exchange, 200, history);
         } catch (Exception e) {
@@ -162,16 +154,14 @@ public class OrderHandler implements HttpHandler {
 
     private Map<String, String> parseQueryParams(String query) {
         Map<String, String> params = new HashMap<>();
-        if (query == null || query.isEmpty()) {
-            return params;
-        }
+        if (query == null || query.isEmpty()) return params;
         for (String param : query.split("&")) {
             String[] pair = param.split("=", 2);
             if (pair.length > 1 && !pair[1].isEmpty()) {
                 try {
                     params.put(java.net.URLDecoder.decode(pair[0], StandardCharsets.UTF_8),
                             java.net.URLDecoder.decode(pair[1], StandardCharsets.UTF_8));
-                } catch (Exception e) { /* Ignore malformed param */ }
+                } catch (Exception e) { /* Ignore */ }
             }
         }
         return params;
