@@ -13,7 +13,6 @@ import model.Order;
 import model.Transaction;
 import model.User;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class PaymentController {
         if (!(user instanceof Customer)) {
             throw new SecurityException("Forbidden: Only customers can top up a wallet.");
         }
-        if (topUpDto.amount() == null || topUpDto.amount().compareTo(BigDecimal.ZERO) <= 0) {
+        if (topUpDto.amount() == null || topUpDto.amount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Invalid Input: Top-up amount must be positive.");
         }
 
@@ -61,7 +60,6 @@ public class PaymentController {
             customer.subtractFromWallet(order.getTotalPrice());
             customerDao.update(customer);
         } else if (method == TransactionMethod.ONLINE) {
-
             System.out.println("Simulating successful online payment for order " + order.getId());
         }
 

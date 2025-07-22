@@ -1,78 +1,73 @@
+// Replace the entire content of your Main.java with this version.
+
 import Handler.*;
 import com.sun.net.httpserver.HttpServer;
 import util.JpaUtil;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        // --- 1. Initialize Database Connection (JPA) ---
+        // Initialize JPA
         try {
-            System.out.println("Main: Triggering JpaUtil static initializer...");
-            Class.forName("util.JpaUtil"); // Ensures the static block in JpaUtil runs
-            if (JpaUtil.getEntityManagerFactory() == null || !JpaUtil.getEntityManagerFactory().isOpen()) {
-                System.err.println("Main: EntityManagerFactory is not available after initialization. Exiting.");
-                return;
-            }
-            System.out.println("Main: JpaUtil static initializer completed successfully.");
+            Class.forName("util.JpaUtil");
         } catch (Throwable e) {
-            System.err.println("Main: CRITICAL ERROR during JpaUtil/EMF initialization. Server cannot start.");
+            System.err.println("CRITICAL ERROR: JpaUtil initialization failed. Server cannot start.");
             e.printStackTrace();
             return;
         }
 
-        // --- 2. Add a Shutdown Hook ---
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Main: Shutdown hook triggered. Closing resources...");
-            JpaUtil.closeEntityManagerFactory();
-            System.out.println("Main: Resources closed. Exiting.");
-        }));
-
-        // --- 3. Create and Configure HTTP Server ---
         int port = 8000;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
-        try {
-            // Register all your handlers here
-            server.createContext("/auth", new AuthHandler());           // For authentication
-            server.createContext("/restaurants", new RestaurantHandler()); // For seller-facing management
-            server.createContext("/vendors", new VendorHandler());         // For buyer-facing searching
-            server.createContext("/items", new ItemHandler());           // For buyer-facing searching
-            server.createContext("/orders", new OrderHandler());          // For buyer-facing order management
-            server.createContext("/favorites", new FavoriteHandler());
-            server.createContext("/ratings", new RatingHandler());
-            server.createContext("/deliveries", new DeliveryHandler());
-            server.createContext("/wallet", new PaymentHandler());
-            server.createContext("/payment", new PaymentHandler());
-            server.createContext("/transactions", new PaymentHandler());
-            server.createContext("/admin", new AdminHandler());
+        // --- THIS IS THE FIX: A GLOBAL EXCEPTION HANDLER ---
+        // We are creating a custom executor for the server.
+        // This wrapper will surround every single incoming request with a try-catch block.
+        Executor exceptionLoggingExecutor = Executors.newFixedThreadPool(20, r -> {
+            Thread t = new Thread(r);
+            t.setUncaughtExceptionHandler((thread, throwable) -> {
+                // This will catch any error that isn't caught elsewhere
+                System.err.println("====== UNCAUGHT GLOBAL EXCEPTION ======");
+                System.err.println("Error on thread: " + thread.getName());
+                throwable.printStackTrace();
+                System.err.println("=====================================");
+            });
+            return t;
+        });
+
+        server.setExecutor(exceptionLoggingExecutor);
+        // --- END OF FIX ---
+
+        // Register all your existing handlers
+        server.createContext("/auth", new AuthHandler());
+        server.createContext("/restaurants", new RestaurantHandler());
+        server.createContext("/vendors", new VendorHandler());
+        server.createContext("/items", new ItemHandler());
+        server.createContext("/orders", new OrderHandler());
+        server.createContext("/favorites", new FavoriteHandler());
+        server.createContext("/ratings", new RatingHandler());
+        server.createContext("/deliveries", new DeliveryHandler());
+        server.createContext("/wallet", new PaymentHandler());
+        server.createContext("/payment", new PaymentHandler());
+        server.createContext("/transactions", new PaymentHandler());
+        server.createContext("/admin", new AdminHandler());
 
 
-        } catch (Exception e) {
-            System.err.println("Main: Error creating HTTP context handlers: " + e.getMessage());
-            e.printStackTrace();
-            return;
-        }
+        // Add a shutdown hook to close the database connection pool gracefully
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Server shutting down...");
+            server.stop(0);
+            JpaUtil.closeEntityManagerFactory();
+            System.out.println("Resources closed.");
+        }));
 
-        server.setExecutor(null); // Use the default executor
         server.start();
-
-        // --- 4. Print Startup Messages ---
         System.out.println("=====================================================");
         System.out.println("Server is running on port " + port);
-        System.out.println("Auth endpoints available at       http://localhost:" + port + "/auth/*");
-        System.out.println("Restaurant endpoints (seller) at  http://localhost:" + port + "/restaurants/*");
-        System.out.println("Vendor endpoints (buyer) at       http://localhost:" + port + "/vendors/*");
-        System.out.println("Item endpoints (buyer) at         http://localhost:" + port + "/items/*");
-        System.out.println("Order endpoints (buyer) at        http://localhost:" + port + "/orders/*");
-        System.out.println("Favorites endpoints at       http://localhost:" + port + "/favorites/*");
-        System.out.println("Deliveries endpoints at         http://localhost:" + port + "/deliveries/*");
-        System.out.println("Wallet endpoints at        http://localhost:" + port + "/Wallet/*");
-        System.out.println("Payments endpoints at         http://localhost:" + port + "/payments/*");
-        System.out.println("Transactions endpoints at         http://localhost:" + port + "/transactions/*");
-        System.out.println("Admin endpoints at         http://localhost:" + port + "/admin/*");
         System.out.println("=====================================================");
     }
 }
