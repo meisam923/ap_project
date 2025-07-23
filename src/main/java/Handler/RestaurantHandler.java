@@ -600,7 +600,7 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 403, "Forbidden request");
                 return;
             }
-            List<RestaurantDto.OrderResponseDto> response = restaurantController.getRestaurantOrders(params, restaurant_id);
+            List<RestaurantDto.OrderResponseDto> response = restaurantController.getRestaurantOrders(params,restaurant_id);
             System.out.println(response);
             sendResponse(exchange, 200, gson.toJson(response), "application/json");
         } catch (InvalidInputException e) {

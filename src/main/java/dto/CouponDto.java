@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public class CouponDto {
 
     public static record CouponSchemaDTO(
-            @JsonProperty("id") Integer id,
+            @JsonProperty("id") int id,
             @JsonProperty("coupon_code") String couponCode,
             @JsonProperty("type") String type,
             @JsonProperty("value") BigDecimal value,

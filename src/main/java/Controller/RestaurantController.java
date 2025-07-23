@@ -30,6 +30,7 @@ public class RestaurantController {
     private static MenuDao menuDao=new MenuDao();
     private static ItemDao itemDao=new ItemDao();
     private static OwnerDao ownerDao = new OwnerDao();
+    private static OrderDao orderDao = new OrderDao();
 
 
     public RestaurantController() {
@@ -248,85 +249,13 @@ public class RestaurantController {
         restaurantRegisterService.registerObserver(o);
     }
 
-    /*public List<RestaurantDto.OrderResponseDto> getRestaurantOrders(HashMap<String, String> queryFilters, int restaurantId) throws Exception {
-
-        StringBuilder jpqlString = new StringBuilder("SELECT o FROM Order o WHERE o.restaurant.id = :restaurantId");
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("restaurantId", restaurantId);
-
-        // Add filters based on query parameters
-        if (queryFilters != null) {
-            if (queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
-                OrderRestaurantStatus statusEnum = OrderRestaurantStatus.fromString(queryFilters.get("status"));
-                jpqlString.append(" AND o.restaurantStatus = :restaurantStatus");
-                parameters.put("restaurantStatus", statusEnum);
-            }
-            if (queryFilters.containsKey("user") && !queryFilters.get("user").isEmpty()) {
-                jpqlString.append(" AND LOWER(o.customer.fullName) LIKE LOWER(:customerFullName)");
-                parameters.put("customerFullName", "%" + queryFilters.get("user") + "%");
-            }
-            if (queryFilters.containsKey("courier") && !queryFilters.get("courier").isEmpty()) {
-                jpqlString.append(" AND o.deliveryman IS NOT NULL AND LOWER(o.deliveryman.fullName) LIKE LOWER(:deliverymanFullName)");
-                parameters.put("deliverymanFullName", "%" + queryFilters.get("courier") + "%");
-            }
-            if (queryFilters.containsKey("search") && !queryFilters.get("search").isEmpty()) {
-                jpqlString.append(" AND EXISTS (SELECT 1 FROM o.items item WHERE LOWER(item.itemName) LIKE LOWER(:itemTitle))");
-                parameters.put("itemTitle", "%" + queryFilters.get("search") + "%");
-            }
-        }
-        // Execute the query
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            TypedQuery<Order> typedQuery = em.createQuery(jpqlString.toString(), Order.class);
-            parameters.forEach(typedQuery::setParameter);
-            List<Order> orders = typedQuery.getResultList();
-            List<RestaurantDto.OrderResponseDto> orderResponseDtos = new ArrayList<>();
-
-
-            // Map the results to DTOs
-            for (Order order : orders) {
-                List<RestaurantDto.OrderItemDto> items = new ArrayList<>();
-                for (OrderItem item : order.getItems()) {
-                    items.add(new RestaurantDto.OrderItemDto(item.getItemId(),item.getItemName(),item.getPricePerItem(),item.getTotalPriceForItem(),item.getQuantity()));
-                }
-
-                System.out.println("????????????????????????????????????????????????????????????3");
-                orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
-                        order.getId().intValue(),
-                        order.getDeliveryAddress(),
-                        (order.getCustomer() != null) ? order.getCustomer().getId().intValue() : null,
-                        (order.getRestaurant() != null) ? order.getRestaurant().getId() : null,
-                        (order.getCoupon() != null) ? order.getCoupon().getId() : null,
-                        items != null ?items : new ArrayList<>(),
-                        order.getSubtotalPrice(),
-                        order.getTaxFee(),
-                        order.getAdditionalFee(),
-                        order.getDeliveryFee(),
-                        order.getTotalPrice(),
-                        (order.getDeliveryman() != null) ? order.getDeliveryman().getId().intValue() : null,
-                        (order.getStatus() != null) ? order.getStatus().name() : null,
-                        (order.getCreatedAt() != null) ? order.getCreatedAt().toString() : null,
-                        (order.getUpdatedAt() != null) ? order.getUpdatedAt().toString() : null,
-                        order.getRestaurantStatus().name()
-                ));
-            }
-            return orderResponseDtos;
-        } finally {
-            if (em != null) em.close();
-        }
-    }
-*/
-
     public List<RestaurantDto.OrderResponseDto> getRestaurantOrders(HashMap<String, String> queryFilters, int restaurantId) throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
         try {
-            // ----------- QUERY 1: Fetch ONLY the Order entities. NO joins. -----------
-            // This query is simple and cannot fail. Its result set will be clean.
             StringBuilder jpqlString = new StringBuilder("SELECT o FROM Order o WHERE o.restaurant.id = :restaurantId");
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("restaurantId", restaurantId);
 
-            // Add filters (your filter logic is correct)
             if (queryFilters != null) {
                 if (queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
                     jpqlString.append(" AND o.restaurantStatus = :restaurantStatus");
@@ -350,48 +279,37 @@ public class RestaurantController {
             List<Order> orders = orderQuery.getResultList();
 
             if (orders.isEmpty()) {
-                return new ArrayList<>(); // Return early if there are no orders
+                return new ArrayList<>();
             }
-
-            // ----------- QUERY 2: Fetch all relevant Reviews AND their image collections. -----------
-            // We get the IDs from the orders we just loaded.
             List<Long> orderIds = orders.stream().map(Order::getId).collect(java.util.stream.Collectors.toList());
 
-            // This query is also simple and targeted. Hibernate will fetch Reviews and their image lists.
             List<Review> reviews = em.createQuery(
                             "SELECT r FROM Review r LEFT JOIN FETCH r.imagesBase64 WHERE r.order.id IN :orderIds", Review.class)
                     .setParameter("orderIds", orderIds)
                     .getResultList();
 
-            // Put the found reviews into a Map for very fast lookup.
-            // The key is the Order ID, and the value is the Review object.
             Map<Long, Review> reviewMap = reviews.stream()
                     .collect(java.util.stream.Collectors.toMap(review -> review.getOrder().getId(), review -> review));
 
 
-            // ----------- STEP 3: Combine the data in Java to build the final response -----------
             List<RestaurantDto.OrderResponseDto> orderResponseDtos = new ArrayList<>();
             for (Order order : orders) {
-                // For each order, find its matching review from the map. It will be null if no review exists.
                 Review review = reviewMap.get(order.getId());
 
-                // Build the ReviewDTO if a review was found
                 RestaurantDto.ReviewDto reviewDto = null;
                 if (review != null) {
                     reviewDto = new RestaurantDto.ReviewDto(
                             review.getId(),
                             review.getRating(),
-                            review.getComment(), // This will now be correct
+                            review.getComment(),
                             review.getImagesBase64(),
                             review.getCreatedAt().toString()
                     );
                 }
 
-                // Build the list of items for the order (your existing logic is fine)
                 List<RestaurantDto.OrderItemDto> items = new ArrayList<>();
                 order.getItems().forEach(item -> items.add(new RestaurantDto.OrderItemDto(item.getItemId(), item.getItemName(), item.getPricePerItem(), item.getTotalPriceForItem(), item.getQuantity())));
 
-                // Build the final DTO for the response list
                 orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
                         order.getId().intValue(),
                         order.getDeliveryAddress(),
@@ -409,7 +327,7 @@ public class RestaurantController {
                         order.getCreatedAt() != null ? order.getCreatedAt().toString() : null,
                         order.getUpdatedAt() != null ? order.getUpdatedAt().toString() : null,
                         order.getRestaurantStatus().name(),
-                        reviewDto // Add the review DTO we created
+                        reviewDto
                 ));
             }
 
@@ -419,6 +337,54 @@ public class RestaurantController {
             if (em != null) em.close();
         }
     }
+
+    /*public List<RestaurantDto.OrderResponseDto> getRestaurantOrders(int restaurantId, HashMap<String,String> map) throws Exception {
+        // This now calls the new, simplified DAO method
+        List<Order> orders = orderDao.findHistoryForRestaurant(restaurantId, map);
+
+        if (orders == null || orders.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<RestaurantDto.OrderResponseDto> orderResponseDtos = new ArrayList<>();
+        for (Order order : orders) {
+            Review review = order.getReview();
+            RestaurantDto.ReviewDto reviewDto = null;
+            if (review != null) {
+                reviewDto = new RestaurantDto.ReviewDto(
+                        review.getId(),
+                        review.getRating(),
+                        review.getComment(),
+                        review.getImagesBase64(),
+                        review.getCreatedAt().toString()
+                );
+            }
+
+            List<RestaurantDto.OrderItemDto> items = new ArrayList<>();
+            order.getItems().forEach(item -> items.add(new RestaurantDto.OrderItemDto(item.getItemId(), item.getItemName(), item.getPricePerItem(), item.getTotalPriceForItem(), item.getQuantity())));
+
+            orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
+                    order.getId().intValue(),
+                    order.getDeliveryAddress(),
+                    order.getCustomer() != null ? order.getCustomer().getId().intValue() : null,
+                    order.getRestaurant() != null ? order.getRestaurant().getId() : null,
+                    order.getCoupon() != null ? order.getCoupon().getId() : null,
+                    items,
+                    order.getSubtotalPrice(),
+                    order.getTaxFee(),
+                    order.getAdditionalFee(),
+                    order.getDeliveryFee(),
+                    order.getTotalPrice(),
+                    order.getDeliveryman() != null ? order.getDeliveryman().getId().intValue() : null,
+                    order.getStatus() != null ? order.getStatus().name() : null,
+                    order.getCreatedAt() != null ? order.getCreatedAt().toString() : null,
+                    order.getUpdatedAt() != null ? order.getUpdatedAt().toString() : null,
+                    order.getRestaurantStatus().name(),
+                    reviewDto
+            ));
+        }
+        return orderResponseDtos;
+    }*/
     public RestaurantDto.RegisterReponseRestaurantDto mapToRegisterResponseDto(Restaurant restaurant) {
         if (restaurant == null) {
             return null;
@@ -447,7 +413,17 @@ public class RestaurantController {
         if (orderStatusEnum == order.getRestaurantStatus()) {
             throw new ConflictException(409);
         }
+        /// / new one pls check by test cases
         order.setRestaurantStatus(orderStatusEnum);
+        if (orderStatusEnum.equals(OrderRestaurantStatus.REJECTED)){
+            for (OrderItem item : order.getItems()) {
+                Item restaurantItem =itemDao.findById(item.getItemId());
+                if (restaurantItem != null) {
+                    restaurantItem.increaseCount(item.getQuantity());
+                    itemDao.save(restaurantItem);
+                }
+            }
+        }
         order.updateStatus();
         orderDao.update(order);
     }

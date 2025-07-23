@@ -44,6 +44,10 @@ public class AdminHandler implements HttpHandler {
             String userId = matcher.group("id");
             handleUserStatus(exchange, userId);
         }));
+        routes.add(new RestaurantHandler.Route("PATCH", Pattern.compile("^/admin/restaurants/(?<id>\\d+)/status$"), (exchange, matcher) -> {
+            String userId = matcher.group("id");
+            handleRestaurantStatus(exchange, userId);
+        }));
         routes.add(new RestaurantHandler.Route("GET", Pattern.compile("^/admin/orders$"), (exchange, matcher) -> handleViewAllOrders(exchange)));
         routes.add(new RestaurantHandler.Route("GET", Pattern.compile("^/admin/transactions$"), (exchange, matcher) -> handleViewFinancialTransactions(exchange)));
         routes.add(new RestaurantHandler.Route("GET", Pattern.compile("^/admin/coupons$"), (exchange, matcher) -> handleGetAllCoupons(exchange)));
@@ -143,17 +147,34 @@ public class AdminHandler implements HttpHandler {
             sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error"));
         }
     }
+    private void handleRestaurantStatus(HttpExchange exchange, String id) {
+        try {
+            System.out.println("User " + id + " is online");
+            checkMediaType(exchange);
+            String body = readRequestBody(exchange);
+            AdminDto.UpdateUserStatusRequestDTO updateDto = objectMapper.readValue(body, AdminDto.UpdateUserStatusRequestDTO.class);
+            if (updateDto.status() == null || updateDto.status().equals("")) {
+                throw new InvalidInputException(400, "Status");
+            }
+            adminController.updateRestaurantStatus(id, updateDto.status());
+            sendResponse(exchange, 200, new UserDto.ErrorResponseDTO("Status updated"));
+        } catch (InvalidInputException e) {
+            sendErrorResponse(exchange, e.getStatusCode(), new UserDto.ErrorResponseDTO(e.getMessage()));
+        } catch (ForbiddenException e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 403, new UserDto.ErrorResponseDTO(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error"));
+        }
+    }
 
     private void handleViewAllOrders(HttpExchange exchange) {
         try {
             String query = exchange.getRequestURI().getQuery();
             Map<String, String> params = parseQueryParams(query);
             String searchFilter = params.get("search");
-            String vendorFilter = params.get("vendor");
-            String courierFilter = params.get("courier");
-            String customerFilter = params.get("customer");
-            String statusFilter = params.get("status");
-            List<OrderDto.OrderSchemaDTO> response = adminController.getAllOrders(searchFilter, vendorFilter, courierFilter, customerFilter, statusFilter);
+            List<AdminDto.OrderSchemaDTO> response = adminController.getAllOrders(searchFilter);
             sendResponse(exchange, 200, response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,10 +187,7 @@ public class AdminHandler implements HttpHandler {
             String query = exchange.getRequestURI().getQuery();
             Map<String, String> params = parseQueryParams(query);
             String searchFilter = params.get("search");
-            String userFilter = params.get("user");
-            String methodFilter = params.get("method");
-            String statusFilter = params.get("status");
-            List<PaymentDto.TransactionSchemaDTO> response = adminController.getAllTransactions(searchFilter, userFilter, methodFilter, statusFilter);
+            List<AdminDto.TransactionSchemaDTO> response = adminController.getAllTransactions(searchFilter);
             sendResponse(exchange, 200, response);
         } catch (Exception e) {
             e.printStackTrace();

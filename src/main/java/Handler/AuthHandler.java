@@ -1,5 +1,6 @@
 package Handler;
 
+import Controller.AdminController;
 import Controller.AuthController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dto.UserDto; 
 import enums.Role;
+import model.Admin;
 import model.User;
 
 import java.io.BufferedReader;
@@ -310,7 +312,17 @@ public class AuthHandler implements HttpHandler {
                 sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Invalid Input: Phone and password are required."));
                 return;
             }
-
+            AdminController adminController = new AdminController();
+            Admin admin = adminController.adminLogin(requestDto.phone(), requestDto.password());
+            if (admin != null) {
+                sendResponse(exchange, 200, new UserDto.LoginResponseDTO(
+                        "Admin logged in successfully",
+                        requestDto.phone()+"_"+requestDto.password(),
+                        requestDto.phone()+"_"+requestDto.password(),
+                        new UserDto.UserSchemaDTO("-1",null,null,null,"ADMIN",null,null,null)
+                ));
+                return;
+            }
             Optional<AuthController.LoginResponsePayload> loginPayloadOpt = authController.login(
                     requestDto.phone(),
                     requestDto.password(),
