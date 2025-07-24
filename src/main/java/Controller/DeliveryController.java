@@ -98,7 +98,8 @@ public class DeliveryController {
                 itemIds, order.getSubtotalPrice(), order.getTaxFee(), order.getDeliveryFee(),
                 order.getAdditionalFee(), order.getTotalPrice(),
                 (order.getDeliveryman() != null) ? order.getDeliveryman().getId() : null,
-                order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt()
+                order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt(),
+                (order.getReview() != null) ? order.getReview().getId() : null
         );
     }
 

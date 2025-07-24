@@ -2,6 +2,7 @@ package Controller;
 
 import Services.UserService;
 import dao.RefreshTokenDao;
+import dto.UserDto;
 import enums.Role;
 import model.*;
 import observers.ForgetPasswordObserver;
@@ -44,33 +45,42 @@ public class AuthController {
         refreshTokenDao.deleteByUser(user);
     }
 
-    public Optional<LoginResponsePayload> login(String identifier, String password, boolean isEmail) {
-        Optional<User> userOpt;
-        if (isEmail) {
-            userOpt = userService.findByEmail(identifier);
-        } else {
-            userOpt = userService.findByPhone(identifier);
+    public UserDto.LoginResponseDTO login(UserDto.LoginRequestDTO loginDto) throws Exception {
+        long REFRESH_TOKEN_VALIDITY_MS = 1000L * 60 * 60 * 24 * 7;
+
+        if ("admin".equals(loginDto.phone())) {
+            if ("admin".equals(loginDto.password())) {
+                System.out.println("Admin login successful.");
+                User adminUser = new Customer("Admin", "Admin Address", "admin", "admin@app.com", "admin", null, null, null);
+                adminUser.setRole(Role.ADMIN);
+
+                String accessToken = JwtUtil.generateToken(adminUser);
+                String refreshToken = JwtUtil.generateRefreshToken(adminUser, REFRESH_TOKEN_VALIDITY_MS);
+
+                UserDto.UserSchemaDTO userDto = mapUserToSchemaDTO(adminUser);
+
+                return new UserDto.LoginResponseDTO("Admin login successful", accessToken, refreshToken, userDto);
+            } else {
+                throw new AuthenticationException("Invalid credentials.");
+            }
         }
 
+        Optional<User> userOpt = userService.findByPhone(loginDto.phone());
         if (userOpt.isEmpty()) {
-            return Optional.empty();
+            throw new AuthenticationException("Invalid credentials.");
         }
 
         User user = userOpt.get();
-        System.out.println("DEBUG: Stored Password   = [" + user.getPassword() + "]");
-        System.out.println("DEBUG: Provided Password = [" + password + "]");
-        if (!user.getPassword().equals(password)) {
-            System.err.println("DEBUG: Passwords do NOT match!");
-            return Optional.empty();
+
+        if (!loginDto.password().equals(user.getPassword())) {
+            throw new AuthenticationException("Invalid credentials.");
         }
 
         String accessToken = JwtUtil.generateToken(user);
-        String refreshTokenStr = generateAndStoreRefreshToken(user);
+        String refreshToken = JwtUtil.generateRefreshToken(user, REFRESH_TOKEN_VALIDITY_MS);
+        UserDto.UserSchemaDTO userDto = mapUserToSchemaDTO(user);
 
-        for (LoginObserver obs : loginObservers) {
-            obs.onUserLoggedIn(user);
-        }
-        return Optional.of(new LoginResponsePayload(accessToken, refreshTokenStr, user));
+        return new UserDto.LoginResponseDTO("Login successful", accessToken, refreshToken, userDto);
     }
 
     private String generateAndStoreRefreshToken(@NotNull User user) {
@@ -265,5 +275,24 @@ public class AuthController {
         public UserNotFoundException(String message) {
             super(message);
         }
+    }
+    private UserDto.UserSchemaDTO mapUserToSchemaDTO(User user) {
+        if (user == null) return null;
+
+        UserDto.RegisterRequestDTO.BankInfoDTO bankInfo = null;
+        if (user.getBankName() != null || user.getAccountNumber() != null) {
+            bankInfo = new UserDto.RegisterRequestDTO.BankInfoDTO(user.getBankName(), user.getAccountNumber());
+        }
+
+        return new UserDto.UserSchemaDTO(
+                user.getPublicId(),
+                user.getFullName(),
+                user.getPhoneNumber(),
+                user.getEmail(),
+                user.getRole().name().toLowerCase(),
+                user.getAddress(),
+                user.getProfileImageBase64(),
+                bankInfo
+        );
     }
 }

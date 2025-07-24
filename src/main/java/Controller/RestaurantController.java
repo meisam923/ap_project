@@ -137,6 +137,7 @@ public class RestaurantController {
             baseMenu = new Menu(restaurant, "Base");
         }
         Item newItem=new Item(itemDto.name(),itemDto.description(),itemDto.price(),itemDto.supply(),itemDto.keywords(),itemDto.imageBase64());
+        newItem.setRestaurant(restaurant);
         itemDao.save(newItem);
         baseMenu.addItem(newItem);
         newItem.addToMenu(baseMenu);

@@ -48,6 +48,7 @@ public class OrderDto {
             @JsonProperty("courier_id") Long courierId,
             @JsonProperty("status") String status,
             @JsonProperty("created_at") LocalDateTime createdAt,
-            @JsonProperty("updated_at") LocalDateTime updatedAt
+            @JsonProperty("updated_at") LocalDateTime updatedAt,
+            @JsonProperty("review_id") Long reviewId
     ) {}
 }

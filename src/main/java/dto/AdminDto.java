@@ -6,5 +6,4 @@ public class AdminDto {
     public record UpdateUserStatusRequestDTO(
             @JsonProperty("status") String status
     ){}
-
 }
