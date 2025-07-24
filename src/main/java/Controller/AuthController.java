@@ -1,6 +1,7 @@
 package Controller;
 
 import Services.UserService;
+import dao.AdminDao;
 import dao.RefreshTokenDao;
 import dto.UserDto;
 import enums.Role;
@@ -29,6 +30,7 @@ public class AuthController {
 
     private final Map<String, PasswordResetTokenInfo> passwordResetTokens = new ConcurrentHashMap<>();
     private static final long RESET_CODE_VALIDITY_MS = 5 * 60 * 1000;
+    AdminDao adminDao = new AdminDao();
 
     private AuthController() {
     }

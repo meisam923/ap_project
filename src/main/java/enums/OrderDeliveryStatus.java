@@ -6,7 +6,7 @@ public enum OrderDeliveryStatus {
     BASE,
     ACCEPTED,
     RECEIVED,
-    DELIVERED,;
+    DELIVERED;
 
     public static OrderDeliveryStatus fromString(String text) throws InvalidInputException {
         if (text == null || text.trim().isEmpty()) {

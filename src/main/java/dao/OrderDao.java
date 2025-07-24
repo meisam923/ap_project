@@ -1,5 +1,6 @@
 package dao;
 
+import enums.OrderRestaurantStatus;
 import enums.OrderStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -108,48 +109,29 @@ public class OrderDao implements IDao<Order, Long> {
         }
     }
 
-    public List<Order> findHistoryForAdmin(String searchFilter, String vendorFilter, String courierFilter,
-                                          String customerFilter, String statusFilter) throws Exception {
+    public List<Order> findHistoryForAdmin(String searchFilter) throws Exception {
         EntityManager em = null;
         try {
             em = JpaUtil.getEntityManager();
-            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items");
-            List<String> conditions = new ArrayList<>();
-            Map<String, Object> parameters = new HashMap<>();
 
-            if (vendorFilter != null && !vendorFilter.isBlank()) {
-                conditions.add("LOWER(o.restaurant.title) LIKE LOWER(:vendorFilter)");
-                parameters.put("vendorFilter", "%" + vendorFilter + "%");
-            }
-
-            if (courierFilter != null && !courierFilter.isBlank()) {
-                conditions.add("LOWER(o.deliveryman.fullName) LIKE LOWER(:courierFilter)");
-                parameters.put("courierFilter", "%" + courierFilter + "%");
-            }
-
-            if (customerFilter != null && !customerFilter.isBlank()) {
-                conditions.add("LOWER(o.customer.fullName) LIKE LOWER(:customerFilter)");
-                parameters.put("customerFilter", "%" + customerFilter + "%");
-            }
-
-            if (statusFilter != null && !statusFilter.isBlank()) {
-                conditions.add("LOWER(STR (o.status)) LIKE LOWER(:statusFilter)");
-                parameters.put("statusFilter", "%" + statusFilter + "%"); // Add wildcards for 'contains' check
-            }
+            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o " +
+                    "LEFT JOIN FETCH o.customer " +
+                    "LEFT JOIN FETCH o.restaurant " +
+                    "LEFT JOIN FETCH o.items ");
 
             if (searchFilter != null && !searchFilter.isBlank()) {
-                conditions.add("EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE LOWER(:searchFilter))");
-                parameters.put("searchFilter", "%" + searchFilter + "%");
-            }
-
-            if (!conditions.isEmpty()) {
-                jpql.append(" WHERE ").append(conditions.stream().collect(Collectors.joining(" AND ")));
+                jpql.append("WHERE LOWER(o.customer.fullName) LIKE LOWER(:searchFilter) ");
+                jpql.append("OR LOWER(o.restaurant.title) LIKE LOWER(:searchFilter) ");
+                jpql.append("OR EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE LOWER(:searchFilter))");
             }
 
             jpql.append(" ORDER BY o.createdAt DESC");
 
             TypedQuery<Order> query = em.createQuery(jpql.toString(), Order.class);
-            parameters.forEach(query::setParameter);
+
+            if (searchFilter != null && !searchFilter.isBlank()) {
+                query.setParameter("searchFilter", "%" + searchFilter + "%");
+            }
 
             return query.getResultList();
         } finally {
@@ -218,6 +200,66 @@ public class OrderDao implements IDao<Order, Long> {
             return Collections.emptyList();
         } finally {
             if (em != null) em.close();
+        }
+    }
+    public List<Order> findHistoryForRestaurant(int restaurantId, HashMap<String, String> queryFilters) throws Exception {
+        EntityManager em = null;
+        try {
+            em = JpaUtil.getEntityManager();
+
+            // Eagerly fetch all related data to prevent any crashes
+            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o " +
+                    "LEFT JOIN FETCH o.customer " +
+                    "LEFT JOIN FETCH o.restaurant " +
+                    "LEFT JOIN FETCH o.deliveryman " +
+                    "LEFT JOIN FETCH o.items " +
+                    "LEFT JOIN FETCH o.review r " +
+                    "LEFT JOIN FETCH r.imagesBase64 ");
+
+            List<String> conditions = new ArrayList<>();
+            Map<String, Object> parameters = new HashMap<>();
+
+            // Always filter by the restaurant ID
+            conditions.add("o.restaurant.id = :restaurantId");
+            parameters.put("restaurantId", restaurantId);
+
+            // --- FILTER LOGIC ---
+
+            // 1. Filter by restaurantStatus if provided
+            if (queryFilters != null && queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
+                conditions.add("o.restaurantStatus = :status");
+                parameters.put("status", OrderRestaurantStatus.fromString(queryFilters.get("status")));
+            }
+
+            // 2. Unified search filter for the remaining fields
+            if (queryFilters != null && queryFilters.containsKey("search") && !queryFilters.get("search").isEmpty()) {
+                String searchFilter = "%" + queryFilters.get("search").toLowerCase() + "%";
+                conditions.add("(" +
+                        "LOWER(o.customer.fullName) LIKE :searchFilter " +
+                        "OR LOWER(o.deliveryman.fullName) LIKE :searchFilter " +
+                        "OR EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE :searchFilter)" +
+                        ")");
+                parameters.put("searchFilter", searchFilter);
+            }
+
+            if (!conditions.isEmpty()) {
+                jpql.append(" WHERE ").append(String.join(" AND ", conditions));
+            }
+
+            jpql.append(" ORDER BY o.createdAt DESC");
+
+            TypedQuery<Order> query = em.createQuery(jpql.toString(), Order.class);
+            parameters.forEach(query::setParameter);
+
+            return query.getResultList();
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        finally {
+            if (em != null) {
+                em.close();
+            }
         }
     }
 }

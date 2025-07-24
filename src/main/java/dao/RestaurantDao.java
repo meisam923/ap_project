@@ -176,4 +176,25 @@ public class RestaurantDao {
             if (em != null) em.close();
         }
     }
+    public List<Restaurant> findRestaurantForAdmin(String searchTerm) throws Exception {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            StringBuilder jpqlBuilder = new StringBuilder("SELECT DISTINCT r FROM Restaurant r WHERE 1=1");
+            Map<String, Object> parameters = new HashMap<>();
+            if (searchTerm != null && !searchTerm.isBlank()) {
+                jpqlBuilder.append(" AND LOWER(r.title) LIKE :searchTerm");
+                parameters.put("searchTerm", "%" + searchTerm.toLowerCase() + "%");
+            }
+            TypedQuery<Restaurant> query = em.createQuery(jpqlBuilder.toString(), Restaurant.class);
+            parameters.forEach(query::setParameter);
+
+            return query.getResultList();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        } finally {
+            if (em != null) em.close();
+        }
+    }
 }
