@@ -40,6 +40,7 @@ public class AdminHandler implements HttpHandler {
         this.objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
         routes.add(new RestaurantHandler.Route("GET", Pattern.compile("^/admin/users$"), (exchange, matcher) -> handleGetAllUsers(exchange)));
+        routes.add(new RestaurantHandler.Route("GET", Pattern.compile("^/admin/restaurants$"), (exchange, matcher) -> handleGetAllRestaurants(exchange)));
         routes.add(new RestaurantHandler.Route("PATCH", Pattern.compile("^/admin/users/(?<id>\\d+)/status$"), (exchange, matcher) -> {
             String userId = matcher.group("id");
             handleUserStatus(exchange, userId);
@@ -261,6 +262,18 @@ public class AdminHandler implements HttpHandler {
         } catch (NotFoundException e) {
             sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO(e.getMessage()));
         } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
+        }
+    }
+    public void handleGetAllRestaurants(HttpExchange exchange) {
+        try{
+            String query = exchange.getRequestURI().getQuery();
+            Map<String, String> params = parseQueryParams(query);
+            String searchFilter = params.get("search");
+            sendResponse(exchange,200,adminController.getAllRestaurants(searchFilter));
+
+        } catch (Exception e){
             e.printStackTrace();
             sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal server error"));
         }

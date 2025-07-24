@@ -207,6 +207,17 @@ public class AdminController {
         }
         return mapCouponToSchemaDto(coupon);
     }
+    public List<RestaurantDto.RegisterReponseRestaurantDto> getAllRestaurants(String searchFilter) throws Exception {
+        List<Restaurant> restaurants = restaurantDao.findRestaurantForAdmin(searchFilter);
+        if (restaurants == null || restaurants.isEmpty()) {
+            return new ArrayList<RestaurantDto.RegisterReponseRestaurantDto>();
+        }
+        List<RestaurantDto.RegisterReponseRestaurantDto> restaurantsDTO = new ArrayList<>();
+        for (Restaurant restaurant : restaurants) {
+            restaurantsDTO.add(new RestaurantDto.RegisterReponseRestaurantDto(restaurant.getId(),restaurant.getTitle(),restaurant.getAddress(),restaurant.getPhoneNumber(),restaurant.getLogoBase64(),restaurant.getTaxFee(),restaurant.getAdditionalFee(),restaurant.getApprovalStatus().name()));
+        }
+        return restaurantsDTO;
+    }
 
     public Admin CheckAdminValidation(String token) throws Exception {
         String[] info = token.trim().split("_");
