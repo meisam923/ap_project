@@ -9,6 +9,6 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 # Correctly copy the JAR that includes all dependencies
-COPY --from=build /app/target/approject-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
+COPY --from=build /ap_project/target/approject-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
