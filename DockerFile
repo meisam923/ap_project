@@ -1,12 +1,12 @@
 # Stage 1: Build the application with Maven
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create a slim, secure runtime image
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 # Important: Update this JAR file name to match your project's output!
 COPY --from=build /app/target/ap_project-1.0-SNAPSHOT.jar app.jar
