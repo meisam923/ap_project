@@ -2,6 +2,9 @@ package util;
 
 import jakarta.persistence.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class JpaUtil {
 
     private static EntityManagerFactory emf;
@@ -10,7 +13,32 @@ public class JpaUtil {
     static {
         try {
             System.out.println("JpaUtil: Attempting to create EntityManagerFactory for PU: " + PERSISTENCE_UNIT_NAME);
-            emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
+            Map<String, String> properties = new HashMap<>();
+
+            // Read database connection details from environment variables
+            String dbUrl = System.getenv("DB_URL");
+            String dbUser = System.getenv("DB_USER");
+            String dbPassword = System.getenv("DB_PASSWORD");
+
+            // --- IMPORTANT ---
+            // Use sensible defaults if the environment variables are not set.
+            // This allows the app to still run on your local machine.
+            if (dbUrl == null) {
+                dbUrl = "jdbc:postgresql://localhost:5432/postgres"; // Your local URL
+            }
+            if (dbUser == null) {
+                dbUser = "meisam"; // or postgers
+            }
+            if (dbPassword == null) {
+                dbPassword = "newpassword"; // Your local password
+            }
+
+            // Set the properties for JPA to use
+            properties.put("jakarta.persistence.jdbc.url", dbUrl);
+            properties.put("jakarta.persistence.jdbc.user", dbUser);
+            properties.put("jakarta.persistence.jdbc.password", dbPassword);
+
+            emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME, properties);
             System.out.println("JpaUtil: EntityManagerFactory created successfully: " + (emf != null && emf.isOpen()));
         } catch (Throwable ex) {
             System.err.println("JpaUtil: FATAL - Initial EntityManagerFactory creation failed.");
