@@ -103,7 +103,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>your.package.name.MainClass</mainClass> </manifest>
+                            <mainClass>Main</mainClass>
+                        </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
