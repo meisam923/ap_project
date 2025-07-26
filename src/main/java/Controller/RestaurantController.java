@@ -65,6 +65,7 @@ public class RestaurantController {
                 restaurant.logaBase64()
         );
         owner.setRestaurant(newRestaurant);
+        restaurantDao.save(newRestaurant);
         ownerDao.update(owner);
         return new RestaurantDto.RegisterReponseRestaurantDto(newRestaurant.getId(),restaurant.name(),restaurant.address(),restaurant.phone(),restaurant.logaBase64(),restaurant.tax_fee(),restaurant.additional_fee(),newRestaurant.getApprovalStatus().name().toUpperCase());
     }
@@ -249,7 +250,6 @@ public class RestaurantController {
     public void addRestaurantObserver(RestaurantObserver o) {
         restaurantRegisterService.registerObserver(o);
     }
-
     public List<RestaurantDto.OrderResponseDto> getRestaurantOrders(HashMap<String, String> queryFilters, int restaurantId) throws Exception {
         EntityManager em = JpaUtil.getEntityManager();
         try {
