@@ -2,6 +2,7 @@ package Controller;
 
 import dao.OrderDao;
 import dto.OrderDto;
+import enums.OrderDeliveryStatus;
 import enums.OrderStatus;
 import enums.Role;
 import model.Deliveryman;
@@ -48,6 +49,7 @@ public class DeliveryController {
                 if (order.getDeliveryman() != null) {
                     throw new ConflictException("Delivery already assigned to another courier.");
                 }
+                order.setDeliveryStatus(OrderDeliveryStatus.ACCEPTED);
                 order.setDeliveryman(deliveryman);
                 break;
 
@@ -59,6 +61,7 @@ public class DeliveryController {
                     throw new ConflictException("Order is not ready for pickup or has passed this stage.");
                 }
                 System.out.println("Courier has received the order from the restaurant.");
+                order.setDeliveryStatus(OrderDeliveryStatus.RECEIVED);
                 break;
 
             case "delivered":
@@ -68,6 +71,7 @@ public class DeliveryController {
                 if (order.getStatus() != OrderStatus.ON_THE_WAY) {
                     throw new ConflictException("Order cannot be marked as delivered from its current state.");
                 }
+                order.setDeliveryStatus(OrderDeliveryStatus.DELIVERED);
                 order.setStatus(OrderStatus.COMPLETED);
                 break;
 
