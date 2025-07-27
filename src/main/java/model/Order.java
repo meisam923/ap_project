@@ -34,8 +34,8 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Column(name="ordersitems")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -90,20 +90,17 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    // --- THIS IS THE FIX ---
-    // The constructor no longer sets any default status.
-    // The status will now ONLY be set explicitly by the controller, which is much safer.
     public Order() {
-        this.deliveryStatus = OrderDeliveryStatus.BASE;
-        this.restaurantStatus = OrderRestaurantStatus.BASE;
+        this.status = OrderStatus.SUBMITTED;
     }
-    // --- END OF FIX ---
 
     public Order(Customer customer, Restaurant restaurant, String deliveryAddress) {
         this();
         this.customer = customer;
         this.restaurant = restaurant;
         this.deliveryAddress = deliveryAddress;
+        this.deliveryStatus = OrderDeliveryStatus.BASE;
+        this.restaurantStatus = OrderRestaurantStatus.BASE;
     }
 
     public void addOrderItem(OrderItem item) {
@@ -145,7 +142,35 @@ public class Order {
         this.totalPrice = this.totalPrice.setScale(2, RoundingMode.HALF_UP);
     }
 
-    // --- THIS IS THE FIX ---
-    // The dangerous updateStatus() method has been completely removed.
-    // --- END OF FIX ---
+    public void updateStatus() {
+        switch (this.restaurantStatus) {
+            case BASE:
+                this.status = OrderStatus.SUBMITTED;
+                this.deliveryStatus = OrderDeliveryStatus.BASE;
+                break;
+
+            case ACCEPTED:
+                this.status = OrderStatus.WAITING_VENDOR;
+                this.deliveryStatus = OrderDeliveryStatus.BASE;
+                break;
+
+            case REJECTED:
+                this.status = OrderStatus.CANCELLED;
+                this.deliveryStatus = OrderDeliveryStatus.BASE;
+                break;
+
+            case SERVED:
+                switch (this.deliveryStatus) {
+                    case BASE:
+                        this.status = OrderStatus.FINDING_COURIER;
+                        break;
+
+                    case DELIVERED:
+                        this.status = OrderStatus.COMPLETED;
+                        break;
+                    default:
+                        this.status = OrderStatus.ON_THE_WAY; // it may have some nuances//
+                }
+        }
+    }
 }
