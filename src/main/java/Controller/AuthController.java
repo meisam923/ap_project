@@ -47,6 +47,23 @@ public class AuthController {
     }
 
     public Optional<LoginResponsePayload> login(String identifier, String password, boolean isEmail) {
+        // 1. Special case for the hardcoded admin user.
+        if ("admin".equals(identifier) && "admin".equals(password)) {
+            System.out.println("Admin login successful.");
+            User adminUser = new Customer("Admin", "Admin Address", "admin", "admin@app.com", "admin", null, null, null);
+            adminUser.setRole(Role.ADMIN);
+
+            String accessToken = JwtUtil.generateToken(adminUser);
+
+            // FIX: Generate the refresh token directly without saving it to the database,
+            // because the admin user doesn't exist in the database.
+            long refreshTokenValidityMs = 7 * 24 * 60 * 60 * 1000L;
+            String refreshTokenStr = JwtUtil.generateRefreshToken(adminUser, refreshTokenValidityMs);
+
+            return Optional.of(new LoginResponsePayload(accessToken, refreshTokenStr, adminUser));
+        }
+
+        // 2. Normal user login logic (this part was already correct).
         Optional<User> userOpt;
         if (isEmail) {
             userOpt = userService.findByEmail(identifier);
@@ -59,10 +76,7 @@ public class AuthController {
         }
 
         User user = userOpt.get();
-        System.out.println("DEBUG: Stored Password   = [" + user.getPassword() + "]");
-        System.out.println("DEBUG: Provided Password = [" + password + "]");
         if (!user.getPassword().equals(password)) {
-            System.err.println("DEBUG: Passwords do NOT match!");
             return Optional.empty();
         }
 
@@ -231,9 +245,19 @@ public class AuthController {
                 throw new AuthenticationException("Invalid or expired token payload.");
             }
 
+            // 1. Check if the token belongs to the special admin user.
+            if (payload.getRole() == Role.ADMIN && "admin@app.com".equals(payload.getEmail())) {
+                // If it is the admin, create the temporary "ghost" user and return it,
+                // completely bypassing the database check.
+                User adminUser = new Customer("Admin", "Admin Address", "admin", "admin@app.com", "admin", null, null, null);
+                adminUser.setRole(Role.ADMIN);
+                return adminUser;
+            }
+
+            // 2. For all other users, perform the normal database lookup.
             return userService.findByPublicId(payload.getPublicId())
                     .orElseThrow(() -> new AuthenticationException("User not found for token, or token has been invalidated."));
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new AuthenticationException("Invalid token provided.");
         }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dto.*;
+import enums.Role;
 import exception.ForbiddenException;
 import exception.InvalidInputException;
 import exception.NotFoundException;
@@ -41,8 +42,8 @@ public class AdminHandler implements HttpHandler {
 
         routes.add(new RestaurantHandler.Route("GET", Pattern.compile("^/admin/users$"), (exchange, matcher) -> handleGetAllUsers(exchange)));
         routes.add(new RestaurantHandler.Route("GET", Pattern.compile("^/admin/restaurants$"), (exchange, matcher) -> handleGetAllRestaurants(exchange)));
-        routes.add(new RestaurantHandler.Route("PATCH", Pattern.compile("^/admin/users/(?<id>\\d+)/status$"), (exchange, matcher) -> {
-            String userId = matcher.group("id");
+        routes.add(new RestaurantHandler.Route("PATCH", Pattern.compile("^/admin/users/([^/]+)/status$"), (exchange, matcher) -> {
+            String userId = matcher.group(1);
             handleUserStatus(exchange, userId);
         }));
         routes.add(new RestaurantHandler.Route("PATCH", Pattern.compile("^/admin/restaurants/(?<id>\\d+)/status$"), (exchange, matcher) -> {
@@ -71,50 +72,41 @@ public class AdminHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String requestPath = exchange.getRequestURI().getPath();
-        String requestMethod = exchange.getRequestMethod();
+        try {
+            // --- THIS IS THE FIX for the "Unauthorized" error ---
+            // 1. Get the token from the header.
+            String token = getJwtToken(exchange);
+            if (token == null) return; // Error was already sent
 
-        RestaurantHandler.Route matchedRoute = null;
-        Matcher pathMatcher = null;
+            // 2. Use the standard, reliable requireLogin method.
+            User user = authController.requireLogin(token);
 
-        for (RestaurantHandler.Route route : routes) {
-            Matcher currentMatcher = route.regexPattern().matcher(requestPath);
-            if (currentMatcher.matches()) {
-                if (route.httpMethod().equalsIgnoreCase(requestMethod)) {
-                    try {
-                        Admin ad = getUserFromToken(exchange);
-                    } catch (AuthController.AuthenticationException e) {
-                        e.printStackTrace();
-                        sendErrorResponse(exchange, 401, new UserDto.ErrorResponseDTO(e.getMessage()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error"));
+            // 3. Ensure the user has the ADMIN role before proceeding.
+            if (user.getRole() != Role.ADMIN) {
+                sendErrorResponse(exchange, 403, new UserDto.ErrorResponseDTO("Forbidden: Admin access required."));
+                return;
+            }
+            // --- END OF FIX ---
 
-                    }
-                    matchedRoute = route;
-                    pathMatcher = currentMatcher;
-                    break;
+            String requestPath = exchange.getRequestURI().getPath();
+            String requestMethod = exchange.getRequestMethod();
+
+            // Find the matching route and execute its action
+            for (RestaurantHandler.Route route : routes) {
+                Matcher matcher = route.regexPattern().matcher(requestPath);
+                if (matcher.matches() && route.httpMethod().equalsIgnoreCase(requestMethod)) {
+                    route.action().accept(exchange, matcher);
+                    return; // Stop processing once a match is found and handled
                 }
-                if (pathMatcher == null) {
-                    pathMatcher = currentMatcher;
-                }
             }
-        }
 
-        if (matchedRoute != null) {
-            try {
-                matchedRoute.action().accept(exchange, pathMatcher);
-            } catch (Exception e) {
-                System.err.println("Error executing route action for " + requestMethod + " " + requestPath + ": " + e.getMessage());
-                e.printStackTrace();
-                sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error"));
-            }
-        } else {
-            if (pathMatcher != null) {
-                sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Resource Not Found"));
-            } else {
-                sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Resource Not Found"));
-            }
+            // If no route was matched after checking all of them
+            sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Resource Not Found"));
+
+        } catch (Exception e) {
+            System.err.println("Unhandled error in AdminHandler: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error"));
         }
     }
 
@@ -335,5 +327,13 @@ public class AdminHandler implements HttpHandler {
             if (pair.length > 1 && !pair[1].isEmpty()) params.put(pair[0], pair[1]);
         }
         return params;
+    }
+    private String getJwtToken(HttpExchange exchange) throws IOException {
+        String tokenHeader = exchange.getRequestHeaders().getFirst("Authorization");
+        if (tokenHeader == null || !tokenHeader.toLowerCase().startsWith("bearer ")) {
+            sendErrorResponse(exchange, 401, new UserDto.ErrorResponseDTO("Unauthorized: Missing or malformed Bearer token."));
+            return null;
+        }
+        return tokenHeader.substring(7);
     }
 }

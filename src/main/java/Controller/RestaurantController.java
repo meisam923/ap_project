@@ -400,31 +400,44 @@ public class RestaurantController {
                 restaurant.getApprovalStatus().name().toUpperCase()
         );
     }
-    public void changeOrderStatus(Owner owner,String status,long orderId) throws Exception {
-        OrderDao orderDao = new OrderDao();
+    public void changeOrderStatus(Owner owner, String status, long orderId) throws Exception {
         Order order = orderDao.findById(orderId);
         if (order == null) {
-            throw new NotFoundException(404,"Resource Not Found");
+            throw new NotFoundException(404, "Resource Not Found");
         }
         if (owner.getRestaurant().getId() != order.getRestaurant().getId()) {
-            throw new NotFoundException(404,"Resource Not Found");
+            throw new NotFoundException(404, "Resource Not Found");
         }
         OrderRestaurantStatus orderStatusEnum = OrderRestaurantStatus.fromString(status);
         if (orderStatusEnum == order.getRestaurantStatus()) {
             throw new ConflictException(409);
         }
-        /// / new one pls check by test cases
+
         order.setRestaurantStatus(orderStatusEnum);
-        if (orderStatusEnum.equals(OrderRestaurantStatus.REJECTED)){
-            for (OrderItem item : order.getItems()) {
-                Item restaurantItem =itemDao.findById(item.getItemId());
-                if (restaurantItem != null) {
-                    restaurantItem.increaseCount(item.getQuantity());
-                    itemDao.save(restaurantItem);
+
+        // --- THIS IS THE FIX ---
+        // The logic from the old updateStatus() method is now here, where it's clear and explicit.
+        switch (orderStatusEnum) {
+            case ACCEPTED:
+                order.setStatus(OrderStatus.WAITING_VENDOR);
+                break;
+            case REJECTED:
+                order.setStatus(OrderStatus.CANCELLED);
+                // Return the items to stock if the order is rejected
+                for (OrderItem item : order.getItems()) {
+                    Item restaurantItem = itemDao.findById(item.getItemId());
+                    if (restaurantItem != null) {
+                        restaurantItem.increaseCount(item.getQuantity());
+                        itemDao.save(restaurantItem);
+                    }
                 }
-            }
+                break;
+            case SERVED:
+                order.setStatus(OrderStatus.FINDING_COURIER);
+                break;
         }
-        order.updateStatus();
+        // --- END OF FIX ---
+
         orderDao.update(order);
     }
 }

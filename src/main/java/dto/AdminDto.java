@@ -71,4 +71,9 @@ public class AdminDto {
             @JsonProperty("start_date") String startDate,
             @JsonProperty("end_date") String endDate
     ) {}
+    public static record UpdateUserStatusResponseDTO(
+            @JsonProperty("message") String message,
+            @JsonProperty("user_id") String userId,
+            @JsonProperty("new_status") String newStatus
+    ) {}
 }

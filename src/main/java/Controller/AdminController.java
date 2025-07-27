@@ -26,6 +26,17 @@ public class AdminController {
     CouponDao couponDao = new CouponDao();
     RestaurantDao restaurantDao = new RestaurantDao();
 
+    private User findUserByPublicId(String publicId) throws Exception {
+        User user = ownerDao.findByPublicId(publicId);
+        if (user != null) return user;
+
+        user = customerDao.findByPublicId(publicId);
+        if (user != null) return user;
+
+        user = deliverymanDao.findByPublicId(publicId);
+        return user;
+    }
+
     public List<AdminDto.UserSchemaDTO> getAllUsers() throws Exception {
         List<User> users = new ArrayList<>();
         users.addAll(customerDao.getAll());
@@ -55,33 +66,31 @@ public class AdminController {
     }
 
     public void updateUserApprovalStatus(String userToUpdatePublicId, String newStatus) throws Exception {
-        int id;
-        try {
-            id = Integer.parseInt(userToUpdatePublicId);
-        } catch (NumberFormatException e) {
-            throw new InvalidInputException(400, "id");
-        }
-        User user =userDao.findById((long) id);
+        // 1. Find the user by checking all specific DAOs.
+        User user = findUserByPublicId(userToUpdatePublicId);
         if (user == null) {
-            throw new InvalidInputException(404, "user not found");
+            throw new NotFoundException(404, "user not found");
         }
-        switch (newStatus.toLowerCase()) {
-            case "approved":
-                if (user.isVerified()) {
-                    throw new ForbiddenException(403);
-                } else {
-                    user.setVerified(true);
-                }
-                break;
-            case "rejected":
-                if (user.isVerified()) {
-                    user.setVerified(false);
-                } else {
-                    throw new ForbiddenException(403);
-                }
 
+        boolean isApproved = "approved".equalsIgnoreCase(newStatus);
+
+        // 2. Check for conflicts (e.g., approving an already approved user).
+        if (user.isVerified() == isApproved) {
+            throw new ForbiddenException(403);
         }
-        userDao.update(user);
+
+        // 3. Set the new verification status on the user object itself.
+        user.setVerified(isApproved);
+
+        // 4. Use the correct specific DAO to save the updated user.
+        if (user instanceof Owner owner) {
+            ownerDao.update(owner);
+        } else if (user instanceof Deliveryman courier) {
+            deliverymanDao.update(courier);
+        } else {
+            // If the user is a type that doesn't need verification, throw an error.
+            throw new InvalidInputException(400, "User role cannot be approved/rejected.");
+        }
     }
     public void updateRestaurantStatus(String restauratnID, String newStatus) throws Exception {
         int id;

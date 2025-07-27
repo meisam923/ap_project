@@ -51,17 +51,25 @@ public class PaymentController {
         TransactionMethod method = TransactionMethod.valueOf(paymentDto.method().toUpperCase());
         Transaction transaction;
 
+        // --- THIS IS THE FINAL, CORRECTED LOGIC ---
         if (method == TransactionMethod.WALLET) {
+            // 1. Check if the user has enough money BEFORE trying to pay.
             if (customer.getWalletBalance().compareTo(order.getTotalPrice()) < 0) {
+                // Create a FAILED transaction record
                 transaction = new Transaction(customer, order, order.getTotalPrice(), TransactionType.PAYMENT, method, TransactionStatus.FAILED);
                 transactionDao.save(transaction);
+                // Throw an exception to send an error back to the app.
                 throw new ConflictException("Insufficient wallet balance.");
             }
+            // 2. If they have enough money, subtract it from their wallet.
             customer.subtractFromWallet(order.getTotalPrice());
             customerDao.update(customer);
+
         } else if (method == TransactionMethod.ONLINE) {
+            // 3. For online payments, we do nothing to the wallet. We just simulate success.
             System.out.println("Simulating successful online payment for order " + order.getId());
         }
+        // --- END OF FIX ---
 
         order.setStatus(OrderStatus.WAITING_VENDOR);
         orderDao.update(order);
