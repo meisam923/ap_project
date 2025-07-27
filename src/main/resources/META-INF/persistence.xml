@@ -31,7 +31,7 @@
             <!-- Hibernate Properties -->
             <!-- Use 'update' for development. It updates the schema without dropping data. -->
             <!-- Use 'create' or 'create-drop' to wipe and recreate the DB on startup. -->
-            <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
             <!-- Optional: Show and format SQL in the console for debugging -->
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
