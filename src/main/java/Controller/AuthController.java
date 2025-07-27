@@ -3,7 +3,6 @@ package Controller;
 import Services.UserService;
 import dao.AdminDao;
 import dao.RefreshTokenDao;
-import dto.UserDto;
 import enums.Role;
 import model.*;
 import observers.ForgetPasswordObserver;
@@ -47,42 +46,47 @@ public class AuthController {
         refreshTokenDao.deleteByUser(user);
     }
 
-    public UserDto.LoginResponseDTO login(UserDto.LoginRequestDTO loginDto) throws Exception {
-        long REFRESH_TOKEN_VALIDITY_MS = 1000L * 60 * 60 * 24 * 7;
+    public Optional<LoginResponsePayload> login(String identifier, String password, boolean isEmail) {
+        // 1. Special case for the hardcoded admin user.
+        if ("admin".equals(identifier) && "admin".equals(password)) {
+            System.out.println("Admin login successful.");
+            User adminUser = new Customer("Admin", "Admin Address", "admin", "admin@app.com", "admin", null, null, null);
+            adminUser.setRole(Role.ADMIN);
 
-        if ("admin".equals(loginDto.phone())) {
-            if ("admin".equals(loginDto.password())) {
-                System.out.println("Admin login successful.");
-                User adminUser = new Customer("Admin", "Admin Address", "admin", "admin@app.com", "admin", null, null, null);
-                adminUser.setRole(Role.ADMIN);
+            String accessToken = JwtUtil.generateToken(adminUser);
 
-                String accessToken = JwtUtil.generateToken(adminUser);
-                String refreshToken = JwtUtil.generateRefreshToken(adminUser, REFRESH_TOKEN_VALIDITY_MS);
+            // FIX: Generate the refresh token directly without saving it to the database,
+            // because the admin user doesn't exist in the database.
+            long refreshTokenValidityMs = 7 * 24 * 60 * 60 * 1000L;
+            String refreshTokenStr = JwtUtil.generateRefreshToken(adminUser, refreshTokenValidityMs);
 
-                UserDto.UserSchemaDTO userDto = mapUserToSchemaDTO(adminUser);
-
-                return new UserDto.LoginResponseDTO("Admin login successful", accessToken, refreshToken, userDto);
-            } else {
-                throw new AuthenticationException("Invalid credentials.");
-            }
+            return Optional.of(new LoginResponsePayload(accessToken, refreshTokenStr, adminUser));
         }
 
-        Optional<User> userOpt = userService.findByPhone(loginDto.phone());
+        // 2. Normal user login logic (this part was already correct).
+        Optional<User> userOpt;
+        if (isEmail) {
+            userOpt = userService.findByEmail(identifier);
+        } else {
+            userOpt = userService.findByPhone(identifier);
+        }
+
         if (userOpt.isEmpty()) {
-            throw new AuthenticationException("Invalid credentials.");
+            return Optional.empty();
         }
 
         User user = userOpt.get();
-
-        if (!loginDto.password().equals(user.getPassword())) {
-            throw new AuthenticationException("Invalid credentials.");
+        if (!user.getPassword().equals(password)) {
+            return Optional.empty();
         }
 
         String accessToken = JwtUtil.generateToken(user);
-        String refreshToken = JwtUtil.generateRefreshToken(user, REFRESH_TOKEN_VALIDITY_MS);
-        UserDto.UserSchemaDTO userDto = mapUserToSchemaDTO(user);
+        String refreshTokenStr = generateAndStoreRefreshToken(user);
 
-        return new UserDto.LoginResponseDTO("Login successful", accessToken, refreshToken, userDto);
+        for (LoginObserver obs : loginObservers) {
+            obs.onUserLoggedIn(user);
+        }
+        return Optional.of(new LoginResponsePayload(accessToken, refreshTokenStr, user));
     }
 
     private String generateAndStoreRefreshToken(@NotNull User user) {
@@ -241,9 +245,19 @@ public class AuthController {
                 throw new AuthenticationException("Invalid or expired token payload.");
             }
 
+            // 1. Check if the token belongs to the special admin user.
+            if (payload.getRole() == Role.ADMIN && "admin@app.com".equals(payload.getEmail())) {
+                // If it is the admin, create the temporary "ghost" user and return it,
+                // completely bypassing the database check.
+                User adminUser = new Customer("Admin", "Admin Address", "admin", "admin@app.com", "admin", null, null, null);
+                adminUser.setRole(Role.ADMIN);
+                return adminUser;
+            }
+
+            // 2. For all other users, perform the normal database lookup.
             return userService.findByPublicId(payload.getPublicId())
                     .orElseThrow(() -> new AuthenticationException("User not found for token, or token has been invalidated."));
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new AuthenticationException("Invalid token provided.");
         }
@@ -277,24 +291,5 @@ public class AuthController {
         public UserNotFoundException(String message) {
             super(message);
         }
-    }
-    private UserDto.UserSchemaDTO mapUserToSchemaDTO(User user) {
-        if (user == null) return null;
-
-        UserDto.RegisterRequestDTO.BankInfoDTO bankInfo = null;
-        if (user.getBankName() != null || user.getAccountNumber() != null) {
-            bankInfo = new UserDto.RegisterRequestDTO.BankInfoDTO(user.getBankName(), user.getAccountNumber());
-        }
-
-        return new UserDto.UserSchemaDTO(
-                user.getPublicId(),
-                user.getFullName(),
-                user.getPhoneNumber(),
-                user.getEmail(),
-                user.getRole().name().toLowerCase(),
-                user.getAddress(),
-                user.getProfileImageBase64(),
-                bankInfo
-        );
     }
 }

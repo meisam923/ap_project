@@ -41,8 +41,6 @@ public class DeliveryController {
 
         String action = newStatusAction.toLowerCase().trim();
 
-        // --- THIS IS THE FIX ---
-        // The logic from the old updateStatus() method is now here, where it's clear and explicit.
         switch (action) {
             case "accepted":
                 if (order.getStatus() != OrderStatus.FINDING_COURIER) {
@@ -51,9 +49,8 @@ public class DeliveryController {
                 if (order.getDeliveryman() != null) {
                     throw new ConflictException("Delivery already assigned to another courier.");
                 }
-                order.setDeliveryman(deliveryman);
                 order.setDeliveryStatus(OrderDeliveryStatus.ACCEPTED);
-                order.setStatus(OrderStatus.ON_THE_WAY); // Update main status
+                order.setDeliveryman(deliveryman);
                 break;
 
             case "received":
@@ -63,8 +60,8 @@ public class DeliveryController {
                 if (order.getStatus() != OrderStatus.ON_THE_WAY) {
                     throw new ConflictException("Order is not ready for pickup or has passed this stage.");
                 }
-                order.setDeliveryStatus(OrderDeliveryStatus.RECEIVED);
                 System.out.println("Courier has received the order from the restaurant.");
+                order.setDeliveryStatus(OrderDeliveryStatus.RECEIVED);
                 break;
 
             case "delivered":
@@ -75,15 +72,13 @@ public class DeliveryController {
                     throw new ConflictException("Order cannot be marked as delivered from its current state.");
                 }
                 order.setDeliveryStatus(OrderDeliveryStatus.DELIVERED);
-                order.setStatus(OrderStatus.COMPLETED); // Update main status
+                order.setStatus(OrderStatus.COMPLETED);
                 break;
 
             default:
                 throw new InvalidInputException("Invalid status action: '" + newStatusAction + "'. Must be one of: accepted, received, delivered.");
         }
-        // The call to order.updateStatus() has been removed.
-        // --- END OF FIX ---
-
+        order.updateStatus();
         orderDao.update(order);
         return mapOrderToSchemaDTO(order);
     }
@@ -107,8 +102,7 @@ public class DeliveryController {
                 itemIds, order.getSubtotalPrice(), order.getTaxFee(), order.getDeliveryFee(),
                 order.getAdditionalFee(), order.getTotalPrice(),
                 (order.getDeliveryman() != null) ? order.getDeliveryman().getId() : null,
-                order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt(),
-                (order.getReview() != null) ? order.getReview().getId() : null
+                order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt()
         );
     }
 
