@@ -12,7 +12,7 @@ public class AdminDto {
             @JsonProperty("status") String status
     ){}
     public record UserSchemaDTO(
-            @JsonProperty("id") long id,
+            @JsonProperty("id") String id,
             @JsonProperty("full_name") String fullName,
             @JsonProperty("phone") String phone,
             @JsonProperty("email") String email,

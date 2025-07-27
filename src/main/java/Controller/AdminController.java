@@ -50,7 +50,7 @@ public class AdminController {
                 bankInfoForSchema = new UserDto.RegisterRequestDTO.BankInfoDTO(user.getBankName(), user.getAccountNumber());
             }
             userSchemaDTO = new AdminDto.UserSchemaDTO(
-                    user.getId(),
+                    user.getPublicId(),
                     user.getFullName(),
                     user.getPhoneNumber(),
                     user.getEmail(),
