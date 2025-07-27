@@ -83,7 +83,13 @@ public class ItemDao implements IDao<Item, Integer> {
     public List<Item> findItems(String searchTerm, Integer maxPrice, List<String> keywords) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
-            StringBuilder jpqlBuilder = new StringBuilder("SELECT DISTINCT i FROM Item i LEFT JOIN i.hashtags h WHERE 1=1");
+            // --- THIS IS THE FIX ---
+            // We add "LEFT JOIN FETCH i.menus m" and "LEFT JOIN FETCH m.restaurant" to the query.
+            // This tells Hibernate to get all the necessary data in one single, efficient query
+            // while the database session is still open, preventing the LazyInitializationException.
+            StringBuilder jpqlBuilder = new StringBuilder("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.menus m LEFT JOIN FETCH m.restaurant LEFT JOIN i.hashtags h WHERE 1=1");
+            // --- END OF FIX ---
+
             Map<String, Object> params = new HashMap<>();
 
             if (searchTerm != null && !searchTerm.isBlank()) {
@@ -105,12 +111,14 @@ public class ItemDao implements IDao<Item, Integer> {
 
             return query.getResultList();
         } catch (Exception e) {
+            System.err.println("Error searching items: " + e.getMessage());
             e.printStackTrace();
             return Collections.emptyList();
         } finally {
             if (em != null) em.close();
         }
     }
+
 
     private void executeInTransaction(java.util.function.Consumer<EntityManager> action) {
         EntityManager em = JpaUtil.getEntityManager();

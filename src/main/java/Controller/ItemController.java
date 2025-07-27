@@ -3,6 +3,7 @@ package Controller;
 import dao.ItemDao;
 import dto.ItemDto;
 import model.Item;
+import model.Restaurant;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -46,14 +47,24 @@ public class ItemController {
             return null;
         }
 
+        Restaurant restaurant = item.getRestaurant();
+        if (restaurant == null) {
+
+            throw new IllegalStateException("Data integrity error: Item with ID " + item.getId() + " has no associated restaurant.");
+        }
+        int vendorId = restaurant.getId();
+
         BigDecimal priceValue = new BigDecimal(item.getPrice().getPrice());
 
         return new ItemDto.FoodItemSchemaDTO(
                 item.getId(),
                 item.getTitle(),
+                item.getImageBase64(),
                 item.getDescription(),
-                priceValue,
-                item.getImageBase64()
+                vendorId,
+                (int) item.getPrice().getPrice(),
+                item.getCount(),
+                item.getHashtags()
         );
     }
 }

@@ -14,11 +14,14 @@ public class ItemDto {
     ) {}
 
     public record FoodItemSchemaDTO(
-            @JsonProperty("id") Integer id,
+            @JsonProperty("id") int id,
             @JsonProperty("name") String name,
+            @JsonProperty("imageBase64") String imageUrl,
             @JsonProperty("description") String description,
-            @JsonProperty("price") BigDecimal price,
-            @JsonProperty("image_url") String imageUrl
+            @JsonProperty("vendor_id") int vendorId,
+            @JsonProperty("price") int price,
+            @JsonProperty("supply") int supply,
+            @JsonProperty("keywords") List<String> keywords
     ) {}
 
 }
