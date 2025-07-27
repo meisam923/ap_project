@@ -2,7 +2,6 @@ package Controller;
 
 import dao.OrderDao;
 import dto.OrderDto;
-import enums.OrderDeliveryStatus;
 import enums.OrderStatus;
 import enums.Role;
 import model.Deliveryman;
@@ -41,8 +40,6 @@ public class DeliveryController {
 
         String action = newStatusAction.toLowerCase().trim();
 
-        // --- THIS IS THE FIX ---
-        // The logic from the old updateStatus() method is now here, where it's clear and explicit.
         switch (action) {
             case "accepted":
                 if (order.getStatus() != OrderStatus.FINDING_COURIER) {
@@ -52,8 +49,6 @@ public class DeliveryController {
                     throw new ConflictException("Delivery already assigned to another courier.");
                 }
                 order.setDeliveryman(deliveryman);
-                order.setDeliveryStatus(OrderDeliveryStatus.ACCEPTED);
-                order.setStatus(OrderStatus.ON_THE_WAY); // Update main status
                 break;
 
             case "received":
@@ -63,7 +58,6 @@ public class DeliveryController {
                 if (order.getStatus() != OrderStatus.ON_THE_WAY) {
                     throw new ConflictException("Order is not ready for pickup or has passed this stage.");
                 }
-                order.setDeliveryStatus(OrderDeliveryStatus.RECEIVED);
                 System.out.println("Courier has received the order from the restaurant.");
                 break;
 
@@ -74,16 +68,13 @@ public class DeliveryController {
                 if (order.getStatus() != OrderStatus.ON_THE_WAY) {
                     throw new ConflictException("Order cannot be marked as delivered from its current state.");
                 }
-                order.setDeliveryStatus(OrderDeliveryStatus.DELIVERED);
-                order.setStatus(OrderStatus.COMPLETED); // Update main status
+                order.setStatus(OrderStatus.COMPLETED);
                 break;
 
             default:
                 throw new InvalidInputException("Invalid status action: '" + newStatusAction + "'. Must be one of: accepted, received, delivered.");
         }
-        // The call to order.updateStatus() has been removed.
-        // --- END OF FIX ---
-
+        order.updateStatus();
         orderDao.update(order);
         return mapOrderToSchemaDTO(order);
     }
