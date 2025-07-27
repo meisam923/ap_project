@@ -328,6 +328,7 @@ public class AuthHandler implements HttpHandler {
                     // If it's the admin, build the custom response that Postman expects.
                     Map<String, Object> adminLoginResponse = new HashMap<>();
                     adminLoginResponse.put("access_token", responseDto.accessToken());
+                    adminLoginResponse.put("refresh_token", responseDto.refreshToken());
                     adminLoginResponse.put("user", responseDto.user());
                     sendResponse(exchange, 200, adminLoginResponse);
                 } else {
