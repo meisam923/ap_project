@@ -113,6 +113,10 @@ public class RestaurantHandler implements HttpHandler {
             String restaurantId = matcher.group("id");
             listRestaurantOrdersAction(exchange, restaurantId);
         }));
+        routes.add(new Route("PATCH", Pattern.compile("^/restaurants/(?<id>\\d+)/reviews$"), (exchange, matcher) -> {
+            String reviewtId = matcher.group("id");
+            submitReplyOnReviewAction(exchange, reviewtId);
+        }));
 
         // PATCH /restaurants/orders/{order_id} (Change status of an order for a restaurant)
         routes.add(new Route("PATCH", Pattern.compile("^/restaurants/orders/(?<orderid>\\d+)$"), (exchange, matcher) -> {
@@ -611,6 +615,32 @@ public class RestaurantHandler implements HttpHandler {
             System.err.println(e.getMessage());
             sendErrorResponse(exchange, 500, "Internal Server Error");
         }
+    }
+    private void submitReplyOnReviewAction(HttpExchange exchange, String reviewId) {
+        try{
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER) || !user.isVerified()) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            String reply = objectMapper.readTree(readRequestBody(exchange)).get("reply").asText();
+            if (reply == null) {
+                throw new InvalidInputException(400,"reply , it must not empty");
+            }
+            restaurantController.submitReply(reviewId,reply,(Owner) user);
+            sendResponse(exchange,200, gson.toJson(Map.of("message", "Your reply has been submitted")),"application/json");
+
+        }catch (NotFoundException e){
+            sendErrorResponse(exchange, 404, "Resource not found");
+        }catch(ForbiddenException e){
+            sendErrorResponse(exchange, 403, "Forbidden request");
+        }catch (NumberFormatException | InvalidInputException e){
+            sendErrorResponse(exchange, 400, "Invalid input");
+        }
+        catch (Exception e) {
+            sendErrorResponse(exchange, 500, "Internal Server Error");
+        }
+
     }
 
     private void patchRestaurantOrderAction(HttpExchange exchange, String orderId) {

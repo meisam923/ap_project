@@ -2,11 +2,7 @@ package Controller;
 
 import Services.RestaurantRegisterService;
 import Services.UserService;
-import dao.ItemDao;
-import dao.MenuDao;
-import dao.OrderDao;
-import dao.OwnerDao;
-import dao.RestaurantDao;
+import dao.*;
 
 import dto.RestaurantDto;
 import enums.OrderRestaurantStatus;
@@ -31,6 +27,7 @@ public class RestaurantController {
     private static ItemDao itemDao=new ItemDao();
     private static OwnerDao ownerDao = new OwnerDao();
     private static OrderDao orderDao = new OrderDao();
+    private static ReviewDao reviewDao = new ReviewDao();
 
 
     public RestaurantController() {
@@ -303,6 +300,7 @@ public class RestaurantController {
                             review.getId(),
                             review.getRating(),
                             review.getComment(),
+                            review.getReply(),
                             review.getImagesBase64(),
                             review.getCreatedAt().toString()
                     );
@@ -338,54 +336,22 @@ public class RestaurantController {
             if (em != null) em.close();
         }
     }
-
-    /*public List<RestaurantDto.OrderResponseDto> getRestaurantOrders(int restaurantId, HashMap<String,String> map) throws Exception {
-        // This now calls the new, simplified DAO method
-        List<Order> orders = orderDao.findHistoryForRestaurant(restaurantId, map);
-
-        if (orders == null || orders.isEmpty()) {
-            return new ArrayList<>();
+    public void submitReply(String reviewID , String reply,Owner owner) throws Exception {
+        Long ID = Long.parseLong(reviewID);
+        Review review = reviewDao.findById(ID);
+        if (review.getOrder().getRestaurant().getId() != owner.getRestaurant().getId() ) {
+            throw new ForbiddenException(403);
         }
-
-        List<RestaurantDto.OrderResponseDto> orderResponseDtos = new ArrayList<>();
-        for (Order order : orders) {
-            Review review = order.getReview();
-            RestaurantDto.ReviewDto reviewDto = null;
-            if (review != null) {
-                reviewDto = new RestaurantDto.ReviewDto(
-                        review.getId(),
-                        review.getRating(),
-                        review.getComment(),
-                        review.getImagesBase64(),
-                        review.getCreatedAt().toString()
-                );
-            }
-
-            List<RestaurantDto.OrderItemDto> items = new ArrayList<>();
-            order.getItems().forEach(item -> items.add(new RestaurantDto.OrderItemDto(item.getItemId(), item.getItemName(), item.getPricePerItem(), item.getTotalPriceForItem(), item.getQuantity())));
-
-            orderResponseDtos.add(new RestaurantDto.OrderResponseDto(
-                    order.getId().intValue(),
-                    order.getDeliveryAddress(),
-                    order.getCustomer() != null ? order.getCustomer().getId().intValue() : null,
-                    order.getRestaurant() != null ? order.getRestaurant().getId() : null,
-                    order.getCoupon() != null ? order.getCoupon().getId() : null,
-                    items,
-                    order.getSubtotalPrice(),
-                    order.getTaxFee(),
-                    order.getAdditionalFee(),
-                    order.getDeliveryFee(),
-                    order.getTotalPrice(),
-                    order.getDeliveryman() != null ? order.getDeliveryman().getId().intValue() : null,
-                    order.getStatus() != null ? order.getStatus().name() : null,
-                    order.getCreatedAt() != null ? order.getCreatedAt().toString() : null,
-                    order.getUpdatedAt() != null ? order.getUpdatedAt().toString() : null,
-                    order.getRestaurantStatus().name(),
-                    reviewDto
-            ));
+        if (review == null) {
+            throw new NotFoundException(404, "Review not found");
         }
-        return orderResponseDtos;
-    }*/
+        if (review.getReply() != null || !review.getReply().isEmpty() || review.getComment() == null) {
+            throw new ForbiddenException(403);
+        }
+        review.setReply(reply);
+        reviewDao.update(review);
+    }
+
     public RestaurantDto.RegisterReponseRestaurantDto mapToRegisterResponseDto(Restaurant restaurant) {
         if (restaurant == null) {
             return null;
