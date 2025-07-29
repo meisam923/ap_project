@@ -36,6 +36,9 @@ public class Review {
     @Column(name="comment",columnDefinition = "TEXT")
     private String comment;
 
+    @Column(name="reply",columnDefinition = "TEXT")
+    private String reply;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "review_images", joinColumns = @JoinColumn(name = "review_id"))
     @Column(name = "image_base64", columnDefinition = "TEXT")

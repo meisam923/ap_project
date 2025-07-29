@@ -1,7 +1,6 @@
 package Controller;
 
 import dao.OrderDao;
-import dto.AdminDto;
 import dto.OrderDto;
 import enums.OrderDeliveryStatus;
 import enums.OrderStatus;
@@ -99,11 +98,12 @@ public class DeliveryController {
         List<Integer> itemIds = order.getItems().stream().map(OrderItem::getItemId).collect(Collectors.toList());
         return new OrderDto.OrderSchemaDTO(
                 order.getId(), order.getDeliveryAddress(), order.getCustomer().getId(),
-                order.getRestaurant().getId(),(order.getCoupon() != null) ? order.getCoupon().getId() : null,
+                order.getRestaurant().getId(), (order.getCoupon() != null) ? order.getCoupon().getId() : null,
                 itemIds, order.getSubtotalPrice(), order.getTaxFee(), order.getDeliveryFee(),
                 order.getAdditionalFee(), order.getTotalPrice(),
                 (order.getDeliveryman() != null) ? order.getDeliveryman().getId() : null,
-                order.getStatus().name(),order.getCreatedAt(), order.getUpdatedAt(),order.getReview().getId());
+                order.getStatus().name(), order.getCreatedAt(), order.getUpdatedAt(),order.getReview().getId()
+        );
     }
 
     public static class NotFoundException extends RuntimeException { public NotFoundException(String message) { super(message); } }

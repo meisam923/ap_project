@@ -82,6 +82,7 @@ public class RestaurantDto {
             @JsonProperty("review_id") long id,
             @JsonProperty("rating") Integer rating,//1-5
             @JsonProperty("comment") String comment,
+            @JsonProperty("reply")  String reply,
             @JsonProperty("base64Images") List<String> base64Images,
             @JsonProperty("createdAt") String createdAt
             ){}
