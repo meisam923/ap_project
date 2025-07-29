@@ -339,16 +339,14 @@ public class RestaurantController {
     public void submitReply(String reviewID , String reply,Owner owner) throws Exception {
         Long ID = Long.parseLong(reviewID);
         Review review = reviewDao.findById(ID);
-        if (review.getOrder().getRestaurant().getId() != owner.getRestaurant().getId() ) {
-            throw new ForbiddenException(403);
-        }
         if (review == null) {
             throw new NotFoundException(404, "Review not found");
         }
-        if (review.getReply() != null || !review.getReply().isEmpty() || review.getComment() == null) {
+        if (review.getReply() != null || review.getComment() == null) {
             throw new ForbiddenException(403);
         }
         review.setReply(reply);
+        System.out.println("Review ID: " + review.getReply());
         reviewDao.update(review);
     }
 

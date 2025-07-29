@@ -638,6 +638,7 @@ public class RestaurantHandler implements HttpHandler {
             sendErrorResponse(exchange, 400, "Invalid input");
         }
         catch (Exception e) {
+            e.printStackTrace();
             sendErrorResponse(exchange, 500, "Internal Server Error");
         }
 
