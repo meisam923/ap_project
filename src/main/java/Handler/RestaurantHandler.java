@@ -113,6 +113,10 @@ public class RestaurantHandler implements HttpHandler {
             String restaurantId = matcher.group("id");
             listRestaurantOrdersAction(exchange, restaurantId);
         }));
+        routes.add(new Route("GET", Pattern.compile("^/restaurants/(?<id>\\d+)/statistics$"), (exchange, matcher) -> {
+            String restaurantId = matcher.group("id");
+            getRestaurantStatisticsAction(exchange, restaurantId);
+        }));
         routes.add(new Route("PATCH", Pattern.compile("^/restaurants/(?<id>\\d+)/reviews$"), (exchange, matcher) -> {
             String reviewtId = matcher.group("id");
             submitReplyOnReviewAction(exchange, reviewtId);
@@ -636,6 +640,26 @@ public class RestaurantHandler implements HttpHandler {
             sendErrorResponse(exchange, 403, "Forbidden request");
         }catch (NumberFormatException | InvalidInputException e){
             sendErrorResponse(exchange, 400, "Invalid input");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Internal Server Error");
+        }
+
+    }
+
+    private void getRestaurantStatisticsAction(HttpExchange exchange, String restaurantId) {
+        try {
+            User user = getUserFromToken(exchange);
+            if (!user.getRole().equals(Role.SELLER) || !user.isVerified()) {
+                sendErrorResponse(exchange, 403, "Forbidden request");
+                return;
+            }
+            List<RestaurantDto.IncomeStatistics> response = restaurantController.getStatistics(restaurantId, (Owner) user);
+            sendResponse(exchange, 200, gson.toJson(response), "application/json");
+        }catch (ForbiddenException e){
+            e.printStackTrace();
+            sendErrorResponse(exchange, 403, "Forbidden request");
         }
         catch (Exception e) {
             e.printStackTrace();

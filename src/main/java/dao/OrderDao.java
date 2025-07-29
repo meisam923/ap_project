@@ -202,64 +202,37 @@ public class OrderDao implements IDao<Order, Long> {
             if (em != null) em.close();
         }
     }
-    public List<Order> findHistoryForRestaurant(int restaurantId, HashMap<String, String> queryFilters) throws Exception {
+    public List<Object[]> getMonthlyIncomeForRestaurant(int restaurantId) throws Exception {
         EntityManager em = null;
         try {
             em = JpaUtil.getEntityManager();
 
-            // Eagerly fetch all related data to prevent any crashes
-            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o " +
-                    "LEFT JOIN FETCH o.customer " +
-                    "LEFT JOIN FETCH o.restaurant " +
-                    "LEFT JOIN FETCH o.deliveryman " +
-                    "LEFT JOIN FETCH o.items " +
-                    "LEFT JOIN FETCH o.review r " +
-                    "LEFT JOIN FETCH r.imagesBase64 ");
+            String jpql = """
+            SELECT 
+                EXTRACT(YEAR FROM o.createdAt) AS year,
+                EXTRACT(MONTH FROM o.createdAt) AS month,
+                SUM(o.totalPrice) AS totalIncome
+            FROM Order o
+            WHERE o.restaurant.id = :restaurantId
+              AND o.status = :completedStatus
+            GROUP BY EXTRACT(YEAR FROM o.createdAt), EXTRACT(MONTH FROM o.createdAt)
+            ORDER BY EXTRACT(YEAR FROM o.createdAt) DESC, EXTRACT(MONTH FROM o.createdAt) DESC
+            """;
 
-            List<String> conditions = new ArrayList<>();
-            Map<String, Object> parameters = new HashMap<>();
 
-            // Always filter by the restaurant ID
-            conditions.add("o.restaurant.id = :restaurantId");
-            parameters.put("restaurantId", restaurantId);
-
-            // --- FILTER LOGIC ---
-
-            // 1. Filter by restaurantStatus if provided
-            if (queryFilters != null && queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
-                conditions.add("o.restaurantStatus = :status");
-                parameters.put("status", OrderRestaurantStatus.fromString(queryFilters.get("status")));
-            }
-
-            // 2. Unified search filter for the remaining fields
-            if (queryFilters != null && queryFilters.containsKey("search") && !queryFilters.get("search").isEmpty()) {
-                String searchFilter = "%" + queryFilters.get("search").toLowerCase() + "%";
-                conditions.add("(" +
-                        "LOWER(o.customer.fullName) LIKE :searchFilter " +
-                        "OR LOWER(o.deliveryman.fullName) LIKE :searchFilter " +
-                        "OR EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE :searchFilter)" +
-                        ")");
-                parameters.put("searchFilter", searchFilter);
-            }
-
-            if (!conditions.isEmpty()) {
-                jpql.append(" WHERE ").append(String.join(" AND ", conditions));
-            }
-
-            jpql.append(" ORDER BY o.createdAt DESC");
-
-            TypedQuery<Order> query = em.createQuery(jpql.toString(), Order.class);
-            parameters.forEach(query::setParameter);
-
-            return query.getResultList();
-        }catch (Exception e) {
+            TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+            query.setParameter("restaurantId", restaurantId);
+            query.setParameter("completedStatus", OrderStatus.COMPLETED);
+            return query.getResultList();  // each Object[]: [year, month, totalIncome]
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
-        }
-        finally {
+        } finally {
             if (em != null) {
                 em.close();
             }
         }
     }
+
+
 }
