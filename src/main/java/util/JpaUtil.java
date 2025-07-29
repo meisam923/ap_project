@@ -27,7 +27,7 @@ public class JpaUtil {
                 dbUrl = "jdbc:postgresql://localhost:5432/postgres"; // Your local URL
             }
             if (dbUser == null) {
-                dbUser = "meisam"; // or postgers
+                dbUser = "postgres"; // or postgers
             }
             if (dbPassword == null) {
                 dbPassword = "newpassword"; // Your local password
