@@ -2,6 +2,7 @@ package Controller;
 
 import Services.RestaurantRegisterService;
 import Services.UserService;
+import com.sun.net.httpserver.HttpExchange;
 import dao.*;
 
 import dto.RestaurantDto;
@@ -16,6 +17,7 @@ import model.*;
 import observers.RestaurantObserver;
 import util.JpaUtil;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -243,6 +245,18 @@ public class RestaurantController {
         menu.removeItem(item.getId());
         item.removeFromMenu(menu.getId());
         menuDao.update(menu);
+    }
+    public List<RestaurantDto.IncomeStatistics> getStatistics(String restaurantId , Owner owner) throws Exception {
+        int id = Integer.parseInt(restaurantId);
+        if (owner.getRestaurant().getId() != id){
+            throw new ForbiddenException(403);
+        }
+        List<Object []> rows = orderDao.getMonthlyIncomeForRestaurant(id);
+        List<RestaurantDto.IncomeStatistics> incomeStatistics = new ArrayList<>();
+        for (Object [] row : rows) {
+            incomeStatistics.add(new RestaurantDto.IncomeStatistics((Integer) row[0],(Integer) row[1],(BigDecimal) row[2]));
+        }
+        return incomeStatistics;
     }
     public void addRestaurantObserver(RestaurantObserver o) {
         restaurantRegisterService.registerObserver(o);
