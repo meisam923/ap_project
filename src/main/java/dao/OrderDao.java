@@ -233,6 +233,60 @@ public class OrderDao implements IDao<Order, Long> {
             }
         }
     }
+    public List<Order> findHistoryForRestaurant(int restaurantId, HashMap<String, String> queryFilters) throws Exception {
+        EntityManager em = null;
+        try {
+            em = JpaUtil.getEntityManager();
 
+            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o " +
+                    "LEFT JOIN FETCH o.customer " +
+                    "LEFT JOIN FETCH o.restaurant " +
+                    "LEFT JOIN FETCH o.deliveryman " +
+                    "LEFT JOIN FETCH o.items " +
+                    "LEFT JOIN FETCH o.review r " +
+                    "LEFT JOIN FETCH r.imagesBase64 ");
+
+            List<String> conditions = new ArrayList<>();
+            Map<String, Object> parameters = new HashMap<>();
+
+            conditions.add("o.restaurant.id = :restaurantId");
+            parameters.put("restaurantId", restaurantId);
+
+
+            if (queryFilters != null && queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
+                conditions.add("o.restaurantStatus = :status");
+                parameters.put("status", OrderRestaurantStatus.fromString(queryFilters.get("status")));
+            }
+
+            if (queryFilters != null && queryFilters.containsKey("search") && !queryFilters.get("search").isEmpty()) {
+                String searchFilter = "%" + queryFilters.get("search").toLowerCase() + "%";
+                conditions.add("(" +
+                        "LOWER(o.customer.fullName) LIKE :searchFilter " +
+                        "OR LOWER(o.deliveryman.fullName) LIKE :searchFilter " +
+                        "OR EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE :searchFilter)" +
+                        ")");
+                parameters.put("searchFilter", searchFilter);
+            }
+
+            if (!conditions.isEmpty()) {
+                jpql.append(" WHERE ").append(String.join(" AND ", conditions));
+            }
+
+            jpql.append(" ORDER BY o.createdAt DESC");
+
+            TypedQuery<Order> query = em.createQuery(jpql.toString(), Order.class);
+            parameters.forEach(query::setParameter);
+
+            return query.getResultList();
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
 
 }
