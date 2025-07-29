@@ -12,7 +12,9 @@ import dto.CouponDto;
 import dto.UserDto;
 import model.User;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -35,14 +37,20 @@ public class CouponHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
+        String query = exchange.getRequestURI().getQuery();
 
         try {
             String token = getJwtToken(exchange);
             if (token == null) return;
             authController.requireLogin(token);
 
-            if (method.equals("GET") && path.equals("/coupons")) {
-                handleGetCouponDetails(exchange);
+            if ("GET".equals(method) && path.equals("/coupons")) {
+                Map<String, String> queryParams = parseQueryParams(query);
+                if (queryParams.containsKey("coupon_code")) {
+                    handleValidateCoupon(exchange, queryParams.get("coupon_code"));
+                } else {
+                    sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Bad Request: 'coupon_code' parameter is required."));
+                }
             } else {
                 sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Resource not found"));
             }
@@ -57,13 +65,9 @@ public class CouponHandler implements HttpHandler {
         }
     }
 
-    private void handleGetCouponDetails(HttpExchange exchange) throws IOException {
-        String query = exchange.getRequestURI().getQuery();
-        Map<String, String> queryParams = parseQueryParams(query);
-        String couponCode = queryParams.get("coupon_code");
-
+    private void handleValidateCoupon(HttpExchange exchange, String couponCode) throws IOException {
         if (couponCode == null || couponCode.isBlank()) {
-            sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Invalid Input: 'coupon_code' query parameter is required."));
+            sendErrorResponse(exchange, 400, new UserDto.ErrorResponseDTO("Invalid Input: 'coupon_code' query parameter cannot be empty."));
             return;
         }
 
@@ -81,7 +85,6 @@ public class CouponHandler implements HttpHandler {
             sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error while checking coupon."));
         }
     }
-
 
     private Map<String, String> parseQueryParams(String query) {
         Map<String, String> params = new HashMap<>();
@@ -110,19 +113,12 @@ public class CouponHandler implements HttpHandler {
 
     private void sendResponse(HttpExchange exchange, int statusCode, Object responseObject) throws IOException {
         if (exchange.getResponseCode() != -1) return;
-        String jsonResponse;
-        try {
-            jsonResponse = objectMapper.writeValueAsString(responseObject);
-        } catch (IOException e) {
-            System.err.println("CRITICAL: Failed to serialize response object: " + e.getMessage());
-            e.printStackTrace();
-            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO("Internal Server Error: Failed to generate response."));
-            return;
-        }
+        String jsonResponse = objectMapper.writeValueAsString(responseObject);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, jsonResponse.getBytes(StandardCharsets.UTF_8).length);
+        byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, responseBytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(jsonResponse.getBytes(StandardCharsets.UTF_8));
+            os.write(responseBytes);
         }
     }
 

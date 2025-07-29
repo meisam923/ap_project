@@ -81,15 +81,21 @@ public class UserService {
         if (newPassword == null || newPassword.isBlank()) {
             throw new IllegalArgumentException("New password cannot be blank.");
         }
+
         user.setPassword(newPassword);
 
-        switch (user) {
-            case Customer customer -> customerDao.update(customer);
-            case Owner owner -> ownerDao.update(owner);
-            case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
-            default -> throw new IllegalArgumentException("Unknown user type for password reset: " + user.getClass().getName());
+        try {
+            switch (user) {
+                case Customer customer -> customerDao.update(customer);
+                case Owner owner -> ownerDao.update(owner);
+                case Deliveryman deliveryman -> deliverymanDao.update(deliveryman);
+                default -> throw new IllegalArgumentException("Unknown user type for password reset: " + user.getClass().getName());
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return true;
     }
 
     public boolean removeUser(@NotNull User user) {

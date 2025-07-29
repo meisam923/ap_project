@@ -69,6 +69,12 @@ public class AuthHandler implements HttpHandler {
             } else if (method.equals("POST") && path.equals("/auth/refresh-token")) {
                 handleTokenRefresh(exchange);
                 return;
+            }else if (method.equals("POST") && path.equals("/auth/initiate-reset")) {
+                handleInitiateReset(exchange);
+                return;
+            } else if (method.equals("POST") && path.equals("/auth/complete-reset")) {
+                handleCompleteReset(exchange);
+                return;
             } else {
                 sendErrorResponse(exchange, 404, new UserDto.ErrorResponseDTO("Resource not found"));
             }
@@ -232,7 +238,6 @@ public class AuthHandler implements HttpHandler {
             String body = readRequestBody(exchange);
             UserDto.RegisterRequestDTO requestDto = objectMapper.readValue(body, UserDto.RegisterRequestDTO.class);
 
-            // This part calls your existing, correct register method
             Optional<User> registeredUserOpt = authController.register(
                     Role.valueOf(requestDto.role().toUpperCase()),
                     requestDto.fullName(),
@@ -248,15 +253,11 @@ public class AuthHandler implements HttpHandler {
             if (registeredUserOpt.isPresent()) {
                 User registeredUser = registeredUserOpt.get();
 
-                // --- THIS IS THE FIX ---
-                // We now correctly call the login method with the 3 required arguments
-                // to automatically log the new user in and get their tokens.
                 Optional<AuthController.LoginResponsePayload> loginPayloadOpt = authController.login(
-                        registeredUser.getPhoneNumber(), // identifier
-                        requestDto.password(),           // password
-                        false                            // isEmail
+                        registeredUser.getPhoneNumber(),
+                        requestDto.password(),
+                        false
                 );
-                // --- END OF FIX ---
 
                 if (loginPayloadOpt.isPresent()) {
                     AuthController.LoginResponsePayload loginPayload = loginPayloadOpt.get();
@@ -295,18 +296,16 @@ public class AuthHandler implements HttpHandler {
                 return;
             }
 
-            // Call the login method from the controller
             Optional<AuthController.LoginResponsePayload> loginPayloadOpt = authController.login(
                     requestDto.phone(),
                     requestDto.password(),
-                    false // isEmail is always false for phone login
+                    false
             );
 
             if (loginPayloadOpt.isPresent()) {
                 AuthController.LoginResponsePayload payload = loginPayloadOpt.get();
                 User loggedInUser = payload.user();
 
-                // Build the standard UserSchemaDTO
                 UserDto.RegisterRequestDTO.BankInfoDTO bankInfoForSchema = null;
                 if (loggedInUser.getBankName() != null && loggedInUser.getAccountNumber() != null) {
                     bankInfoForSchema = new UserDto.RegisterRequestDTO.BankInfoDTO(loggedInUser.getBankName(), loggedInUser.getAccountNumber());
@@ -317,22 +316,18 @@ public class AuthHandler implements HttpHandler {
                         loggedInUser.getProfileImageBase64(), bankInfoForSchema
                 );
 
-                // Build the standard LoginResponseDTO
                 UserDto.LoginResponseDTO responseDto = new UserDto.LoginResponseDTO(
                         "User logged in successfully", payload.accessToken(),
                         payload.refreshToken(), userSchema
                 );
 
-                // Check if the logged-in user is an admin for the Postman test
                 if (loggedInUser.getRole() == Role.ADMIN) {
-                    // If it's the admin, build the custom response that Postman expects.
                     Map<String, Object> adminLoginResponse = new HashMap<>();
                     adminLoginResponse.put("access_token", responseDto.accessToken());
                     adminLoginResponse.put("refresh_token", responseDto.refreshToken());
                     adminLoginResponse.put("user", responseDto.user());
                     sendResponse(exchange, 200, adminLoginResponse);
                 } else {
-                    // For all other users, send the standard response.
                     sendResponse(exchange, 200, responseDto);
                 }
             } else {
@@ -455,5 +450,26 @@ public class AuthHandler implements HttpHandler {
             return null;
         }
         return tokenHeader.substring(7);
+    }
+    private void handleInitiateReset(HttpExchange exchange) throws IOException {
+        try {
+            String body = readRequestBody(exchange);
+            UserDto.ForgotPasswordRequestDTO requestDto = objectMapper.readValue(body, UserDto.ForgotPasswordRequestDTO.class);
+            authController.initiatePasswordReset(requestDto.email());
+            sendResponse(exchange, 200, new UserDto.MessageResponseDTO("Reset code sent."));
+        } catch (Exception e) {
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO(e.getMessage()));
+        }
+    }
+
+    private void handleCompleteReset(HttpExchange exchange) throws IOException {
+        try {
+            String body = readRequestBody(exchange);
+            UserDto.ResetPasswordRequestDTO requestDto = objectMapper.readValue(body, UserDto.ResetPasswordRequestDTO.class);
+            authController.completePasswordReset(requestDto.email(), requestDto.code(), requestDto.newPassword());
+            sendResponse(exchange, 200, new UserDto.MessageResponseDTO("Password reset successfully."));
+        } catch (Exception e) {
+            sendErrorResponse(exchange, 500, new UserDto.ErrorResponseDTO(e.getMessage()));
+        }
     }
 }
