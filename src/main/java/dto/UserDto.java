@@ -64,5 +64,13 @@ public class UserDto {
     public record RefreshTokenRequestDTO(
             @JsonProperty("refresh_token") String refreshToken
     ){}
+    public record ForgotPasswordRequestDTO(
+            @JsonProperty("email") String email
+    ) {}
 
+    public record ResetPasswordRequestDTO(
+            @JsonProperty("email") String email,
+            @JsonProperty("code") String code,
+            @JsonProperty("new_password") String newPassword
+    ) {}
 }

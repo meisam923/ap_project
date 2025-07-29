@@ -1,7 +1,9 @@
 // Replace the entire content of your Main.java with this version.
 
+import Controller.AuthController;
 import Handler.*;
 import com.sun.net.httpserver.HttpServer;
+import observers.EmailNotifier;
 import util.JpaUtil;
 
 import java.io.IOException;
@@ -12,6 +14,11 @@ import java.util.concurrent.Executors;
 public class Main {
 
     public static void main(String[] args) throws IOException {
+
+        AuthController authController = AuthController.getInstance();
+        EmailNotifier emailNotifier = new EmailNotifier();
+        authController.registerSignUpObserver(emailNotifier);
+        authController.registerForgetPasswordObserver(emailNotifier);
         // Initialize JPA
         try {
             Class.forName("util.JpaUtil");
@@ -55,6 +62,8 @@ public class Main {
         server.createContext("/payment", new PaymentHandler());
         server.createContext("/transactions", new PaymentHandler());
         server.createContext("/admin", new AdminHandler());
+        server.createContext("/notifications", new NotificationHandler());
+        server.createContext("/coupons", new CouponHandler());
 
 
         // Add a shutdown hook to close the database connection pool gracefully
@@ -67,6 +76,7 @@ public class Main {
 
         server.start();
         System.out.println("=====================================================");
+        System.out.println("coupon");
         System.out.println("Server is running on port " + port);
         System.out.println("=====================================================");
     }

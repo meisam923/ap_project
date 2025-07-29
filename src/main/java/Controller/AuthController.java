@@ -2,6 +2,7 @@ package Controller;
 
 import Services.UserService;
 import dao.AdminDao;
+import dao.PasswordResetTokenDao;
 import dao.RefreshTokenDao;
 import enums.Role;
 import model.*;
@@ -22,6 +23,7 @@ public class AuthController {
 
     private final UserService userService = UserService.getInstance();
     private final RefreshTokenDao refreshTokenDao = new RefreshTokenDao();
+    private final PasswordResetTokenDao passwordResetTokenDao = new PasswordResetTokenDao();
 
     private final List<LoginObserver> loginObservers = new ArrayList<>();
     private final List<SignUpObserver> signUpObservers = new ArrayList<>();
@@ -160,6 +162,11 @@ public class AuthController {
         for (SignUpObserver obs : signUpObservers) {
             obs.onUserRegistered(savedUser);
         }
+        if (savedUserOpt.isPresent()) {
+            for (SignUpObserver obs : signUpObservers) {
+                obs.onUserRegistered(savedUserOpt.get());
+            }
+        }
         return Optional.of(savedUser);
     }
 
@@ -167,9 +174,10 @@ public class AuthController {
         User user = userService.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Email not found: " + email));
 
-        String code = String.valueOf(new Random().nextInt(100000, 999999));
-        LocalDateTime expiryTime = LocalDateTime.now().plusNanos(RESET_CODE_VALIDITY_MS * 1_000_000L);
-        passwordResetTokens.put(email, new PasswordResetTokenInfo(code, expiryTime, user.getPublicId()));
+        String code = String.valueOf(new java.util.Random().nextInt(100000, 999999));
+
+        PasswordResetToken resetToken = new PasswordResetToken(code, user);
+        passwordResetTokenDao.save(resetToken);
 
         for (ForgetPasswordObserver obs : forgetPasswordObservers) {
             obs.onForgetPassword(user, Integer.parseInt(code));
@@ -178,26 +186,22 @@ public class AuthController {
     }
 
     public boolean completePasswordReset(String email, String code, String newPassword) throws AuthenticationException, UserNotFoundException {
-        PasswordResetTokenInfo tokenInfo = passwordResetTokens.get(email);
 
-        if (tokenInfo == null || !tokenInfo.code().equals(code)) {
+        PasswordResetToken token = passwordResetTokenDao.findByCode(code);
+
+        if (token == null || !token.getUser().getEmail().equals(email)) {
             throw new AuthenticationException("Invalid or non-existent password reset code.");
         }
-        if (LocalDateTime.now().isAfter(tokenInfo.expiryTime())) {
-            passwordResetTokens.remove(email);
+        if (LocalDateTime.now().isAfter(token.getExpiryDate())) {
+            passwordResetTokenDao.delete(token);
             throw new AuthenticationException("Password reset code has expired.");
         }
 
-        User user = userService.findByPublicId(tokenInfo.userPublicId())
-                .orElseThrow(() -> {
-                    passwordResetTokens.remove(email);
-                    return new UserNotFoundException("User not found for password reset after code verification.");
-                });
-
+        User user = token.getUser();
         boolean success = userService.resetPassword(user, newPassword);
 
         if (success) {
-            passwordResetTokens.remove(email);
+            passwordResetTokenDao.delete(token);
         }
         return success;
     }
@@ -292,4 +296,5 @@ public class AuthController {
             super(message);
         }
     }
+
 }
