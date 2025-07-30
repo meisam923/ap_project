@@ -21,7 +21,7 @@ public class VendorDto {
             @JsonProperty("address") String address,
             @JsonProperty("category") String category,
             @JsonProperty("rating") Double rating,
-            @JsonProperty("logoBase64") String logoUrl,
+            @JsonProperty("logo_url") String logoUrl,
             @JsonProperty("is_open") Boolean isOpen,
             @JsonProperty("tax_fee") int tax_fee,
             @JsonProperty("additional_fee") int additional_fee,
