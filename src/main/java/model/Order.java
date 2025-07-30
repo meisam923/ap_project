@@ -79,7 +79,7 @@ public class Order {
     @JoinColumn(name = "deliveryman_id")
     private Deliveryman deliveryman;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Review review;
 
     @CreationTimestamp
@@ -169,7 +169,7 @@ public class Order {
                         this.status = OrderStatus.COMPLETED;
                         break;
                     default:
-                        this.status = OrderStatus.ON_THE_WAY; // it may have some nuances//
+                        this.status = OrderStatus.ON_THE_WAY;
                 }
         }
     }

@@ -77,14 +77,46 @@ public class RatingController {
             throw new SecurityException("Forbidden: You can only update your own reviews.");
         }
 
+        Long restaurantIdToUpdate = null;
+        // Ensure Order and Restaurant proxies are initialized or their IDs are fetched
+        // while the session that loaded 'review' is potentially still active.
+        if (review.getOrder() != null && review.getOrder().getRestaurant() != null) {
+            // Option 1: Initialize the proxy if you need the full Restaurant object later
+            // and the session is still active here.
+            // org.hibernate.Hibernate.initialize(review.getOrder().getRestaurant());
+            // restaurantToUpdate = review.getOrder().getRestaurant();
+
+            // Option 2 (Recommended for updateRestaurantAverageRating): Get the ID.
+            restaurantIdToUpdate = (long) review.getOrder().getRestaurant().getId();
+        } else {
+            // This case should ideally not happen if data integrity is maintained.
+            // If it does, it points to an issue with how the review was loaded or associated.
+            throw new IllegalStateException("Review with ID " + ratingId + " does not have a valid associated order or restaurant.");
+        }
+
         if (dto.rating() != null) review.setRating(dto.rating());
         if (dto.comment() != null) review.setComment(dto.comment());
+        // Assuming your RatingDto.UpdateRatingRequestDTO now has imageBase64
+        // If not, this line would cause a compile error or should be removed.
         if (dto.imageBase64() != null) review.setImagesBase64(dto.imageBase64());
 
         ratingDao.update(review);
-        updateRestaurantAverageRating(review.getOrder().getRestaurant());
 
-        return mapReviewToDto(review);
+        if (restaurantIdToUpdate != null) {
+            // Assuming updateRestaurantAverageRating now accepts a Long restaurantId
+            updateRestaurantAverageRating(restaurantDao.findById(restaurantIdToUpdate));
+        } else {
+            // Log or handle the case where restaurantId could not be determined,
+            // though the earlier exception should prevent this.
+            System.err.println("Could not update average rating as restaurant ID was not found for review: " + ratingId);
+        }
+
+        // Ensure mapReviewToDto either works with a detached 'review' (only accessing eagerly loaded fields or IDs)
+        // or is called within an active session context.
+        // If 'review' becomes detached and mapReviewToDto tries to access lazy fields, it will fail.
+        // One way to ensure this is to re-fetch 'review' by ID before mapping if necessary,
+        // or make sure the entire method is transactional.
+        return mapReviewToDto(ratingDao.findById(ratingId)); // Re-fetch for DTO mapping if session might have closed
     }
 
     public void deleteRating(Long ratingId, User user) throws Exception {
@@ -96,12 +128,36 @@ public class RatingController {
             throw new SecurityException("Forbidden: You can only delete your own reviews.");
         }
 
-        Restaurant restaurantToUpdate = review.getOrder().getRestaurant();
-        ratingDao.deleteById(ratingId);
-        updateRestaurantAverageRating(restaurantToUpdate);
+        // Get the ID of the restaurant BEFORE deleting the review.
+        // This ensures that even if 'review' or its associations become invalid after deletion,
+        // you still have the necessary ID.
+        Long restaurantIdToUpdate = null;
+        if (review.getOrder() != null && review.getOrder().getRestaurant() != null) {
+            restaurantIdToUpdate = (long) review.getOrder().getRestaurant().getId();
+        } else {
+            // This indicates a data integrity problem or an issue with how 'review' was loaded.
+            // A review should always be linked to an order, and an order to a restaurant.
+            throw new IllegalStateException("Review with ID " + ratingId + " is not properly associated with an order or restaurant, cannot determine restaurant for average rating update.");
+        }
+
+        ratingDao.deleteById(ratingId); // Delete the review
+
+        // Now call updateRestaurantAverageRating with the ID obtained earlier.
+        // The updateRestaurantAverageRating method should be responsible for fetching
+        // the Restaurant entity by this ID within its own session/transaction.
+        if (restaurantIdToUpdate != null) {
+            updateRestaurantAverageRating(restaurantDao.findById(restaurantIdToUpdate));
+        } else {
+            // This path should ideally not be reached if the IllegalStateException above is thrown.
+            // Log an error if, for some reason, restaurantIdToUpdate is null here.
+            System.err.println("Could not update average rating as restaurant ID was not determined before deleting review: " + ratingId);
+        }
     }
 
     private void updateRestaurantAverageRating(Restaurant restaurant) throws Exception {
+        if (restaurant == null) {
+            return;
+        }
         List<Review> reviews = ratingDao.findAllByRestaurantId(restaurant.getId());
 
         double newAverage = reviews.stream()

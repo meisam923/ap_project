@@ -80,18 +80,23 @@ public class OrderDao implements IDao<Order, Long> {
     public List<Order> findHistoryForUser(Long customerId, String searchKeyword, String vendorName) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT DISTINCT o FROM Order o " +
+                            "LEFT JOIN FETCH o.items oi " +
+                            "LEFT JOIN FETCH o.restaurant r " +
+                            "WHERE o.customer.id = :customerId"
+            );
 
-            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items WHERE o.customer.id = :customerId");
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("customerId", customerId);
 
             if (vendorName != null && !vendorName.isBlank()) {
-                jpql.append(" AND LOWER(o.restaurant.title) LIKE LOWER(:vendorName)");
+                jpql.append(" AND LOWER(r.title) LIKE LOWER(:vendorName)");
                 parameters.put("vendorName", "%" + vendorName + "%");
             }
 
             if (searchKeyword != null && !searchKeyword.isBlank()) {
-                jpql.append(" AND EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE LOWER(:searchKeyword))");
+                jpql.append(" AND LOWER(oi.itemName) LIKE LOWER(:searchKeyword)");
                 parameters.put("searchKeyword", "%" + searchKeyword + "%");
             }
 
@@ -109,20 +114,21 @@ public class OrderDao implements IDao<Order, Long> {
         }
     }
 
+
     public List<Order> findHistoryForAdmin(String searchFilter) throws Exception {
         EntityManager em = null;
         try {
             em = JpaUtil.getEntityManager();
 
             StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o " +
-                    "LEFT JOIN FETCH o.customer " +
-                    "LEFT JOIN FETCH o.restaurant " +
-                    "LEFT JOIN FETCH o.items ");
+                    "LEFT JOIN FETCH o.customer c " +
+                    "LEFT JOIN FETCH o.restaurant r " +
+                    "LEFT JOIN FETCH o.items oi ");
 
             if (searchFilter != null && !searchFilter.isBlank()) {
-                jpql.append("WHERE LOWER(o.customer.fullName) LIKE LOWER(:searchFilter) ");
-                jpql.append("OR LOWER(o.restaurant.title) LIKE LOWER(:searchFilter) ");
-                jpql.append("OR EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE LOWER(:searchFilter))");
+                jpql.append("WHERE LOWER(c.fullName) LIKE LOWER(:searchFilter) ");
+                jpql.append("OR LOWER(r.title) LIKE LOWER(:searchFilter) ");
+                jpql.append("OR LOWER(oi.itemName) LIKE LOWER(:searchFilter) ");
             }
 
             jpql.append(" ORDER BY o.createdAt DESC");
@@ -140,6 +146,7 @@ public class OrderDao implements IDao<Order, Long> {
             }
         }
     }
+
 
     private void executeInTransaction(Consumer<EntityManager> action) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -161,7 +168,12 @@ public class OrderDao implements IDao<Order, Long> {
         EntityManager em = JpaUtil.getEntityManager();
         try {
             TypedQuery<Order> query = em.createQuery(
-                    "SELECT o FROM Order o WHERE o.status = :status AND o.deliveryman IS NULL", Order.class);
+                    "SELECT DISTINCT o FROM Order o " +
+                            "JOIN FETCH o.restaurant " +
+                            "JOIN FETCH o.items " +
+                            "WHERE o.status = :status AND o.deliveryman IS NULL",
+                    Order.class
+            );
             query.setParameter("status", OrderStatus.FINDING_COURIER);
             return query.getResultList();
         } catch (Exception e) {
@@ -238,20 +250,21 @@ public class OrderDao implements IDao<Order, Long> {
         try {
             em = JpaUtil.getEntityManager();
 
-            StringBuilder jpql = new StringBuilder("SELECT DISTINCT o FROM Order o " +
-                    "LEFT JOIN FETCH o.customer " +
-                    "LEFT JOIN FETCH o.restaurant " +
-                    "LEFT JOIN FETCH o.deliveryman " +
-                    "LEFT JOIN FETCH o.items " +
-                    "LEFT JOIN FETCH o.review r " +
-                    "LEFT JOIN FETCH r.imagesBase64 ");
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT DISTINCT o FROM Order o " +
+                            "LEFT JOIN FETCH o.customer c " +
+                            "LEFT JOIN FETCH o.restaurant r " +
+                            "LEFT JOIN FETCH o.deliveryman d " +
+                            "LEFT JOIN FETCH o.items oi " +
+                            "LEFT JOIN FETCH o.review rv " +
+                            "LEFT JOIN FETCH rv.imagesBase64 img "
+            );
 
             List<String> conditions = new ArrayList<>();
             Map<String, Object> parameters = new HashMap<>();
 
             conditions.add("o.restaurant.id = :restaurantId");
             parameters.put("restaurantId", restaurantId);
-
 
             if (queryFilters != null && queryFilters.containsKey("status") && !queryFilters.get("status").isEmpty()) {
                 conditions.add("o.restaurantStatus = :status");
@@ -261,9 +274,9 @@ public class OrderDao implements IDao<Order, Long> {
             if (queryFilters != null && queryFilters.containsKey("search") && !queryFilters.get("search").isEmpty()) {
                 String searchFilter = "%" + queryFilters.get("search").toLowerCase() + "%";
                 conditions.add("(" +
-                        "LOWER(o.customer.fullName) LIKE :searchFilter " +
-                        "OR LOWER(o.deliveryman.fullName) LIKE :searchFilter " +
-                        "OR EXISTS (SELECT 1 FROM OrderItem oi WHERE oi.order = o AND LOWER(oi.itemName) LIKE :searchFilter)" +
+                        "LOWER(c.fullName) LIKE :searchFilter " +
+                        "OR LOWER(d.fullName) LIKE :searchFilter " +
+                        "OR LOWER(oi.itemName) LIKE :searchFilter" +
                         ")");
                 parameters.put("searchFilter", searchFilter);
             }
@@ -278,15 +291,15 @@ public class OrderDao implements IDao<Order, Long> {
             parameters.forEach(query::setParameter);
 
             return query.getResultList();
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
-        }
-        finally {
+        } finally {
             if (em != null) {
                 em.close();
             }
         }
     }
+
 
 }
